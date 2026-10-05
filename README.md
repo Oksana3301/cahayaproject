@@ -95,12 +95,39 @@ npm run build && npm start
 
 ---
 
+## Section Percakapan (di UI `/kantor`)
+
+Tab **Percakapan** di HQ sidebar (`/kantor/office`) menampilkan riwayat Owner ↔ agent:
+- Pesan **masuk** (Owner → agent) dan **keluar** (agent → Owner) dari WhatsApp.
+- Filter per-tanggal & per-agent, kotak pencarian, auto-refresh 20 detik.
+- Sumber: log JSONL `<PERCAKAPAN_DIR>/owner-agent/<tanggal>.jsonl` (default [`percakapan/owner-agent/`](percakapan/owner-agent/)).
+- API: `GET /api/percakapan` dan `GET /api/percakapan/tanggal` (dashboard-ai, perlu sesi login).
+
+Format & detail: [`percakapan/README.md`](percakapan/README.md) · Operasional: [`docs/07-operasi.md`](docs/07-operasi.md).
+
+---
+
 ## Konvensi Commit
 
 - `docs:` dokumentasi
 - `feat:` fitur baru (mis. section percakapan)
 - `fix:` perbaikan bug
 - `chore:` rutin/struktur
+
+---
+
+## Push ke GitHub
+
+Repo ini sudah di-`git init` dengan remote:
+
+```bash
+git remote -v
+# origin  https://github.com/Oksana3301/cahayaproject.git (fetch/push)
+
+git push -u origin main     # gunakan PAT (scope repo) sebagai password bila diminta
+# atau via SSH:
+git remote set-url origin git@github.com:Oksana3301/cahayaproject.git && git push -u origin main
+```
 
 ---
 
