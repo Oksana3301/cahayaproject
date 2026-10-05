@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jadwal Terbit — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  Util.fetchJson("/api/jadwal").then(function (data) {
+    var items = data.jadwal || [];
+    var html = "";
+    if (!items.length) html = '<div class="kartu teks-redup">' + Util.esc(data.pesan || "Antrean kosong.") + "</div>";
+    else {
+      html = '<table class="tabel-data"><tr><th>Judul</th><th>Jadwal</th><th>Status</th><th>ID</th></tr>';
+      for (var i = 0; i < items.length; i++) {
+        html += "<tr><td>" + Util.esc(items[i].title) + "</td><td>" + Util.esc(items[i].scheduleAt) +
+          "</td><td>" + Util.statusBadge(items[i].status) +
+          '</td><td class="mono teks-biru">' + Util.esc(items[i].id) + "</td></tr>";
+      }
+      html += "</table>";
+    }
+    Util.muatLayout("/jadwal", html, "Jadwal Terbit");
+  }).catch(function (e) {
+    Util.muatLayout("/jadwal", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Jadwal Terbit");
+  });
+})();
+</script>
+</body>
+</html>

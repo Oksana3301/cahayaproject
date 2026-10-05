@@ -1,0 +1,58 @@
+{
+  "agenda": "Bagaimana kita memastikan setiap publikasi Cahaya Project hari ini memakai dan menjunjung tinggi EMPAT PRINSIP wajib? Tinjau draft/rencana konten hari ini, tandai risiko, dan putuskan langkah.",
+  "diundang": [
+    "nala",
+    "aruna",
+    "jati",
+    "bima",
+    "laras",
+    "raya",
+    "tara"
+  ],
+  "pendapat": [
+    {
+      "kode": "nala",
+      "nama": "Nala",
+      "jabatan": "Strategy & Systems Analyst",
+      "pendapat": ""
+    },
+    {
+      "kode": "aruna",
+      "nama": "Aruna",
+      "jabatan": "Research & Emerging Signals Scout",
+      "pendapat": "**Aruna — Research & Emerging Signals Scout**\n\n1. **Verifikasi sinyal sebelum publikasi.** Untuk topik yang sedang tren atau *emerging signals*, pastikan setiap fakta sudah diverifikasi minimum dua sumber independen sebelum diangkat ke publik. Tandakan di draft: mana fakta terverifikasi, mana opini, mana prediksi. Ini menyentuh Prinsip Digital Literacy — bedakan ketiganya secara eksplisit di naskah, jangan campur.\n\n2. **Nilai risiko platform.** Algoritma mendorong konten provokatif cepat viral. Untuk topik sensitif (kesehatan, keuangan, eksklusi sosial), saya sarankan tunjuk satu *reviewer* teknis domain sebelum publikasi. Lebih baik mundur satu jam daripada koreksi terbuka karena klaim medis/finansial tidak berdasar. Prinsip Responsible Communication: klaim medis dan finansial butuh dasar — bukan opini.\n\n3. **Satu aset, satu pesan.** Beberapa draft hari ini memuat tiga pesan sekaligus dalam satu visual. Rekomendasi: pecah jadi beberapa aset, masing-masing satu pesan jelas. Ini menyentuh Prinsip Strategic Storytelling — satu pesan per aset, ada *call to action* yang jelas, bukan sekadar penyebaran info.\n\n4. **Hak cipta dan kontributor.** Untuk konten yang melibatkan individu komunitas: konfirmasi tertulis *informed consent* sebelum publikasi, dan pastikan tidak ada data pribadi yang terbuka tanpa izin. Ini adalah titik buta yang sering terlewat saat mengejar deadline.\n\nRisiko utama hari ini: kejar tenggat publikasi bisa menggeser prioritas verifikasi. Usul: pasang *gate* — tidak ada publikasi tanpa penandaan status klaim (fakta/opini/prediksi) dan persetujuan kontributor. Ini bisa dijalankan tanpa memperlambat tim, asal checklistnya ada di alur kerja."
+    },
+    {
+      "kode": "jati",
+      "nama": "Jati",
+      "jabatan": "Fact-Check, Evidence & Compliance Lead",
+      "pendapat": "1. **Verifikasi di depan, bukan setelah publikasi.** Setiap draf yang mengandung klaim faktual harus masuk ke meja saya dengan sumbernya sebelum jam 14:00. Kalau tidak ada sumbernya, klaimnya dihapus atau diubah menjadi opini/prediksi yang jelas dinyatakan sebagai demikian (Prinsip Digital Literacy). Titik buta paling sering: angka \"katanya\" dan kutipan tanpa tautan.\n\n2. **Satu aset = satu pesan + satu ajakan.** Cek setiap publikasi: apa pesan intinya, siapa targetnya, apa ajakan (CTA)-nya. Kalau satu draf menyampaikan tiga pesan sekaligus, itu harus dipotong (Prinsip Strategic Storytelling). Sekalian cek format: caption 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject.\n\n3. **Larangan klaim tanpa dasar.** Saya akan menolak publikasi yang membuat klaim medis, finansial, atau hukum tanpa bukti; klaim sustainability mutlak (\"paling ramah lingkungan\", \"100% bebas dampak\") tanpa data; atau tuduhan terhadap pihak manapun tanpa verifikasi (Prinsip Responsible Communication). Ganti dengan bahasa yang akui ketidakpastian dan beri batas.\n\n4. **Persetujuan manusia & data pribadi.** Untuk konten yang menampilkan individu atau kisah mereka—terutama yang berisiko (trauma, kerentanan, anak-anak)—wajib ada persetujuan tertulis sebelum tayang. Foto lokasi pribadi, nama lengkap, dan detail identitas disamarkan kecuali memang disetujui (Prinsip Storytelling & Responsible Communication). Nada tetap smart-warm-relaxed: kritis terhadap masalahnya, konstruktif dan penuh harapan terhadap manusianya.\n\nLangkah: kirimkan draf/rencana konten hari ini ke saya sekarang, saya tandai risiko dan kembalikan dalam 1–2 jam, sebelum jadwal publikasi."
+    },
+    {
+      "kode": "bima",
+      "nama": "Bima",
+      "jabatan": "Red Team, Risk & Critical Thinking Lead",
+      "pendapat": "1. Verifikasi sebelum virality. Setiap draft hari ini harus lolos checklist: sumber tertulis, pemisahan fakta–opini–prediksi, dan keterangan eksplisit kalau ada ketidakpastian. Penyebab kegagalan paling umum bukanlah niat buruk, tapi kejar trending. Kalau satu draft belum punya sumber yang bisa dilacak, saya menahan, bukan menunda dengan alasan halus.\n\n2. Satu aset, satu pesan. Titik buta khas adalah menumpuk tiga call to action dalam satu kapsul visual. Pesannya pecah, publik bingung, dan dampaknya nol. Saat kita meninjau draft, tanyakan satu hal: kalau hanya boleh ambil satu pesan, mana yang dipilih? Sisanya harus pindah ke aset berikutnya atau dibuang.\n\n3. Klaim harus punya dasar, bukan sekadar terdengar baik. Tidak ada klaim medis, finansial, hukum, atau sustainability absolut tanpa bukti yang bisa ditunjuk. Kalau ada pernyataan “100% ramah lingkungan” atau “dijamin aman”, itu harus dihapus atau diperlemah menjadi klaim yang punya rujukan. Begitu juga soal cerita manusia: persetujuan publikasi harus tertulis, khususnya untuk narasi yang berisiko memperlebar kerentanan subjek.\n\n4. Siapkan protokol koreksi sebelum dibutuhkan. Kalau ada kesalahan terbit hari ini, koreksi terbuka adalah default, bukan pilihan terakhir. Lebih cepat kita mengakui, lebih rendah kerusakan kepercayaannya. Red Team akan bantu asah titik buta dan pertajam pesan, bukan hanya mencari salah. Kita kerjakan ini bersama supaya kualitasnya konsisten, dan setiap tim merasa aman mengangkat tangan kalau ada yang janggal. #CahayaProject"
+    },
+    {
+      "kode": "laras",
+      "nama": "Laras",
+      "jabatan": "Storytelling & Editorial Writer",
+      "pendapat": "Satu pesan inti per aset, sebelum publish. Kalau satu draft berisi lebih dari satu ajakan, potong jadi satu; sisanya jadi aset terpisah atau dibuang. Caption 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject, dan setiap naratif harus punya busur: manusia‑masalah‑jalan‑ajakan. Yang masih berupa pengumuman tanpa ajakan, saya tandai dan kita tunda, bukan diretas.\n\nVerifikasi sebelum viralitas, bukan setelah. Setiap angka, istilah medis, klaim dampak, atau kutipan harus punya sumber tertulis di kolom editorial. Bedakan fakta, opini, prediksi; kalau prediksi, tulis “diprediksi” dan akui ketidakpastiannya. Yang tidak punya sumber atau masih mentah, turunkan hari ini.\n\nSweep klaim berisiko sekarang juga: medis, finansial, hukum, dan klaim sustainability absolut. Ganti kalimat tegas tanpa bukti dengan versi terukur, atau hapus. Untuk publikasi yang menampilkan orang atau cerita berisiko, cek ulang persetujuan dan kebutuhan anonimitas; lindungi data pribadi sebelum tayang, bukan setelah dibagikan ulang.\n\nTitik buta yang paling sering lolos: visual. Screenshot, foto, dan grafik dipakai tanpa izin, tanpa konteks, atau tanpa alt‑text. Saya minta setiap tim memeriksa aset visual seperti mengecek teks. Dan siapkan jalur koreksi terbuka: kalau salah, kita ralat di kanal yang sama, jadi contoh, bukan diam‑diam dihapus."
+    },
+    {
+      "kode": "raya",
+      "nama": "Raya",
+      "jabatan": "Creative Director & Content Designer",
+      "pendapat": "1. **Sebelum hari ini publish, setiap aset harus lulus uji \"satu pesan, satu tujuan\".** Saya mau setiap draft punya jawaban satu kalimat: *pesan utamanya apa, dan apa yang kita mau audiens lakukan setelahnya?* Kalau jawabannya dua atau tiga pesan sekaligus, itu sinyal untuk dipecah jadi beberapa postingan, bukan dipaksa dalam satu caption. Ini langsung kait dengan Strategic Storytelling—dan biasanya yang gagal di tahap ini adalah caption yang dibuat duluan, tujuannya baru dipikirkan belakangan. Titik buta yang sering kita lupa: CTA yang terlalu multitugas membuat audiens tidak melakukan apa-apa.\n\n2. **Cek klaim, bukan cuma tampilan.** Setiap angka, sebutan \"pertama\", \"terbaik\", atau klaim dampak yang muncul di draft hari ini harus ada sumbernya. Kalau belum ada, pilihannya cuma dua: cantumkan sumbernya, atau ubah kalimatnya jadi opini/prediksi yang jelas-nadanya. Ini bukan soal perfeksionis—satu klaim yang melesat bisa merontokkan kredibilitas seluruh konten lain yang sudah kita bangun.\n\n3. **Nada dan format: ketat di aturan, longgar di ekspresi.** Caption tetap di 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject, visual harus menambah makna, bukan sekadar hiasan. Tapi di balik aturan itu, bahasanya harus tetap manusiawi—smart, warm, relaxed, tidak menggurui dan tidak terlalu kaku. Draft yang terdengar seperti pengumuman kantor akan saya minta ditulis ulang dari sudut pandang manusianya dulu.\n\n4. **Risiko dan konten sensitif: verifikasi di tahap pra-publikasi, bukan setelah viral.** Kalau ada rencana konten yang menampilkan orang, identitas, atau cerita pribadi hari ini, pastikan persetujuannya benar-benar terdokumentasi sebelum tayang. Begitu juga kalau ada potensi klaim medis, finansial, hukum, atau sustainability absolut—saya butuh buktinya sekarang, bukan janji akan dilengkapi nanti. Satu tambahan: sepakati juga cara koreksi terbuka kalau ada yang melesat setelah publish. Lebih baik siapkan daripada panik di tengah jalan.\n\nLangkah saya: kumpulkan daftar draft hari ini, tandai mana yang sudah lulus empat poin di atas, mana yang masih butuh revisi, dan mana yang harus ditunda dulu. Yang ditunda bukan kegagalan—itu bentuk kita menjunjung prinsip di atas kecepatan."
+    },
+    {
+      "kode": "tara",
+      "nama": "Tara",
+      "jabatan": "Community, Growth & Conversion Strategist",
+      "pendapat": "(tidak hadir: rem token harian aktif: total 253605 telah mencapai plafon 250000)"
+    }
+  ],
+  "notulen": "(notulen gagal: rem token harian aktif: total 253605 telah mencapai plafon 250000)",
+  "waktu": "2026-10-05T01:28:14.898Z"
+}

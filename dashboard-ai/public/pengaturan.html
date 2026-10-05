@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pengaturan — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  Util.fetchJson("/api/pengaturan").then(function (data) {
+    var html = '<div class="kartu" style="margin-bottom:14px"><div class="judul-kartu">BRIEF.md</div>' +
+      '<div class="caption-lengkap" style="max-height:420px;overflow:auto">' + Util.esc(data.brief || "belum ada") + "</div></div>";
+    html += '<div class="kartu" style="margin-bottom:14px"><div class="judul-kartu">Konfigurasi</div>' +
+      '<div class="teks-redup">Jam tayang default: <span class="teks-biru mono">' + Util.esc(data.jam_tayang) + "</span></div>" +
+      '<div class="teks-redup">Zona waktu: <span class="teks-biru mono">' + Util.esc(data.zona_waktu) + "</span></div>" +
+      '<div class="teks-redup">Plafon token harian: <span class="teks-biru mono">' + Util.esc(data.plafon) + "</span></div>" +
+      '<div class="teks-redup">Port: <span class="teks-biru mono">' + Util.esc(data.port) + "</span></div></div>";
+    html += '<div class="kartu"><div class="judul-kartu">Kredensial</div>';
+    var k = data.kunci || {};
+    html += '<div class="teks-redup">Atria: ' + (k.atria ? "terpasang" : "belum terpasang") + "</div>" +
+      '<div class="teks-redup">Apify: ' + (k.apify ? "terpasang" : "belum terpasang") + "</div>" +
+      '<div class="teks-redup">Doea: ' + (k.doea ? "terpasang" : "belum terpasang") + "</div>" +
+      '<div class="teks-redup">Database: ' + (k.db ? "terpasang" : "belum terpasang") + "</div></div>";
+    Util.muatLayout("/pengaturan", html, "Pengaturan");
+  }).catch(function (e) {
+    Util.muatLayout("/pengaturan", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Pengaturan");
+  });
+})();
+</script>
+</body>
+</html>

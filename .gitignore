@@ -1,0 +1,36 @@
+# === Rahasia & konfigurasi lokal (JANGAN commit) ===
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*credentials*
+*secret*
+
+# === Dependensi & build ===
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# === Log & cache ===
+*.log
+logs/
+.cache/
+.tmp/
+tmp/
+
+# === OS / editor ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# === Runtime transient (yang punya arsip di data/) ===
+# media banner besar dikecualikan; arsip teks tetap disertakan
+dashboard-ai/.hermes3d/media/
+*.bak-*

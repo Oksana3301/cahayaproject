@@ -1,0 +1,40 @@
+{
+  "jenis": "pagi",
+  "label": "Rapat Pagi — Daily Standup",
+  "agenda": "Daily standup pagi: apa yang dikerjakan semalam? Apa rencana kerja & prioritas hari ini? Tetapkan 3 prioritas utama dan pemiliknya.",
+  "diundang": [
+    "nala",
+    "laras",
+    "tara",
+    "jati"
+  ],
+  "pendapat": [
+    {
+      "kode": "nala",
+      "nama": "Nala",
+      "jabatan": "Strategy & Systems Analyst",
+      "pendapat": "Pendapat singkat agent tentang agenda."
+    },
+    {
+      "kode": "laras",
+      "nama": "Laras",
+      "jabatan": "Storytelling & Editorial Writer",
+      "pendapat": "Pendapat singkat agent tentang agenda."
+    },
+    {
+      "kode": "tara",
+      "nama": "Tara",
+      "jabatan": "Community, Growth & Conversion Strategist",
+      "pendapat": "Pendapat singkat agent tentang agenda."
+    },
+    {
+      "kode": "jati",
+      "nama": "Jati",
+      "jabatan": "Fact-Check, Evidence & Compliance Lead",
+      "pendapat": "Pendapat singkat agent tentang agenda."
+    }
+  ],
+  "notulen": "1) RINGKASAN\n- Rapat berjalan lancar.\n2) POIN PENTING\n- Prioritaskan verifikasi\n3) RISIKO / BLOCKER\n- tidak ada\n4) KEPUTUSAN\n- lanjut\n5) AKSI & PENANGGUNG JAWAB\n- Laras revisi caption\n6) NEXT ACTION\n- [14:00] Revisi caption — Laras\n7) CATATAN TERHADAP 4 PRINSIP\n- Digital Literacy.",
+  "tanggal": "2026-10-05",
+  "waktu": "2026-10-05T01:58:38.942Z"
+}

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ruang Rapat — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  var KOLOM = [
+    { status: "menunggu", judul: "MENUNGGU" },
+    { status: "dikerjakan", judul: "DIKERJAKAN" },
+    { status: "perlu_persetujuan", judul: "PERLU SETUJU" },
+    { status: "selesai", judul: "SELESAI" },
+  ];
+  var timer = null;
+
+  function muat() {
+    Util.fetchJson("/api/tugas").then(function (data) {
+      var tugas = data.tugas || [];
+      var html =
+        '<form class="form-perintah" id="form-perintah">' +
+        '<input class="input-perintah" id="input-perintah" placeholder="Suruh pasukan ngerjain apa hari ini...">' +
+        '<button class="tombol tombol-hijau" type="submit">Kirim</button></form>' +
+        '<p class="pesan-error" id="pesan-perintah" hidden></p>' +
+        '<div class="kolom-rapat">';
+      for (var i = 0; i < KOLOM.length; i++) {
+        html += '<div><div class="judul-kolom">' + KOLOM[i].judul + "</div>";
+        var ada = false;
+        for (var j = 0; j < tugas.length; j++) {
+          if (tugas[j].status !== KOLOM[i].status) continue;
+          ada = true;
+          var t = tugas[j];
+          var cls = t.status === "perlu_persetujuan" ? "kartu-tugas kartu-perlu-setuju" : "kartu-tugas";
+          html += '<div class="' + cls + '">' +
+            '<div class="baris-atas"><span class="emoji-agent">' + Util.esc(t.emoji || "🤖") + "</span>" +
+            '<span class="nama-agent">' + Util.esc(t.pemilik || "-") + "</span></div>" +
+            '<div class="judul-tugas">' + Util.esc(t.judul) + "</div>" +
+            '<div class="umur-tugas">' + Util.umurLalu(t.diambil_pada || t.dibuat_pada) + "</div>" +
+            "</div>";
+        }
+        if (!ada) html += '<div class="teks-redup" style="padding:8px">tidak ada tugas</div>';
+        html += "</div>";
+      }
+      html += "</div>";
+      Util.muatLayout("/", html, "Ruang Rapat");
+
+      var form = document.getElementById("form-perintah");
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var input = document.getElementById("input-perintah");
+        var pesan = document.getElementById("pesan-perintah");
+        var btn = form.querySelector("button");
+        if (!input.value.trim()) return;
+        btn.disabled = true;
+        pesan.hidden = true;
+        Util.fetchJson("/api/perintah", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ perintah: input.value.trim() }),
+        }).then(function (r) {
+          input.value = "";
+          if (!r.pekerjaan) {
+            btn.disabled = false;
+            return muat();
+          }
+          pesan.textContent = "Pasukan sedang membagi tugas. Status akan diperbarui otomatis.";
+          pesan.hidden = false;
+          var n = 0;
+          var poll = setInterval(function () {
+            n++;
+            Util.fetchJson("/api/perintah/" + encodeURIComponent(r.pekerjaan)).then(function (s) {
+              if (s.status === "berjalan" && n < 60) return;
+              clearInterval(poll);
+              btn.disabled = false;
+              if (s.status === "gagal") Util.tampilkanError(pesan, s.error || "Pekerjaan gagal");
+              else { pesan.className = "pesan-sukses"; pesan.textContent = "Tugas sudah dibagi ke pasukan."; }
+              muat();
+            }).catch(function (e) {
+              clearInterval(poll);
+              btn.disabled = false;
+              Util.tampilkanError(pesan, e.message);
+            });
+          }, 2000);
+        }).catch(function (e) {
+          btn.disabled = false;
+          Util.tampilkanError(pesan, e.message);
+        });
+      });
+    }).catch(function (e) {
+      Util.muatLayout("/", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Ruang Rapat");
+    });
+  }
+
+  muat();
+  timer = setInterval(muat, 10000);
+})();
+</script>
+</body>
+</html>

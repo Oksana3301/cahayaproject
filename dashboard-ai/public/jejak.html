@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jejak Keputusan — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  Util.fetchJson("/api/jejak").then(function (data) {
+    var items = data.jejak || [];
+    var html = "";
+    if (!items.length) html = '<div class="kartu teks-redup">Belum ada jejak keputusan.</div>';
+    else {
+      html = '<table class="tabel-data"><tr><th>Waktu</th><th>Jenis</th><th>Objek</th><th>Keputusan</th><th>Oleh</th><th>Alasan</th></tr>';
+      for (var i = 0; i < items.length; i++) {
+        html += "<tr><td class='teks-redup'>" + Util.umurLalu(items[i].dibuat_pada) + "</td><td>" +
+          Util.esc(items[i].jenis) + "</td><td class='mono teks-biru'>" + Util.esc(items[i].objek_id) +
+          "</td><td>" + Util.statusBadge(items[i].keputusan) + "</td><td>" + Util.esc(items[i].oleh) +
+          "</td><td>" + Util.esc(items[i].alasan || "-") + "</td></tr>";
+      }
+      html += "</table>";
+    }
+    Util.muatLayout("/jejak", html, "Jejak Keputusan");
+  }).catch(function (e) {
+    Util.muatLayout("/jejak", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Jejak Keputusan");
+  });
+})();
+</script>
+</body>
+</html>

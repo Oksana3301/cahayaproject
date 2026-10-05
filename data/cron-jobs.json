@@ -1,0 +1,367 @@
+[
+  {
+    "id": "pb-aruna-riset-pagi",
+    "name": "Aruna — Riset Sinyal Pagi",
+    "agentId": "aruna",
+    "sessionKey": "agent:aruna:main",
+    "description": "Tiap 07.00 WIB. Aruna mengumpulkan 25 sinyal terbaru dan 3 sudut pandang untuk briefing pagi.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791158454493,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 7 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "message": "Playbook pagi: lakukan riset 25 item sinyal terbaru pada topik tendangan hari ini. Kumpulkan sumber kredibel, tandai kategori FACT/ANALYSIS/INFERENCE/OPINION/UNKNOWN, lalu rangkum tepat 3 sudut pandang yang layak ditindaklanjuti. Hormati kuota token harianmu; ringkas dan presisi.",
+      "thinking": "high",
+      "engine": "detak"
+    },
+    "state": {
+      "nextRunAtMs": 1791244800000,
+      "lastStatus": "skipped",
+      "lastError": "ditangani seeder skill (riset/draft)"
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-jati-verifikasi-pagi",
+    "name": "Jati — Verifikasi Evidence & Compliance",
+    "agentId": "jati",
+    "sessionKey": "agent:jati:main",
+    "description": "Tiap 07.30 WIB. Jati memverifikasi klaim utama, menandai klaim lemah, dan memastikan kepatuhan sebelum drafting.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791160254704,
+    "schedule": {
+      "kind": "cron",
+      "expr": "30 7 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "message": "Playbook pagi: verifikasi klaim paling material dari temuan riset pagi. Prioritaskan sumber primer, tandai klaim tanpa bukti, dan keluarkan ringkas status evidence per klaim (FACT/ANALYSIS/INFERENCE/OPINION/UNKNOWN). Blokir klaim yang tidak lolos kepatuhan. Hemat token: hanya verifikasi yang material.",
+      "thinking": "high",
+      "engine": "detak"
+    },
+    "state": {
+      "nextRunAtMs": 1791246600000,
+      "lastStatus": "skipped",
+      "lastError": "ditangani seeder skill (riset/draft)"
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-nala-analisis-strategi",
+    "name": "Nala — Analisis Strategi & Pola",
+    "agentId": "nala",
+    "sessionKey": "agent:nala:main",
+    "description": "Tiap 09.00 WIB. Nala membaca pola, peluang, dan implikasi strategis dari sinyal terbaru.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791165656217,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 9 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "message": "Playbook pagi: analisis pola dan implikasi strategis dari sinyal yang sudah terkumpul. Identifikasi peluang, tren yang naik, dan celah data. Sajikan ringkas dan dapat ditindaklanjuti. Hemat token: fokus pada 3 peluang teratas.",
+      "thinking": "medium",
+      "skill": "analytics"
+    },
+    "state": {
+      "nextRunAtMs": 1791252000000,
+      "lastRunAtMs": 1791165656217,
+      "lastStatus": "error",
+      "lastError": "rem token harian aktif: total 266713 telah mencapai plafon 250000",
+      "lastDurationMs": 12
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-laras-draft-siang",
+    "name": "Laras — Susun 3 Draft Konten",
+    "agentId": "laras",
+    "sessionKey": "agent:laras:main",
+    "description": "Tiap 12.00 WIB. Laras menyusun 3 draft (1 timely, 1 educational, 1 engagement) dan menahan untuk persetujuan Owner.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791105908476,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 12 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "message": "Playbook siang: susun 3 draft konten dari riset terbaru — 1 timely/news, 1 educational/insight, 1 engagement/community. Caption 500-1000 karakter, hashtag 3-5, wajib #CahayaProject. Setelah selesai, tahan semua untuk persetujuan Owner; jangan publish. Hemat token: gunakan temuan yang sudah terverifikasi.",
+      "thinking": "high",
+      "engine": "detak"
+    },
+    "state": {
+      "nextRunAtMs": 1791176400000
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-bima-redteam-sore",
+    "name": "Bima — Red Team: Uji Asumsi & Risiko",
+    "agentId": "bima",
+    "sessionKey": "agent:bima:main",
+    "description": "Tiap 15.00 WIB. Bima menyerang asumsi, mencari kontra-argumen, bias, dan risiko.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791105908479,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 15 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "message": "Playbook sore: uji asumsi dari temuan hari ini. Cari kontra-argumen terkuat, bias yang mungkin, celah data, dan risiko reputasi/compliance. Balas dengan daftar risiko berprioritas dan rekomendasi mitigasi. Hemat token: maksimal 5 risiko teratas.",
+      "thinking": "high",
+      "engine": "detak"
+    },
+    "state": {
+      "nextRunAtMs": 1791187200000
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-raya-review-kreatif",
+    "name": "Raya — Review Kreatif & Hook",
+    "agentId": "raya",
+    "sessionKey": "agent:raya:main",
+    "description": "Tiap 16.00 WIB. Raya mengasah hook, visual, dan konsistensi brand pada draft hari ini.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791105908482,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 16 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "message": "Playbook sore: review kreatif draft hari ini. Perkuat hook di 3 detik pertama, usul arahan visual, dan pastikan konsistensi brand Cahaya Project. Beri catatan perbaikan yang spesifik. Hemat token: maksimal 3 catatan utama per draft.",
+      "thinking": "medium",
+      "skill": "publish"
+    },
+    "state": {
+      "nextRunAtMs": 1791190800000
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-tara-growth-jadwal",
+    "name": "Tara — Community, Growth & Jadwal",
+    "agentId": "tara",
+    "sessionKey": "agent:tara:main",
+    "description": "Tiap 17.00 WIB. Tara menyiapkan angle komunitas/growth dan menandai jadwal publikasi 19.30 WIB setelah persetujuan.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791108049710,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 17 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "message": "Playbook sore: rumuskan angle komunitas dan pemicu pertumbuhan (CTA, diskusi, polling) untuk draft hari ini. Siapkan rencana jadwal publikasi baseline 19.30 WIB. Jangan publish sebelum Owner menyetujui. Hemat token: fokus pada 1 CTA terbaik per draft.",
+      "thinking": "medium",
+      "skill": "publish"
+    },
+    "state": {
+      "nextRunAtMs": 1791194400000,
+      "runningAtMs": 1791117966872
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-kirana-review-harian",
+    "name": "Kirana — Review Editorial & Koordinasi",
+    "agentId": "kirana",
+    "sessionKey": "agent:kirana:main",
+    "description": "Tiap 18.00 WIB. Kirana merangkum status, menyetujui/return draft, dan menetapkan prioritas besok.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791117822864,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 18 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "message": "Playbook malam: sebagai Editor-in-Chief & Orchestrator, rangkum status seluruh tim hari ini (riset, verifikasi, draft, jadwal), tandai yang menunggu persetujuan Owner, dan tetapkan 3 prioritas utama untuk besok. Koordinasikan handoff ke agent yang tepat. Hemat token: ringkas dan tegas.",
+      "thinking": "high",
+      "skill": "analytics"
+    },
+    "state": {
+      "nextRunAtMs": 1791198000000,
+      "lastRunAtMs": 1791117822863,
+      "lastStatus": "ok",
+      "lastDurationMs": 68947,
+      "runningAtMs": 1791117960743
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-tara-publish-1930",
+    "name": "Tara — Finalisasi & Persetujuan Publish 19.30",
+    "agentId": "tara",
+    "sessionKey": "agent:tara:main",
+    "description": "Menyiapkan paket publikasi final (IG/FB) dan meminta persetujuan Owner sebelum terbit 19.30 WIB. Tidak auto-post.",
+    "enabled": true,
+    "schedule": {
+      "kind": "cron",
+      "expr": "30 19 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "message": "PLAYBOOK 19:30 — FINALISASI, PERSETUJUAN & PUBLISH (Cahaya Project).\n\nKamu Tara (Community, Growth & Jadwal) — pemegang slot publikasi. Baseline terbit 19.30 WIB.\nTugasmu: menyiapkan PAKET PUBLIKASI final dari draft yang sudah ada, lalu MEMINTA PERSETUJUAN Owner.\n\nPENTING soal mekanisme publish:\n- Kamu TIDAK menembak API posting langsung. Publish dilakukan sistem lewat alur resmi:\n  Owner menyetujui draft -> sistem otomatis membuat banner (1080x1080) -> menjadwalkan ke Instagram (via Doea hub) dengan media gambar -> setelah terbit, status draft otomatis menjadi \"terbit\".\n- Jadi begitu Owner menyetujui, posting AKAN terbit dengan gambar banner. Tidak ada langkah manual lagi.\n- JANGAN pernah menerbitkan/menjadwalkan tanpa persetujuan Owner eksplisit.\n\nLangkah:\n1) Periksa draft hari ini (tabel draft_konten / taskboard / memori). Laporkan jumlah draft berstatus \"menunggu\" yang siap dipublikasikan. Jika tidak ada, katakan jujur — jangan mengarang.\n2) Untuk SETIAP draft siap, susun PAKET PUBLIKASI ringkas:\n   - Judul kerja + tipe (timely/news, educational/insight, engagement/community)\n   - Caption final sudah ada? (ya/tidak) + ringkas 1 baris\n   - Hashtag 3-5 (wajib #CahayaProject)\n   - Media: banner akan digenerate otomatis oleh sistem — cukup catat bahwa visual siap.\n   - Platform target: Instagram (utama) — Facebook menyusul.\n   - Waktu terbit usul: 19.30 WIB.\n3) CHECKLIST KESIAPAN (centang/tidak): caption final, hashtag, cek fakta, nada brand, media (banner otomatis).\n4) Tulis permintaan persetujuan eksplisit ke Owner, persis format ini:\n   STATUS: MENUNGGU PERSETUJUAN OWNER\n   Aset: <judul draft> | Platform: Instagram | Jam: 19.30 WIB | DraftID: <id>\n   Keputusan yang diminta: SETUJU terbit / MINTA REVISI / TOLAK (+ alasan)\n   Catatan: setelah SETUJU, sistem otomatis membuat banner & menjadwalkan posting.\n5) Akhiri dengan ringkasan 5 baris: apa yang siap, apa yang belum, apa yang dibutuhkan dari Owner.\n\nATURAN KERAS:\n- Jangan menerbitkan/menjadwalkan tanpa persetujuan Owner eksplisit.\n- Jangan mengarang draft atau metrik yang tidak ada.\n- Bahasa Indonesia, ringkas, tegas.",
+      "thinking": "medium",
+      "skill": "publish",
+      "butuhApproval": true
+    },
+    "delivery": {
+      "mode": "none"
+    },
+    "state": {
+      "nextRunAtMs": 1791203400000
+    },
+    "updatedAtMs": 1791117955052
+  },
+  {
+    "id": "pb-rapat-pagi",
+    "name": "Rapat Pagi — Daily Standup (08:00)",
+    "agentId": "kirana",
+    "sessionKey": "agent:kirana:main",
+    "description": "Daily standup pagi 08:00 WIB: update pekerjaan malam + rencana & 3 prioritas kerja hari ini. Satu ringkasan WhatsApp.",
+    "enabled": true,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 8 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "jenis": "rapat",
+      "rapatJenis": "pagi",
+      "message": "Daily standup pagi: apa yang dikerjakan semalam? Apa rencana kerja & prioritas hari ini? Tetapkan 3 prioritas utama dan pemiliknya.",
+      "konteks": "Rapat pagi harian — standup.",
+      "thinking": "medium"
+    },
+    "delivery": {
+      "mode": "none"
+    },
+    "state": {
+      "nextRunAtMs": 1791248400000,
+      "lastRunAtMs": 1791162834892,
+      "lastStatus": "ok",
+      "lastDurationMs": 982883
+    },
+    "updatedAtMs": 1791162834892
+  },
+  {
+    "id": "pb-rapat-siang",
+    "name": "Rapat Siang — Progress Update (13:00)",
+    "agentId": "kirana",
+    "sessionKey": "agent:kirana:main",
+    "description": "Update progres siang 13:00 WIB: apa yang selesai/tertunda hari ini, dan adakah blocker yang butuh keputusan Owner. Satu ringkasan WhatsApp.",
+    "enabled": true,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 13 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "jenis": "rapat",
+      "rapatJenis": "siang",
+      "message": "Update progres siang: sejauh mana pekerjaan hari ini berjalan? Apa yang selesai, apa yang tertunda, dan adakah blocker yang butuh keputusan Owner?",
+      "konteks": "Rapat siang harian — progress update.",
+      "thinking": "medium"
+    },
+    "delivery": {
+      "mode": "none"
+    },
+    "state": {
+      "nextRunAtMs": 1791266400000
+    }
+  },
+  {
+    "id": "pb-rapat-sore",
+    "name": "Rapat Sore — Rekap Harian & Rencana (19:00)",
+    "agentId": "kirana",
+    "sessionKey": "agent:kirana:main",
+    "description": "Rapat sore 19:00 WIB: GABUNGAN semua notulen hari ini + next action untuk malam ini & besok (dengan jam). Satu ringkasan WhatsApp komprehensif.",
+    "enabled": true,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 19 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "jenis": "rapat",
+      "rapatJenis": "sore",
+      "message": "Rekap akhir hari: rangkum semua yang terjadi hari ini, putuskan penutup hari, dan susun rencana malam ini + besok.",
+      "konteks": "Rapat sore harian — rekap + rencana lanjutan.",
+      "thinking": "medium"
+    },
+    "delivery": {
+      "mode": "none"
+    },
+    "state": {
+      "nextRunAtMs": 1791288000000
+    }
+  }
+]

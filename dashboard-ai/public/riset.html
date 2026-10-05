@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riset Konten — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  var KATA_KUNCI = "sustainability, green transition, policy, risk, human behavior, future trends, solutions & innovation";
+
+  function muat() {
+    var html =
+      '<form class="form-perintah" id="form-riset">' +
+      '<input class="input-perintah" id="input-keyword" value="' + KATA_KUNCI + '" placeholder="Kata kunci riset...">' +
+      '<button class="tombol tombol-hijau" id="btn-riset" type="submit">Jalankan Riset</button></form>' +
+      '<p class="pesan-error" id="pesan-riset" hidden></p>' +
+      '<div id="hasil-riset"></div>';
+    Util.muatLayout("/riset", html, "Riset Konten");
+
+    document.getElementById("form-riset").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var kw = document.getElementById("input-keyword").value.trim();
+      var btn = document.getElementById("btn-riset");
+      var pesan = document.getElementById("pesan-riset");
+      if (!kw) return;
+      btn.disabled = true;
+      btn.textContent = "Sedang riset...";
+      pesan.hidden = true;
+      document.getElementById("hasil-riset").innerHTML = '<div class="kartu teks-redup">Mengumpulkan data dari Apify, Doea, dan RSS...</div>';
+      Util.fetchJson("/api/riset", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keyword: kw }),
+      }).then(function (r) {
+        if (!r.pekerjaan) {
+          btn.disabled = false;
+          btn.textContent = "Jalankan Riset";
+          tampilkanHasil(r);
+          return;
+        }
+        document.getElementById("hasil-riset").innerHTML = '<div class="kartu teks-redup">Riset berjalan di latar. Mengambil sumber, memverifikasi, dan merangkum sudut pandang...</div>';
+        var n = 0;
+        var poll = setInterval(function () {
+          n++;
+          Util.fetchJson("/api/pekerjaan/" + encodeURIComponent(r.pekerjaan)).then(function (s) {
+            if (s.status === "berjalan" && n < 150) return;
+            clearInterval(poll);
+            btn.disabled = false;
+            btn.textContent = "Jalankan Riset";
+            if (s.status === "gagal") {
+              Util.tampilkanError(pesan, s.error || "Riset gagal");
+              return;
+            }
+            tampilkanHasil(s.hasil);
+          }).catch(function (e) {
+            clearInterval(poll); btn.disabled = false; btn.textContent = "Jalankan Riset";
+            Util.tampilkanError(pesan, e.message);
+          });
+        }, 2000);
+      }).catch(function (e) {
+        btn.disabled = false;
+        btn.textContent = "Jalankan Riset";
+        Util.tampilkanError(pesan, e.message);
+      });
+    });
+  }
+
+  function tampilkanHasil(r) {
+    var el = document.getElementById("hasil-riset");
+    var html = "";
+    var sumber = r.laporan ? r.laporan.sumber : {};
+    var keys = Object.keys(sumber);
+    for (var i = 0; i < keys.length; i++) {
+      html += '<div class="kartu" style="margin-top:12px"><span class="teks-biru">' + Util.esc(keys[i]) +
+        '</span><span class="badge-jumlah">' + sumber[keys[i]] + " item</span></div>";
+    }
+    var sudut = r.sudut || [];
+    for (var j = 0; j < sudut.length; j++) {
+      html += '<div class="kartu sudut-kartu" style="margin-top:12px">' +
+        '<div class="judul-kartu">Sudut ' + (j + 1) + ": " + Util.esc(sudut[j].judul) + "</div>" +
+        '<div class="teks-redup" style="margin-bottom:8px">' + Util.esc(sudut[j].alasan || "") + "</div>" +
+        '<button class="tombol tombol-hijau" data-draft="' + r.ringkasanId + '" data-index="' + j + '">Jadikan Draft</button></div>';
+    }
+    el.innerHTML = html || '<div class="kartu teks-redup" style="margin-top:12px">Tidak ada hasil.</div>';
+    el.querySelectorAll("[data-draft]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var rid = btn.getAttribute("data-draft");
+        var idx = btn.getAttribute("data-index");
+        btn.disabled = true;
+        btn.textContent = "Menyusun draft...";
+        Util.fetchJson("/api/draft", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ringkasanId: Number(rid), sudutIndex: Number(idx) }),
+        }).then(function (d) {
+          if (!d.pekerjaan) {
+            btn.textContent = "Draft dibuat: " + Util.esc(d.judul);
+            setTimeout(function () { window.location.href = "/persetujuan"; }, 1500);
+            return;
+          }
+          btn.textContent = "Menyusun draft di latar...";
+          var n = 0;
+          var poll = setInterval(function () {
+            n++;
+            Util.fetchJson("/api/pekerjaan/" + encodeURIComponent(d.pekerjaan)).then(function (s) {
+              if (s.status === "berjalan" && n < 150) return;
+              clearInterval(poll);
+              if (s.status === "gagal") {
+                btn.disabled = false; btn.textContent = "Jadikan Draft";
+                Util.tampilkanError(document.getElementById("pesan-riset"), s.error || "Draft gagal");
+                return;
+              }
+              btn.textContent = "Draft dibuat";
+              setTimeout(function () { window.location.href = "/persetujuan"; }, 1200);
+            }).catch(function (e) {
+              clearInterval(poll); btn.disabled = false; btn.textContent = "Jadikan Draft";
+              Util.tampilkanError(document.getElementById("pesan-riset"), e.message);
+            });
+          }, 2000);
+        }).catch(function (e) {
+          btn.disabled = false;
+          btn.textContent = "Jadikan Draft";
+          Util.tampilkanError(document.getElementById("pesan-riset"), e.message);
+        });
+      });
+    });
+  }
+
+  muat();
+})();
+</script>
+</body>
+</html>

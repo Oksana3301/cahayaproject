@@ -1,0 +1,33 @@
+{
+  "jenis": "sore",
+  "label": "Rapat Sore — Rekap Harian & Rencana Lanjutan",
+  "agenda": "Rekap akhir hari: rangkum semua yang terjadi hari ini, putuskan penutup hari, dan susun rencana malam ini + besok.",
+  "diundang": [
+    "nala",
+    "tara",
+    "laras"
+  ],
+  "pendapat": [
+    {
+      "kode": "nala",
+      "nama": "Nala",
+      "jabatan": "Strategy & Systems Analyst",
+      "pendapat": "Pendapat singkat agent tentang agenda."
+    },
+    {
+      "kode": "tara",
+      "nama": "Tara",
+      "jabatan": "Community, Growth & Conversion Strategist",
+      "pendapat": "Pendapat singkat agent tentang agenda."
+    },
+    {
+      "kode": "laras",
+      "nama": "Laras",
+      "jabatan": "Storytelling & Editorial Writer",
+      "pendapat": "Pendapat singkat agent tentang agenda."
+    }
+  ],
+  "notulen": "## RINGKASAN HARI INI\n- Konten hari ini jalan baik.\n\n## YANG SELESAI\n- Riset & verifikasi\n\n## BLOCKER / PERHATIAN\n- tidak ada\n\n## YANG BELUM SELESAI\n- 2 draft menunggu approval\n\n## NEXT ACTION MALAM INI\n- [20:00] Finalisasi caption — Laras\n- [21:00] Cek approval Owner — Tara\n\n## NEXT ACTION BESOK\n- [08:00] Standup pagi — Kirana\n- [12:00] Draft baru — Laras\n\n## CATATAN TERHADAP 4 PRINSIP\n- Responsible Communication paling krusial.",
+  "tanggal": "2026-10-05",
+  "waktu": "2026-10-05T01:58:38.996Z"
+}

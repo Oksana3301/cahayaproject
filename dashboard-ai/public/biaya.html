@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biaya & Jatah — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  Util.fetchJson("/api/biaya").then(function (data) {
+    var agents = data.per_agent || [];
+    var total = data.total || {};
+    var html = '<div class="kartu" style="margin-bottom:14px"><div class="judul-kartu">Total hari ini</div>' +
+      '<div>Token terpakai: <span class="teks-biru mono">' + total.terpakai + "</span> / " + total.plafon +
+      " (" + total.persen + '%)</div>' +
+      '<div class="teks-redup">Panggilan: ' + total.panggilan_hari_ini +
+      " | prompt: " + total.prompt_tokens + " | completion: " + total.completion_tokens + "</div>" +
+      '<div class="bar-token"><div class="isi-bar" style="width:' + Math.min(100, total.persen) + '%"></div></div></div>';
+    html += '<table class="tabel-data"><tr><th>Agent</th><th>Jatah</th><th>Terpakai</th><th>Sisa</th><th>%</th></tr>';
+    for (var i = 0; i < agents.length; i++) {
+      var a = agents[i];
+      html += "<tr><td>" + a.emoji + " " + Util.esc(a.nama) + "</td><td class='mono'>" + a.jatah +
+        "</td><td class='mono teks-biru'>" + a.terpakai + "</td><td class='mono'>" + a.sisa +
+        "</td><td class='mono'>" + a.persen + "%</td></tr>";
+    }
+    html += "</table>";
+    html += '<div style="margin-top:16px"><button class="tombol tombol-ungu" id="btn-lepas-rem">Lepas Rem Tangan</button>' +
+      '<p class="pesan-sukses" id="pesan-rem" hidden></p></div>';
+    Util.muatLayout("/biaya", html, "Biaya & Jatah");
+    document.getElementById("btn-lepas-rem").addEventListener("click", function () {
+      Util.fetchJson("/api/rem-tangan/lepas", { method: "POST" })
+        .then(function () {
+          var p = document.getElementById("pesan-rem");
+          p.textContent = "Rem tangan dilepas. Heartbeat jalan lagi.";
+          p.hidden = false;
+        })
+        .catch(function (e) { Util.tampilkanError(document.getElementById("pesan-rem"), e.message); });
+    });
+  }).catch(function (e) {
+    Util.muatLayout("/biaya", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Biaya & Jatah");
+  });
+})();
+</script>
+</body>
+</html>

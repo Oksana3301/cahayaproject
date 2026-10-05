@@ -1,0 +1,33 @@
+{
+  "jenis": "siang",
+  "label": "Rapat Siang — Progress Update",
+  "agenda": "Update progres siang: sejauh mana pekerjaan hari ini berjalan? Apa yang selesai, apa yang tertunda, dan adakah blocker yang butuh keputusan Owner?",
+  "diundang": [
+    "nala",
+    "tara",
+    "bima"
+  ],
+  "pendapat": [
+    {
+      "kode": "nala",
+      "nama": "Nala",
+      "jabatan": "Strategy & Systems Analyst",
+      "pendapat": "(tidak hadir: rem token harian aktif: total 266713 telah mencapai plafon 250000)"
+    },
+    {
+      "kode": "tara",
+      "nama": "Tara",
+      "jabatan": "Community, Growth & Conversion Strategist",
+      "pendapat": "(tidak hadir: rem token harian aktif: total 266713 telah mencapai plafon 250000)"
+    },
+    {
+      "kode": "bima",
+      "nama": "Bima",
+      "jabatan": "Red Team, Risk & Critical Thinking Lead",
+      "pendapat": "(tidak hadir: rem token harian aktif: total 266713 telah mencapai plafon 250000)"
+    }
+  ],
+  "notulen": "(notulen gagal: rem token harian aktif: total 266713 telah mencapai plafon 250000)",
+  "tanggal": "2026-10-05",
+  "waktu": "2026-10-05T01:58:14.876Z"
+}

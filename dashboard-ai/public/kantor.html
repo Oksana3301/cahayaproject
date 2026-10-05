@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kantor 3D — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  function muat() {
+    Util.fetchJson("/api/kantor").then(function (data) {
+      var items = data.agents || [];
+      var html = '<div class="teks-redup" style="margin-bottom:12px">Kantor 3D (Hermes3D) sedang dipasang. ' +
+        "Sementara ini menampilkan keadaan agent dari /api/kantor.</div>";
+      html += '<table class="tabel-data"><tr><th></th><th>Nama</th><th>Jabatan</th><th>Keadaan</th><th>Meja</th><th>Tugas Sekarang</th></tr>";
+      for (var i = 0; i < items.length; i++) {
+        var a = items[i];
+        html += "<tr><td style='font-size:18px'>" + a.emoji + "</td><td>" + Util.esc(a.nama) + "</td><td>" +
+          Util.esc(a.jabatan) + "</td><td>" + Util.statusBadge(a.keadaan) + "</td><td class='mono teks-biru'>" +
+          a.meja + "</td><td class='teks-redup'>" + Util.esc(a.tugas_sekarang || "-") + "</td></tr>";
+      }
+      html += "</table>";
+      Util.muatLayout("/kantor", html, "Kantor 3D");
+    }).catch(function (e) {
+      Util.muatLayout("/kantor", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Kantor 3D");
+    });
+  }
+  muat();
+  setInterval(muat, 5000);
+})();
+</script>
+</body>
+</html>

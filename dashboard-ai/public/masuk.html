@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masuk — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body class="halaman-masuk">
+  <div class="kartu-masuk">
+    <h1 class="logo-masuk">Cahaya Project</h1>
+    <p class="sub-masuk">Dashboard AI Konten</p>
+    <form id="form-masuk" class="form-masuk">
+      <label class="label-masuk" for="pengguna">Pengguna</label>
+      <input id="pengguna" name="pengguna" type="text" autocomplete="username" required class="input-masuk">
+      <label class="label-masuk" for="sandi">Kata Sandi</label>
+      <input id="sandi" name="sandi" type="password" autocomplete="current-password" required class="input-masuk">
+      <button type="submit" class="tombol tombol-hijau tombol-masuk">Masuk</button>
+      <p id="pesan-masuk" class="pesan-error" hidden></p>
+    </form>
+  </div>
+<script>
+(function () {
+  var form = document.getElementById("form-masuk");
+  var pesan = document.getElementById("pesan-masuk");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    pesan.hidden = true;
+    var u = document.getElementById("pengguna").value;
+    var p = document.getElementById("sandi").value;
+    fetch("/api/masuk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pengguna: u, sandi: p }),
+    }).then(function (r) {
+      if (r.ok) { window.location.href = "/"; return; }
+      return r.json().then(function (j) {
+        pesan.textContent = j.error || "pengguna atau kata sandi salah";
+        pesan.hidden = false;
+      });
+    }).catch(function () {
+      pesan.textContent = "pengguna atau kata sandi salah";
+      pesan.hidden = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

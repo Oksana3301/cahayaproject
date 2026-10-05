@@ -1,0 +1,58 @@
+{
+  "agenda": "Bagaimana kita memastikan setiap publikasi Cahaya Project hari ini memakai dan menjunjung tinggi EMPAT PRINSIP wajib? Tinjau draft/rencana konten hari ini, tandai risiko, dan putuskan langkah.",
+  "diundang": [
+    "nala",
+    "aruna",
+    "jati",
+    "bima",
+    "laras",
+    "raya",
+    "tara"
+  ],
+  "pendapat": [
+    {
+      "kode": "nala",
+      "nama": "Nala",
+      "jabatan": "Strategy & Systems Analyst",
+      "pendapat": "1. **Pasang \"gate\" satu pesan sebelum tanda terbit.** Setiap aset harus mencantumkan satu tujuan dan satu pesan inti dalam satu kalimat; jika tidak bisa diisi, kontennya yang belum siap, bukan teamnya. Ini membentuk busur naratif yang konsisten dan memudahkan audit. *(Strategic Storytelling)*\n\n2. **Daftar hitam klaim sebelum publish, bukan sesudah.** Ada tiga yang paling sering nyelip: klaim sustainability absolut (\"paling ramah lingkungan\", \"bebas dampak\") tanpa data pihak ketiga, klaim medis/finansial tanpa dasar, dan klaim prediksi yang ditulis seolah fakta. Setiap angka wajib punya sumber tertulis; setiap prediksi wajib diberi label ketidakpastian. *(Digital Literacy & Responsible Communication)*\n\n3. **Titik buta terbesar hari ini: persetujuan manusia.** Izin lisan, terutama untuk foto anak-anak atau cerita trauma, adalah risiko tertinggi di antara semua kategori publikasi. Wajibkan persetujuan tertulis + penilaian risiko publikasi untuk konten yang menampilkan individu. Sekali bocor, koreksi terbuka tidak akan mengembalikan kepercayaan. *(Responsible Communication)*\n\n4. **Protokol koreksi terbuka harus ada sebelum error pertama.** Jika ada kesalahan terbit: koreksi di tempat yang sama, transparan, tanpa delete diam-diam. Lalu catat pola errornya mingguan — saya akan susun template log-nya. Sistem yang sehat bukan yang bebas kesalahan, tapi yang belajar dari kesalahan. *(Responsible Communication & Digital Literacy)*\n\nLangkah: jalankan mini sign-off dua pasang mata untuk semua konten hari ini — creator + satu reviewer dengan checklist empat poin di atas. Jika ada draft yang gagal salah satu gate, tunda, jangan direvisi sambil jalan."
+    },
+    {
+      "kode": "aruna",
+      "nama": "Aruna",
+      "jabatan": "Research & Emerging Signals Scout",
+      "pendapat": "1. Dari sisi pemantauan, sinyal yang paling sering bergerak cepat hari ini adalah klaim \"solusi cepat\" yang berakhir di laporan turunan dan kutipan influencer. Risikonya kita mempercepat hal yang belum diverifikasi. Usul: setiap topik dari sumber kedua wajib punya sumber primer sebelum masuk draft, dan di dalam naskah harus jelas mana fakta, mana opini, mana prediksi. Ini langsung ke Prinsip Digital Literacy — verifikasi sebelum virality, dan akui ketidakpastian di naskahnya, bukan di komentar saja.\n\n2. Titik buta yang paling sering kelewat adalah persetujuan manusia. Cerita yang \"sudah pernah tampil\" sering dianggap aman dipakai ulang, padahal konteks dan platform publikasinya berbeda, dan risikonya jadi berbeda juga. Sebelum publish, pastikan ada persetujuan untuk publikasi berisiko — wajah, nama, atau cerita pribadi. Ini bagian Responsible Communication, bukan formalitas.\n\n3. Yang kedua saya sorot: narasi \"semua membaik\". Cerita solusi yang angkat harapan bagus, tapi tanpa konteks pembatas ia bisa terbaca sebagai klaim sustainability absolut. Setiap cerita"
+    },
+    {
+      "kode": "jati",
+      "nama": "Jati",
+      "jabatan": "Fact-Check, Evidence & Compliance Lead",
+      "pendapat": "1. **Gerbang verifikasi sebelum publikasi, bukan sesudah.** Setiap draft berisi klaim fakta wajib masuk antrian fact-check dengan bukti terlampir — link sumber, kutipan, atau catatan wawancara — sebelum tombol publish ditekan. Di naskah, tim harus memisahkan tiga lapisan: fakta (ada buktinya), opini (pandangan), prediksi (harapan/proyeksi). Ini inti Prinsip Digital Literacy: verifikasi sebelum virality. Draft hari ini belum semua saya lihat — itu titik buta pertama yang harus ditutup sekarang.\n\n2. **Pemindai klaim berisiko.** Saya minta setiap naskah dipindai untuk kata pemantik: \"terbukti\", \"paling efektif\", \"pasti\", \"100%\", \"tanpa efek samping\", \"solusi terbaik\". Klaim medis/finansial/hukum tanpa dasar dan klaim keberlanjutan tanpa bukti otomatis gugur dari publikasi hari ini. Jika idenya penting, ubah jadi pernyataan terukur dengan sumber, atau jadikan pertanyaan terbuka — bukan klaim.\n\n3"
+    },
+    {
+      "kode": "bima",
+      "nama": "Bima",
+      "jabatan": "Red Team, Risk & Critical Thinking Lead",
+      "pendapat": "**Catatan Red Team — Rapat Kepatuhan Prinsip & Mutu**\n\n**1. Draft tidak ada di meja ini.**\nAgenda menyebut \"tinjau draft/rencana konten hari ini\", tapi tidak satu pun dilampirkan. Ini risiko proses: Prinsip 1 (Strategic Storytelling) dan Prinsip 4 (Responsible Communication) tidak bisa diaudit dari niat, hanya dari aset jadi. Putusan: semua draft wajib di-share paling lambat 2 jam sebelum jadwal publikasi. Yang masuk setelah batas itu digeser ke besok, bukan dipublikasi \"sekalian\".\n\n**2. Titik buta paling sering: klaim terselubung.**\nKata seperti *alami, sehat, ramah lingkungan, berkelanjutan, aman* sering masuk sebagai selingkung deskriptif — padahal itu klaim. Prinsip 4 jelas: tidak ada klaim sustainability absolut tanpa bukti, tidak ada klaim medis/finansial tanpa dasar. Minta setiap draft menjawab tertulis: *Ada klaim? Apa buktinya?* Kalau jawabannya \"tidak tahu\", ubah jadi opini subjektif atau hapus.\n\n**3. Verifikasi tercatat, bukan kepercayaan.**\nPrinsip 2 (Digital Literacy) hanya berlaku kalau ada jejak. Setiap konten yang mengutip fakta pihak ketiga harus ada catatan: *siapa cek, apa, kapan, sumbernya apa*. Tidak ada catatan = tunda publikasi. Lebih baik telat setengah jam daripada koreksi terbuka di mana publik lebih dulu tahu.\n\n**4. Consent untuk manusia, bukan setelah manusia viral.**\nKalau hari ini ada konten yang menampilkan warga, keluarga, atau kondisi rentan, persetujuan publikasi (Prinsip 4) harus terdokumentasi sebelum *publish* — termasuk untuk konten yang \"hanya repost dari milik mereka sendiri\". Konteks platform mengubah makna; yang dianggap aman di satu tempat bisa jadi risiko di tempat lain.\n\nSatu usulan konstruktif: jadikan keempat poin di atas *publishing checklist* satu halaman yang ditandatangani penulis + reviewer. Audit kepatuhan hanya bisa kerja kalau ada jejak kertasnya."
+    },
+    {
+      "kode": "laras",
+      "nama": "Laras",
+      "jabatan": "Storytelling & Editorial Writer",
+      "pendapat": "1. **Draftnya tidak terlampir di paket rapat.** Agenda meminta kita meninjau rencana konten hari ini, tapi tidak ada satu aset pun yang masuk—jadi yang kita lakukan sekarang baru asumsi, bukan tinjauan. Kir"
+    },
+    {
+      "kode": "raya",
+      "nama": "Raya",
+      "jabatan": "Creative Director & Content Designer",
+      "pendapat": "1. **Gate publikasi: pesan inti wajib tertulis sebelum produksi.** Setiap aset yang masuk antrian hari ini harus punya satu kalimat \"ini pesan yang mau kita sampaikan\". Kalau tim baru mikir caption di menit terakhir, narrative arc-nya pasti gantung dan CTA-nya asal. Satu aset, satu pesan — bukan slogan, tapi filter lolos-tidaknya publikasi. *(Prinsip 1)*\n\n2. **Klaim faktual harus ada sumber; opini/prediksi harus ditandai.** Titik buta paling sering: angka yang \"kesannya bagus\" (dampak, capaian, tren) dipakai tanpa verifikasi, lalu viral duluan, koreksi di belakang. Untuk semua konten hari ini yang memuat angka atau pernyataan faktual, saya butuh tautan sumbernya. Kalau nggak ada, pilihannya: ubah jadi opini jelas-jelas berlabel, atau drop. *(Prinsip 2 & 4)*\n\n3. **Sensor superlatif: \"paling\", \"menjamin\", \"pasti\", \"100% ramah lingkungan\".** Ini irit 30 detik di rapat tapi nyawa publikasi. Ganti dengan klaim terukur yang ada buktinya, atau ubah ke bahasa proses (\"kita sedang menuju X, ini hasil sejauh ini\"). Klaim sustainability absolut tanpa bukti adalah risiko reputasi terbesar kita, bukan kesempatan. *(Prinsip 4)*\n\n4. **Format bukan checklist.** Caption 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject, visual bermakna — itu basement, bukan jaminan mutu. Caption 800 karakter tanpa busur naratif tetap gagal prinsip 1. Dan untuk konten yang menampilkan wajah/cerita orang: persetujuan tertulis wajib ada sebelum publish, terutama kalau kontennya"
+    },
+    {
+      "kode": "tara",
+      "nama": "Tara",
+      "jabatan": "Community, Growth & Conversion Strategist",
+      "pendapat": ""
+    }
+  ],
+  "notulen": "",
+  "waktu": "2026-10-05T01:29:55.762Z"
+}

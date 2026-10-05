@@ -1,0 +1,58 @@
+{
+  "agenda": "Bagaimana kita memastikan setiap publikasi Cahaya Project hari ini memakai dan menjunjung tinggi EMPAT PRINSIP wajib? Tinjau draft/rencana konten hari ini, tandai risiko, dan putuskan langkah.",
+  "diundang": [
+    "nala",
+    "aruna",
+    "jati",
+    "bima",
+    "laras",
+    "raya",
+    "tara"
+  ],
+  "pendapat": [
+    {
+      "kode": "nala",
+      "nama": "Nala",
+      "jabatan": "Strategy & Systems Analyst",
+      "pendapat": "1. **Jadikan empat prinsip sebagai gate, bukan checklist basa-basi.** Setiap publikasi harus lolos empat sekat sebelum tayang: (1) tujuan jelas + ada ajakan — satu aset, satu pesan; (2) setiap fakta terverifikasi, opini/prediksi dilabeli sebagai opini/prediksi; (3) format 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject, visual bermakna; (4) tidak ada klaim medis/finansial/hukum/sustainability tanpa dasar. Kalau satu sekat gagal, revisi atau tunda — tidak ada \"publikasi dulu, revisi nanti\".\n\n2. **Risiko terbesar: verifikasi dikalahkan oleh deadline.** Maka tentukan dulu deadline verifikasi (pukul X), dan jalur eskalasi: siapa peninjau kedua bila ragu pada topik sensitif — kesehatan, keuangan, hukum, trauma, anak-anak, atau komunitas. Untuk konten berisiko, persetujuan tertulis dari orang yang diangkat dulu, baru jalan. Catat keputusannya, bukan untuk menghakimi, tapi supaya sistemnya jelas.\n\n3. **Titik buta: visual sering lolos review.** Kita fokus pada teks, padahal gambar/audio juga pesan. Foto yang asal, atau memperlihatkan wajah/lokasi/data pribadi tanpa izin, bisa merusak narasi sekaligus pelanggaran etik. Setiap visual wajib punya alasan: apa yang diperkuatnya, dan apakah sudah ada persetujuan publikasi.\n\n4. **Bila ada kesalahan: koreksi terbuka.** Ubah, tulis koreksinya, jangan diam-diam hapus. Lalu catat apa yang tertangkap hari ini dalam satu log kecil — peristiwa, sebab, langkah perbaikan — supaya besok sistemnya makin kuat, bukan hanya orangnya makin lelah."
+    },
+    {
+      "kode": "aruna",
+      "nama": "Aruna",
+      "jabatan": "Research & Emerging Signals Scout",
+      "pendapat": ""
+    },
+    {
+      "kode": "jati",
+      "nama": "Jati",
+      "jabatan": "Fact-Check, Evidence & Compliance Lead",
+      "pendapat": "**Analisa:**\n\n1. **Semua draft hari ini wajib melewati checklist bukti sebelum publish.** Setiap klaim fakta harus ada sumber tertimus (link, tanggal, nama nara sumber) di file kerja. Klaim tanpa sumber = ditunda, bukan dilembutkan dengan kata \"mungkin\". Ini inti prinsip Digital Literacy: verifikasi sebelum virality, dan bedakan tegas fakta, opini, dan prediksi. (Prinsip 2)\n\n2. **Risiko klaim tertinggi hari ini ada di tiga area: medis, finansial, dan sustainability.** Saya minta setiap draft yang memuat angka dampak, efektivitas, atau pernyataan \"ramah lingkungan\" diperiksa apakah klaimnya absolut (\"100%\", \"terbukti\", \"paling\") atau bersyarat. Klaim absolut tanpa bukti kami coret atau ubah menjadi klaim terukur dengan konteks. Begitu pula pernyataan yang bernada menuduh pihak lain: tidak tayang sebelum ada verifikasi independent. (Prinsip 4)\n\n3. **Titik buta yang sering terlewat: wajah, nama, dan cerita orang dalam visual.** Setiap publikasi yang menampilkan individu dalam konteks rentan (misalnya kondisi kesehatan, ekonomi, atau pengalaman traumatis) wajib ada persetujuan tertulis yang jelas tentang apa yang ditayangkan. Visual yang bermakna harus menghormati manusia di baliknya, bukan hanya estetika. (Prinsip 3 dan 4)\n\n4. **Langkah hari ini: satu nama bertanggung jawab per publikasi, dan satu log koreksi terbuka.** Setiap konten ditandai satu PIC yang mengerti buktinya, bukan hanya yang membuatnya. Kalau setelah tayang ditemukan kesalahan, kita koreksi terbuka di kanal yang sama, tanpa dihapus sembarangan. Itu cara kita menjaga kepercayaan, bukan dengan tampil sempurna. (Prinsip 1 dan 4)"
+    },
+    {
+      "kode": "bima",
+      "nama": "Bima",
+      "jabatan": "Red Team, Risk & Critical Thinking Lead",
+      "pendapat": "**Posisi Red Team — 4 poin untuk publikasi hari ini:**\n\n**1. Setiap draft harus punya \"tujuan dulu, cerita kemudian\" sebelum disetujui.**\nSebelum bahas visual atau caption, tanya: apa satu pesan yang harus bawa pulang audiens? Kalau draft hari ini hanya \"banyak informasi\" tanpa satu pesan inti, itu babak belur pertama. Satu aset = satu pesan, ada arc (masalah-gerak-harapan), ada ajatan jelas. Draft yang tidak bisa dijawab \"apa pesan satu kalimatnya?\" — kembali ke meja.\n\n**2. Tagging klaim wajib dilampirkan, bukan asumsi.**\nSetiap pernyataan di caption dan visual ditandai: fakta (ada sumber), opini (sudut pandang), atau prediksi (ada ketidakpastian). Saya sudah lihat kebiasaan kita menggabungkan ketiganya dalam satu kalimat — itu celaka. Khusus klaim soal kesehatan, keuangan, atau hukum: tidak boleh tayang tanpa dasar yang melekat. Klaim sustainability juga tidak boleh mutlak (\"paling ramah lingkungan\", \"solusi terbaik\") kecuali ada bukti yang sudah diverifikasi. Kalau tidak ada bukti di tangan, pilih kata yang lebih jujur.\n\n**3. Cek konsentrisitas dan perlindungan data sebelum publikasi, bukan setelah.**\nKonten yang menampilkan orang — apalagi menceritakan pengalaman sulit — wajib ada persetujuan manusia yang berisiko publikasi. Data pribadi (nama, lokasi spesifik, kontak, detail identitas) dikeluarkan atau digeneralisasi. Kasus tertentu: gambar wajah anak-anak, lokasi tempat tinggal, atau cerita trauma. Red Team menyarankan: jika ada keraguan soal konsentrasi subjek, tanyakan langsung ke orangnya — bukan ke asumsi tim.\n\n**4. Koreksi terbuka dan empati adalah protokol, bukan sikap.**\nKalau ada kesalahan pada publikasi hari ini, kita koreksi terbuka, bukan diam-diam edit. Komentar atau tanggapan audiens yang kritis tidak dianggap serangan — cek dulu, verifikasi, akui kalau kita salah. Tim redaksi perlu punya proses klarifikasi yang konsisten dengan prinsip transparansi. Jangan tunggu viral untuk memperbaiki.\n\n**Saran langkah:** Draft yang sudah ada sekarang saya minta checklist empat poin di atas sebelum dijadwalkan. Yang lolos, publish. Yang belum, revisi di tempat. Saya akan fokus verifikasi klaim dan konsentrasi subjek — dua titik paling rawan. Rapat selanjutnya, kita tinjau hasil dan tekanan publikasi apa yang muncul.\n\nSaya usulkan satu aturan main: tidak ada publikasi yang dijadwalkan hari ini tanpa checklist empat poin terlampir. yang lolos, lanjut. Yang belum, revisi di tempat. Saya akan fokus verifikasi klaim dan konsentrasi subjek — dua titik paling rawan. Rapat selanjutnya, kita tinjau hasil dan tekanan publikasi apa yang muncul."
+    },
+    {
+      "kode": "laras",
+      "nama": "Laras",
+      "jabatan": "Storytelling & Editorial Writer",
+      "pendapat": "Satu catatan proses dulu: draft dan rencana konten hari ini belum terlampir di undangan rapat. Saya tidak bisa meninjau apa yang tidak saya lihat, jadi saya susun dulu kriteria tandanya, lalu draftnya harus masuk sebelum publikasi.\n\n1. **Setiap aset harus lulus uji \"satu pesan\".** Sebelum tayang, penulis watak jawab: apa satu hal yang harus dipahami penonton, dan apa ajakannya. Kalau tidak bisa dijelaskan dalam satu kalimat, berarti narasi kita bercabang. Satu aset, satu pesan, satu CTA. Tidak ada kompromi karena ini menentukan apakah ceritanya punya tujuan atau cuma narasi.\n\n2. **Klaim harus ada sumbernya, dan ketidakpastian diakui.** Saya perlu melihat tautan referensi untuk setiap fakta, terutama topik kesehatan, keuangan, hukum, dan klaim keberlanjutan. Larangan mutlak: klaim medis/finansial/hukum tanpa dasar, klaim \"100% ramah lingkungan\" tanpa bukti, janji \"pasti\" tanpa data. Kalau memang bersifat prediksi atau opini, label sebagai such — jangan dibungkus jadi fakta. Sebagai jurnalisme, kita bedakan tegas.\n\n3. **Titik buta terbesar: persetujuan manusia.** Cerita kita selalu mulai dari manusia, dan ini sering ketinggalan saat kejar tayang. Setiap konten yang menampilkan orang nyata — foto, cerita pribadi, studi kasus — wajib ada persetujuan tertulis, terutama untuk cerita berisiko (trauma, kelompok rentan, anak-anak). Saya minta tim editor memverifikasi bukti persetujuan sebelum menyetujui publikasi. Ini melindungi sumber dan kita.\n\n4. **Disiplin platform dan koreksi terbuka.** Caption 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject, visual harus menambah makna — bukan dekorasi. Headline yang janjinya tidak ditepati isi = clickbait, harus ditulis ulang. Satu hal lagi: kita perlu sepakati *jalur koreksi* sekarang, bukan saat terjadi kesalahan. Kalau ada yang salah tayang, kita koreksi terbuka, cepat, dan jelas.\n\nLangkah yang saya usulkan: draft beredar paling lambat sebelum jadwal publikasi, dengan checklist empat poin di atas. Yang lulus, tayang. Yang belum, ditunda — kepatuhan prinsip"
+    },
+    {
+      "kode": "raya",
+      "nama": "Raya",
+      "jabatan": "Creative Director & Content Designer",
+      "pendapat": "Satu — Sebelum apa pun tayang, setiap tim harus bisa menjawab satu pertanyaan: *apa pesan tunggal aset ini?* Kalau jawabannya lebih dari satu, aset itu belum siap. Prinsip Strategic Storytelling jelas soal tujuan dulu, cerita kemudian; busur naratif dan ajakan harus terlihat, bukan asumsi. Tugas saya hari ini: review apakah setiap draft punya tujuan yang bisa dinyatakan dalam satu kalimat. Yang tidak, ditunda, bukan diperbaiki sambil tayang.\n\nDua — Titik buta terbesar kita bukan di naskah, tapi di *tren*. Prinsip Digital Literacy: verifikasi sebelum virality, bedakan fakta, opini, dan prediksi. Risiko nyatanya: kita kejar hook trending, lalu klaim yang sebenarnya prediksi ditulis seolah fakta. Aturan main hari ini: setiap klaim mengandung ketidakpastian harus ditulis sebagai ketidakpastian. Tidak ada pengecualian demi engagement.\n\nTiga — Format adalah bagian dari mutu, bukan selera. Caption 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject, visual bermakna. Tugas saya memastikan visual bukan dekorasi — setiap elemen harus mendukung pesan tunggal tadi. Kadang tim nambah elemen \"biar ramai\"; justru itu yang melemahkan pesan.\n\nEmpat — Responsible Communication punya konsekuensi operasional yang sering lolos: tidak ada klaim medis, finansial, hukum, atau *sustainability absolut* tanpa bukti; tidak ada penuduhan tanpa verifikasi; data pribadi dilindungi; hindari clickbait. Khusus cerita manusia, persetujuan tidak boleh formalitas. Kalau subjeknya rentan, publikasi berisiko — persetujuan harus dipahami subjeknya sendiri. Saat ini saya perlu cek mana saja draft yang memuat subjek manusia langsung, supaya tidak ada yang lewat."
+    },
+    {
+      "kode": "tara",
+      "nama": "Tara",
+      "jabatan": "Community, Growth & Conversion Strategist",
+      "pendapat": "**1. Draftnya belum ada di depan saya — kunci *gate*-nya dulu.**\nDaftar draft hari ini tidak dilampirkan, jadi saya tidak meninjau asumsi. Yang bisa saya putuskan sekarang: tidak ada postingan di-schedule sebelum checklist empat"
+    }
+  ],
+  "notulen": "(notulen gagal: Atria timeout setelah 300 detik)",
+  "waktu": "2026-10-05T01:26:59.134Z"
+}

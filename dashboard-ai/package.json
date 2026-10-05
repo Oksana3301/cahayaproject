@@ -1,0 +1,19 @@
+{
+  "name": "dashboard-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dashboard AI Konten - Cahaya Project",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "migrate": "node migrate.js",
+    "seed-agents": "node seed-agents.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "sharp": "^0.35.5"
+  }
+}

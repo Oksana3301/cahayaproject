@@ -1,0 +1,58 @@
+{
+  "agenda": "Bagaimana kita memastikan setiap publikasi Cahaya Project hari ini memakai dan menjunjung tinggi EMPAT PRINSIP wajib? Tinjau draft/rencana konten hari ini, tandai risiko, dan putuskan langkah.",
+  "diundang": [
+    "nala",
+    "aruna",
+    "jati",
+    "bima",
+    "laras",
+    "raya",
+    "tara"
+  ],
+  "pendapat": [
+    {
+      "kode": "nala",
+      "nama": "Nala",
+      "jabatan": "Strategy & Systems Analyst",
+      "pendapat": "1. **Draft/rencana konten hari ini belum terlampir di rapat ini.** Agendanya meninjau draft, tapi tidak ada satu pun yang masuk — jadi yang bisa kita validasi saat ini hanya sistemnya, bukan isinya. Sebagai langkah: setiap publikasi wajib menyertakan \"Kartu Niat\" (tujuan → satu pesan → ajakan) sebelum masuk antrian produksi. Tanpa kartu, tidak masuk pipeline. Ini memaksa *Strategic Storytelling* bekerja di tahap konsep, bukan ditarik-tarik di tahap proofread.\n\n2. **Gerbang pertama: tes \"satu aset, satu pesan\".** Kegagalan paling sering adalah satu materi mualas membawa 3–4 pesan sekaligus. Kalimat tujuan tidak bisa ditulis dalam satu kalimat pendek, berarti aset itu kelewat berat dan harus dipecah. Busur naratifnya (konteks → insight → ajakan) harus sudah terlihat di struktur draft, bukan dicari-cari di caption.\n\n3. **Verifikasi: tuntut daftar klaim, bukan daftar ide.** Setiap draft wajib datang dengan daftar klaim faktual beserta sumbernya; editor menandai mana fakta, opini, dan prediksi. Yang belum diverifikasi tidak boleh \"dihaluskan\" menjadi kalimat yang terdengar pasti — ketidakpastiannya justru ditampilkan. Titik buta yang biasanya lolos: angka kecil dan kutipan yang terlihat \"aman\" tapi tidak punya sumber, karena tidak terasa perlu diperiksa.\n\n4. **R"
+    },
+    {
+      "kode": "aruna",
+      "nama": "Aruna",
+      "jabatan": "Research & Emerging Signals Scout",
+      "pendapat": ""
+    },
+    {
+      "kode": "jati",
+      "nama": "Jati",
+      "jabatan": "Fact-Check, Evidence & Compliance Lead",
+      "pendapat": "1. Sebelum apa pun tayang, setiap draft harus lewat gate yang sama: klaim apa yang dibawa, apa buktinya, dan siapa yang menyetujui. Prinsip Responsible Communication paling rawan di sini — klaim medis, finansial, hukum, dan sustainability absolut adalah titik buta utama. Kalau klaim tidak ada buktinya, hapus; jangan dilembutkan dengan kata samar. Dan bedakan tegas mana fakta, mana opini, mana prediksi. Kalau masih prediksi, tulis keterbatasannya terbuka, bukan disembunyikan di balik kata \"mungkin\".\n\n2. Konten yang menampilkan orang, terutama yang berisiko, harus punya persetujuan yang terdokumentasi — termasuk yang dipakai ulang dari arsip. Asumsi \"dulu sudah izin\" tidak berlaku hari ini. Sama halnya dengan data pribadi: dicek manual, bukan diasumsikan aman karena sudah lama dipakai.\n\n3. Satu aset, satu pesan. Prinsip Strategic Storytelling bukan soal estetika — pesan ganda bikin kita tidak bisa mengukur apakah pesan utamanya sampai. Kalau ada draft yang membawa dua pesan, potong salah satu sekarang.\n\n4. Tim harus siapkan protokol koreksi terbuka sebelum tayang, bukan setelah ada komplain. Kalau ada kesalahan, kita koreksi jelas di tempat yang sama, tidak diam-diam diedit. Dan terakhir: jangan ada clickbait hari ini. Judul dan caption 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject."
+    },
+    {
+      "kode": "bima",
+      "nama": "Bima",
+      "jabatan": "Red Team, Risk & Critical Thinking Lead",
+      "pendapat": "**1. Saya butuh melihat draftnya langsung.** Penilaian risiko tidak bisa atas dasar asumsi. Sebelum ada keputusan publish, semua draft lengkap (caption + visual + headline) harus masuk dokumen bersama. Ini prinsip Digital Literacy: verifikasi dulu, baru virality. *(Prinsip 2)*\n\n**2. Risiko tertinggi hari ini: klaim tanpa dasar.** Setiap klaim medis, finansial, hukum, atau klaim sustainability absolut wajib ada sumbernya. Kalau tidak ada dasar, ubah jadi opini/prediksi yang batasnya jelas, atau hapus klaimnya. Untuk konten yang menyinggung pihak lain: tidak ada tuduhan tanpa verifikasi"
+    },
+    {
+      "kode": "laras",
+      "nama": "Laras",
+      "jabatan": "Storytelling & Editorial Writer",
+      "pendapat": "(tidak hadir: rem token harian aktif: total 259011 telah mencapai plafon 250000)"
+    },
+    {
+      "kode": "raya",
+      "nama": "Raya",
+      "jabatan": "Creative Director & Content Designer",
+      "pendapat": "(tidak hadir: rem token harian aktif: total 259011 telah mencapai plafon 250000)"
+    },
+    {
+      "kode": "tara",
+      "nama": "Tara",
+      "jabatan": "Community, Growth & Conversion Strategist",
+      "pendapat": "(tidak hadir: rem token harian aktif: total 259011 telah mencapai plafon 250000)"
+    }
+  ],
+  "notulen": "(notulen gagal: rem token harian aktif: total 259011 telah mencapai plafon 250000)",
+  "waktu": "2026-10-05T01:28:47.579Z"
+}

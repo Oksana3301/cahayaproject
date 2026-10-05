@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pasukan — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  function muat() {
+    Util.fetchJson("/api/biaya").then(function (data) {
+      var agents = data.per_agent || [];
+      var html = '<div class="grid-pasukan">';
+      for (var i = 0; i < agents.length; i++) {
+        var a = agents[i];
+        var cls = a.persen >= 100 ? "merah" : a.persen >= 80 ? "kuning" : "";
+        html += '<div class="kartu" data-agent="' + Util.esc(a.kode) + '" style="cursor:pointer">' +
+          '<div class="baris-atas"><span class="emoji-agent" style="font-size:18px">' + a.emoji + "</span>" +
+          '<span class="nama-agent">' + Util.esc(a.nama) + "</span>" +
+          '<span class="teks-redup">' + Util.esc(a.jabatan) + "</span></div>" +
+          '<div class="teks-redup">Skill: ' + Util.esc(a.skill ? a.skill.join(", ") : "-") + "</div>" +
+          '<div class="teks-redup">Token: ' + a.terpakai + " / " + a.jatah + " (" + a.persen + "%)</div>" +
+          '<div class="bar-token"><div class="isi-bar ' + cls + '" style="width:' + Math.min(100, a.persen) + '%"></div></div>' +
+          "</div>";
+      }
+      html += '</div><div id="riwayat-agent" style="margin-top:16px"></div>';
+      Util.muatLayout("/pasukan", html, "Pasukan");
+
+      document.querySelectorAll("[data-agent]").forEach(function (kartu) {
+        kartu.addEventListener("click", function () {
+          var kode = kartu.getAttribute("data-agent");
+          var el = document.getElementById("riwayat-agent");
+          el.innerHTML = '<div class="teks-redup">Memuat riwayat...</div>';
+          Util.fetchJson("/api/agent/" + encodeURIComponent(kode) + "/riwayat")
+            .then(function (r) {
+              var rows = r.riwayat || [];
+              var h = '<div class="kartu" style="margin-top:12px"><div class="judul-kartu">Riwayat ' + Util.esc(kode) + "</div>";
+              if (!rows.length) { h += '<div class="teks-redup">Belum ada tugas yang dikerjakan.</div>'; }
+              else {
+                h += '<table class="tabel-data"><tr><th>Tugas</th><th>Status</th><th>Selesai</th></tr>';
+                for (var i = 0; i < rows.length; i++) {
+                  h += "<tr><td>" + Util.esc(rows[i].judul) + "</td><td>" + Util.statusBadge(rows[i].status) +
+                    "</td><td>" + Util.umurLalu(rows[i].selesai_pada) + "</td></tr>";
+                }
+                h += "</table>";
+              }
+              h += "</div>";
+              el.innerHTML = h;
+            })
+            .catch(function (e) { el.innerHTML = '<p class="pesan-error">' + Util.esc(e.message) + "</p>"; });
+        });
+      });
+    }).catch(function (e) {
+      Util.muatLayout("/pasukan", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Pasukan");
+    });
+  }
+
+  muat();
+})();
+</script>
+</body>
+</html>

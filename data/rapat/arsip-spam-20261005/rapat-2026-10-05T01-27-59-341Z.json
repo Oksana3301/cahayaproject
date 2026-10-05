@@ -1,0 +1,58 @@
+{
+  "agenda": "Bagaimana kita memastikan setiap publikasi Cahaya Project hari ini memakai dan menjunjung tinggi EMPAT PRINSIP wajib? Tinjau draft/rencana konten hari ini, tandai risiko, dan putuskan langkah.",
+  "diundang": [
+    "nala",
+    "aruna",
+    "jati",
+    "bima",
+    "laras",
+    "raya",
+    "tara"
+  ],
+  "pendapat": [
+    {
+      "kode": "nala",
+      "nama": "Nala",
+      "jabatan": "Strategy & Systems Analyst",
+      "pendapat": "Satu catatan dulu: tidak ada draft/rencana konten yang dilampirkan ke saya, jadi saya tidak akan mengarang detail isi. Yang bisa saya putuskan sekarang adalah kerangka pencegahan agar setiap publikasi hari ini lolos keempat prinsip.\n\n1. **Pasang \"gate\" 4-prinsip sebelum tombol publish, bukan sesudah.** Setiap aset harus menjawab tiga hal: tujuannya apa, pesan utamanya satu (tidak boleh tiga sekaligus), ajakannya apa. Kalau salah satu tidak terjawab, tunda publikasi. Ini memaksa Strategic Storytelling terjadi di tahap perancangan, bukan di caption.\n\n2. **Verifikasi adalah syarat, bukan opsi.** Setiap angka, klaim, atau kutipan harus ada sumber yang bisa dicek ulang. Tim harus tahu perbedaan fakta (ada bukti), opini (pandangan), dan prediksi (proyeksi) — dan menuliskannya sebagai apa adanya. Kalau tidak yakin, gunakan kalimat ketidakpastian (\"berdasarkan data yang ada sejauh ini\"), jangan kalimat pasti. Ini Digital Literacy dalam praktik.\n\n3. **Daftar hitam klaim yang sering lolos.** Tidak ada klaim medis, finansial, atau hukum tanpa dasar. Tidak ada klaim sustainability absolut (\"paling ramah lingkungan\", \"100% bebas dampak\") tanpa bukti yang terverifikasi. Tidak ada penuduhan pihak lain tanpa verifikasi. Caption tetap di 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject, dan visual harus bermakna — bukan sekadar hiasan. Untuk konten yang menampilkan orang dalam situasi berisiko, pastikan persetujuannya ada dan data pribadi terlindungi.\n\n4. **Titik buta terbesar hari ini: mengejar tren.** Algoritma mendorong kita ke clickbait dan klaim dramatis. Justru di sini Responsible Communication diuji. Siapkan juga mekanisme koreksi terbuka: kalau ada kesalahan terbit hari ini, kita koreksi di hari yang sama, transparan, tanpa dihapus sembunyi-sembunyi.\n\nLangkah saya: kirim draft ke meja saya sebelum jam publikasi, saya tinjau terhadap keempat prinsip, beri catatan perbaikan atau lampu hijau. Lebih cepat dicek, lebih sedikit yang harus ditarik kembali."
+    },
+    {
+      "kode": "aruna",
+      "nama": "Aruna",
+      "jabatan": "Research & Emerging Signals Scout",
+      "pendapat": "1"
+    },
+    {
+      "kode": "jati",
+      "nama": "Jati",
+      "jabatan": "Fact-Check, Evidence & Compliance Lead",
+      "pendapat": ""
+    },
+    {
+      "kode": "bima",
+      "nama": "Bima",
+      "jabatan": "Red Team, Risk & Critical Thinking Lead",
+      "pendapat": "Satu: Sebelum draft apa pun dijadwalkan, setiap aset harus punya satu pesan inti tertulis dalam satu kalimat. Kalau pembuatnya tidak bisa menuliskannya, aset itu belum siap — bukan masalah desain, tapi masalah tujuan. Itu paling cepat menyaring draft yang bercampur pesan promo dan edukasi. Satu aset, satu pesan, satu *call* yang jelas.\n\nDua: Gerbang verifikasi saya hari ini fokus pada tiga hal: klaim angka, klaim dampak, dan kutipan. Setiap angka harus ada sumber dan tanggal; setiap klaim dampak harus dicatat \"hasil verifikasi penuh\", \"sebagian\", atau \"belum terverifikasi\". Kalau ada yang belum terverifikasi, pilihannya tetap publikasi dengan keterbukaan soal keterbatasannya — bukan menghaluskan kalimat supaya terdengar meyakinkan. Bedakan juga mana fakta, mana opini, mana prediksi; ketiganya tidak boleh disajikan dengan bobot yang sama.\n\nTiga: Risiko paling tinggi hari ini biasanya bukan di copy, tapi di visual dan persetujuan. Foto subjek — terutama anak-anak, kelompok rentan, atau warga dalam kondisi sulit — harus ada persetujuan yang terekam, termasuk untuk konteks publikasi. Pastikan juga tidak ada data pribadi tersisip di tangkapan layar atau dokumen latar. Ini bukan formalitas: satu pelanggaran bisa menghapus kepercayaan yang sudah lama dibangun.\n\nEmpat: Siapkan protokol koreksi sebelum publikasi, bukan setelah. Jika ada kesalahan, koreksi terbuka dengan alasan, tanpa sunyiam-diam menghapus. Tim harus tahu ini bukan hukuman, tapi bagian dari komitmen. Nada caption tetap di 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject, dan visual yang bermakna — bukan sekadar mengisi slot.\n\nLangkah yang saya usul: setiap penanggung jawab konten unggah draft lengkap dengan klaim, sumber, dan status persetujuan. Saya tandai risiko pagi ini, dan yang merah tidak tayang sampai jelas. Yang kuning bisa tayang dengan catatan revisi kecil."
+    },
+    {
+      "kode": "laras",
+      "nama": "Laras",
+      "jabatan": "Storytelling & Editorial Writer",
+      "pendapat": "1. **Gate pertama: uji tujuan sekali lalu.** Setiap draft harus bisa menyebut tujuan, satu pesan inti, dan ajakan dalam satu kalimat. Kalau tidak bisa, tunda publikasi — ini langsung dari prinsip Strategic Storytelling, dan jauh lebih murah daripada revisi setelah tayang.\n\n2. **Pisahkan fakta, opini, dan prediksi di naskah, bukan di kepala.** Setiap klaim — medis, finansial, hukum, sustainability — wajib ada sumber yang bisa ditunjuk; tidak ada sumber, tidak tayang. Ketidakpastian ditulis terbuka, bukan diluruskan dengan kata-kata yang terdengar pasti. Kalau ada kesalahan yang sudah tayang, koreksi terbuka di platform yang sama, bukan diam-diam di-edit.\n\n3. **Format itu bagian dari prinsip, bukan gaya.** Caption 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject, visual bermakna (ada adegan/manusia, bukan dekorasi). Buka dari manusia — satu nama, satu adegan — sebelum masuk data atau seruan. Yang sering lolos: visual dipilih karena cantik, padahal tidak memperkuat pesan.\n\n4. **Titik buta terbesar: data pribadi dan persetujuan.** Publikasi berisiko (anak, korban, kondisi sensitif) wajib ada persetujuan yang tercatat, dan identitas yang dianonimkan bila perlu. Saya juga akan tandai framing clickbait — judul janji besar, isi tipis — karena itu menggerus kepercayaan jangka panjang, bukan sekadar masalah etik.\n\nUsul: daftar draft hari ini saya cek lewat empat filter di atas sebelum jam makan"
+    },
+    {
+      "kode": "raya",
+      "nama": "Raya",
+      "jabatan": "Creative Director & Content Designer",
+      "pendapat": "1. **Sebelum publikasi, setiap aset harus punya jawaban satu kalimat:** \"Apa pesan utama dan apa yang ingin kita buat audiens lakukan setelah ini?\" Prinsip Strategic Storytelling kita jelas — satu aset, satu pesan, ada busur naratif dan ajakan. Jika ada aset hari ini yang masih menumpuk tiga pesan sekaligus, saya minta dipecah sekarang, bukan besok.\n\n2. **Verifikasi adalah gerbang yang tidak bisa dilewati, sebelum masuk ke kanal.** Setiap klaim fakta harus dicocokkan dengan sumber primer, dan tim wajib membedakan dengan tegas mana fakta, opini, dan prediksi. Saat ada ketidakpastian — akui, jangan dilicinkan dengan kata-kata. Lebih baik menulis \"data ini masih terbatas\" daripada membuat kesimpulan yang tidak bisa kita tanggung.\n\n3. **Titik buta terbesar hari ini: visual, bukan copy.** Sering kali caption sudah lolos cek, tapi ilustrasi, grafik, atau video justru menyiratkan klaim — medis, finansial, hukum, atau sustainability absolut — tanpa dasar. Saya minta review visual sama ketatnya review teks, termasuk teks yang muncul di atas gambar. Zaman ini, screenshot satu frame bisa lebih viral dari caption kita.\n\n4. **Format dan nada adalah disiplin, bukan gaya.** Caption 500–1000 karakter, 3–5 hashtag termasuk #CahayaProject, nada smart-warm-relaxed-critical-constructive-hopeful. Jangan ada clickbait, jangan ada judul yang janji lebih dari isi. Kalau ada potensi publikasi berisiko yang melibatkan manusia — wajib ada persetujuan, dan lindungi data pribadinya. Ini bukan prosedur tambahan, ini standar mutu kita. Yang lolos salah satu, saya tolak publikasi."
+    },
+    {
+      "kode": "tara",
+      "nama": "Tara",
+      "jabatan": "Community, Growth & Conversion Strategist",
+      "pendapat": "(tidak hadir: rem token harian aktif: total 250113 telah mencapai plafon 250000)"
+    }
+  ],
+  "notulen": "(notulen gagal: rem token harian aktif: total 250113 telah mencapai plafon 250000)",
+  "waktu": "2026-10-05T01:27:59.341Z"
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Draft — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  Util.fetchJson("/api/draft").then(function (data) {
+    var drafts = data.drafts || [];
+    var html = '<div class="form-perintah"><select class="input-perintah" id="saring-status">' +
+      '<option value="">Semua status</option>' +
+      ["menunggu","disetujui","terjadwal","ditolak","gagal","terbit"].map(function (s) {
+        return '<option value="' + s + '">' + s + "</option>";
+      }).join("") + "</select></div>";
+    var konten = "";
+    if (!drafts.length) konten = '<div class="kartu teks-redup" style="margin-top:12px">Belum ada draft.</div>';
+    for (var i = 0; i < drafts.length; i++) {
+      var d = drafts[i];
+      konten += '<div class="draft-lengkap" data-status="' + Util.esc(d.status) + '">' +
+        '<div class="judul-kartu">' + Util.esc(d.judul) + "</div>" +
+        '<div class="teks-redup">Status: ' + Util.statusBadge(d.status) +
+        (d.alasan_tolak ? " | Alasan tolak: " + Util.esc(d.alasan_tolak) : "") + "</div>" +
+        '<div class="caption-lengkap">' + Util.esc(d.caption) + "</div>" +
+        '<div class="teks-redup">Tagar: ' + Util.esc((d.tagar || []).join(" ")) + "</div>" +
+        (d.schedule_id ? '<div class="teks-redup">schedule_id: <span class="mono teks-biru">' + Util.esc(d.schedule_id) + "</span></div>" : "") +
+        "</div>";
+    }
+    Util.muatLayout("/draft", html + '<div id="konten-draft">' + konten + "</div>", "Draft");
+    document.getElementById("saring-status").addEventListener("change", function () {
+      var v = this.value;
+      document.querySelectorAll("#konten-draft .draft-lengkap").forEach(function (el) {
+        el.style.display = !v || el.getAttribute("data-status") === v ? "" : "none";
+      });
+    });
+  }).catch(function (e) {
+    Util.muatLayout("/draft", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Draft");
+  });
+})();
+</script>
+</body>
+</html>

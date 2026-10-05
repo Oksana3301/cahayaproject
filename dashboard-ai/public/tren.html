@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tren & Musik — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  Util.fetchJson("/api/tren").then(function (data) {
+    var items = data.musik || [];
+    var html = "";
+    if (!items.length) html = '<div class="kartu teks-redup">Tidak ada data musik saat ini.</div>';
+    else {
+      html = '<table class="tabel-data"><tr><th>Judul</th><th>Artis</th><th>Popularitas</th></tr>';
+      for (var i = 0; i < items.length; i++) {
+        html += "<tr><td>" + Util.esc(items[i].judul) + "</td><td>" + Util.esc(items[i].artis) +
+          '<td class="teks-biru mono">' + Util.esc(items[i].popularitas) + "</td></tr>";
+      }
+      html += "</table>";
+    }
+    Util.muatLayout("/tren", html, "Tren & Musik");
+  }).catch(function (e) {
+    Util.muatLayout("/tren", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Tren & Musik");
+  });
+})();
+</script>
+</body>
+</html>

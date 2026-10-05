@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Persetujuan — Cahaya Project</title>
+<link rel="stylesheet" href="/app.css"></head>
+<body>
+<script src="/app.js"></script>
+<script>
+(function () {
+  function muat() {
+    Util.fetchJson("/api/persetujuan").then(function (data) {
+      var drafts = data.drafts || [];
+      var html = "";
+      if (!drafts.length) {
+        html = '<div class="kartu teks-redup">Tidak ada draft yang menunggu persetujuan.</div>';
+      }
+      for (var i = 0; i < drafts.length; i++) {
+        var d = drafts[i];
+        html += '<div class="draft-lengkap" id="draft-' + d.id + '">' +
+          '<div class="judul-kartu">' + Util.esc(d.judul) + "</div>" +
+          '<div class="teks-redup">Akun tujuan: ' + Util.esc(d.akun_id) + " | Status: " + Util.statusBadge(d.status) + "</div>" +
+          '<div class="caption-lengkap">' + Util.esc(d.caption) + "</div>" +
+          '<div class="teks-redup">Tagar: ' + Util.esc((d.tagar || []).join(" ")) + "</div>" +
+          '<div class="baris-tombol">' +
+          '<button class="tombol tombol-hijau" data-ya="' + d.id + '">Setujui</button>' +
+          '<button class="tombol tombol-merah" data-tidak="' + d.id + '">Tolak</button></div>' +
+          '<div class="kotak-alasan" id="alasan-' + d.id + '" hidden>' +
+          '<textarea id="teks-alasan-' + d.id + '" placeholder="Alasan penolakan (wajib diisi)..."></textarea>' +
+          '<button class="tombol tombol-merah" data-kirim-tidak="' + d.id + '" disabled>Kirim Penolakan</button></div>' +
+          '<p class="pesan-sukses" id="hasil-' + d.id + '" hidden></p>' +
+          "</div>";
+      }
+      Util.muatLayout("/persetujuan", html, "Persetujuan");
+      pasangTombol();
+    }).catch(function (e) {
+      Util.muatLayout("/persetujuan", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Persetujuan");
+    });
+  }
+
+  function pasangTombol() {
+    document.querySelectorAll("[data-ya]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-ya");
+        var el = document.getElementById("hasil-" + id);
+        btn.disabled = true;
+        Util.fetchJson("/api/persetujuan/" + id + "/ya", { method: "POST" })
+          .then(function (r) {
+            el.textContent = "Terjadwal. schedule_id: " + Util.esc(r.scheduleId) + " pada " + Util.esc(r.scheduleAt);
+            el.hidden = false;
+            setTimeout(muat, 3000);
+          })
+          .catch(function (e) { btn.disabled = false; el.textContent = e.message; el.hidden = false; });
+      });
+    });
+    document.querySelectorAll("[data-tidak]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-tidak");
+        document.getElementById("alasan-" + id).hidden = false;
+      });
+    });
+    document.querySelectorAll("[data-kirim-tidak]").forEach(function (btn) {
+      var id = btn.getAttribute("data-kirim-tidak");
+      var ta = document.getElementById("teks-alasan-" + id);
+      ta.addEventListener("input", function () { btn.disabled = !ta.value.trim(); });
+      btn.addEventListener("click", function () {
+        var el = document.getElementById("hasil-" + id);
+        btn.disabled = true;
+        Util.fetchJson("/api/persetujuan/" + id + "/tidak", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ alasan: ta.value.trim() }),
+        }).then(function (r) {
+          el.textContent = "Ditolak: " + Util.esc(r.alasan);
+          el.hidden = false;
+          setTimeout(muat, 2500);
+        }).catch(function (e) { btn.disabled = false; el.textContent = e.message; el.hidden = false; });
+      });
+    });
+  }
+
+  muat();
+})();
+</script>
+</body>
+</html>

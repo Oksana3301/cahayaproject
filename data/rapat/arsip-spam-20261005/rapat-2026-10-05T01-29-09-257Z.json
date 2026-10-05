@@ -1,0 +1,58 @@
+{
+  "agenda": "Bagaimana kita memastikan setiap publikasi Cahaya Project hari ini memakai dan menjunjung tinggi EMPAT PRINSIP wajib? Tinjau draft/rencana konten hari ini, tandai risiko, dan putuskan langkah.",
+  "diundang": [
+    "nala",
+    "aruna",
+    "jati",
+    "bima",
+    "laras",
+    "raya",
+    "tara"
+  ],
+  "pendapat": [
+    {
+      "kode": "nala",
+      "nama": "Nala",
+      "jabatan": "Strategy & Systems Analyst",
+      "pendapat": "1. **Pasang \"pintu masuk\" sebelum publish, jangan andalkan ingatan.** Setiap draft hari ini lewat checklist satu halaman yang langsung memetakan keempat prinsip: tujuan dulu (satu aset = satu pesan, ada busur naratif + ajakan), sumber klaim tertulis dengan label fakta/opini/prediksi, format caption 500–1000 karakter + 3–5 hashtag termasuk #CahayaProject, serta bebas klaim medis/finansial/hukum/sustainability tanpa bukti. Satu jawaban \"tidak yakin\" = mundur. Pemilik konten"
+    },
+    {
+      "kode": "aruna",
+      "nama": "Aruna",
+      "jabatan": "Research & Emerging Signals Scout",
+      "pendapat": "**1. Konten yang menambang berita atau tren hari ini wajib lampirkan sumber primer + cap waktu sebelum dijadwalkan.** Sebagai Research & Emerging Signals Scout, risiko terbesar kita bukan lambat, tapi ikut cepat pada narasi yang belum terverifikasi. Setiap klaim faktual harus bisa ditelusuri; jika hanya opini atau prediksi, ditulis apa adanya sebagai opini/prediksi. Ini langsung menyentuh Digital Literacy: verifikasi sebelum virality, dan akui ketidakpastian jika memang belum pasti. Jika sumbernya tidak bisa diverifikasi, tahan"
+    },
+    {
+      "kode": "jati",
+      "nama": "Jati",
+      "jabatan": "Fact-Check, Evidence & Compliance Lead",
+      "pendapat": "**1. Draft dan rencana konten hari ini belum saya terima — ini titik awalnya.**\nSaya tidak bisa memvalidasi apa yang belum saya lihat. Sebagai gate kepatuhan, semua draft wajib masuk antrian review sebelum jadwal publish, dengan cut-off waktu yang disepakati. Kalau review hanya dilakukan setelah konten tayang, Prinsip 2 (verifikasi sebelum virality) sudah gagal sebelum mulai. Saran: setiap tim kirim draft lengkap (caption + visual + headline) paling lambat 2 jam sebelum slot publish.\n\n**2. Pemisahan fakta, opini, dan prediksi harus terlihat di draft, bukan di kepala penulis.**\nTuntutan editor menandai setiap klaim: fakta (dengan sumber terverifikasi), opini (sudut pandang), atau prediksi (memang tidak pasti). Contoh risiko: narasi harapan dalam isu sosial sering tidak sengaja terdengar seperti janji. Kalau tidak ditandai, pembaca tidak tahu mana yang bisa dipegang. Ini langsung dari Prinsip 2 — akui ketidakpastian, jangan samarkan.\n\n**3. Klaim sensitif butuh bukti, bukan keyakinan.**\nArea paling rawan hari ini: klaim medis, finansial, hukum, dan sustainability absolut. Aturan saya: tidak ada klaim sustainability tanpa data atau referensi yang bisa dicek ulang, tidak ada klaim medis tanpa sumber otoritatif. Sebagai Cerita, \"selamatkan 1000 jiwa\" memang kuat — tapi kalau angka tersebut tidak bisa diverifikasi, itu klaim sustainability absolut tanpa bukti. Wajib revisi atau dilunakkan menjadi fakta yang memang ada.\n\n**4. Tit"
+    },
+    {
+      "kode": "bima",
+      "nama": "Bima",
+      "jabatan": "Red Team, Risk & Critical Thinking Lead",
+      "pendapat": ""
+    },
+    {
+      "kode": "laras",
+      "nama": "Laras",
+      "jabatan": "Storytelling & Editorial Writer",
+      "pendapat": "1. Audit pesan tunggal sebelum publish. Setiap draft harus punya satu pesan inti dan satu ajakan. Draft yang pesannya ganda atau menggantung tanpa ajakan, saya kembalikan untuk direvisi, bukan diterbitkan mepet jadwal.\n\n2. Periksa setiap klaim yang berisiko. Fakta, opini, dan prediksi harus jelas batasnya. Kalau ada klaim medis, finansial, hukum, atau klaim sustainability tanpa bukti, tunda dulu sampai ada rujukan. Ketidakpastian ditulis apa adanya, bukan diluruskan dengan asumsi. Hook yang dirancang viral wajib melewati verifikasi ekstra — urgensi tayang tidak boleh mengalahkan akurasi.\n\n3. Konsen dan data pribadi jadi gerbang utama. Cerita testimonial atau konten berisiko tinggi butuh persetujuan tertulis. Kalau tidak ada, anonimkan atau ubah komposisinya. Detail identitas yang tidak mendukung pesan utama harus dibuang.\n\n4. Catatan koreksi dan tanggung jawab. Setiap draft saya beri catatan: siapa penanggung jawab publikasi dan jalur koreksi terbuka kalau ada kesalahan. Format caption 500–1000 karakter dan 3–5 hashtag termasuk #CahayaProject saya cek di tahap akhir.\n\nTitik buta yang saya lihat: draft yang sudah terasa \"jelas\" sering paling rawan, karena tim berhenti mempertanyakan asumsinya. Rapat ini harus menetapkan siapa berhak memberi lampu hijau, bukan hanya siapa yang menulis."
+    },
+    {
+      "kode": "raya",
+      "nama": "Raya",
+      "jabatan": "Creative Director & Content Designer",
+      "pendapat": ""
+    },
+    {
+      "kode": "tara",
+      "nama": "Tara",
+      "jabatan": "Community, Growth & Conversion Strategist",
+      "pendapat": "**1. Saya tidak bisa meninjau draft yang belum saya lihat.** Sebelum bahas risiko, pastikan semua rencana konten hari ini — caption, visual, CTA — sudah masuk kanal tinjau bersama. Sebagai orang growth, saya lebih takut publikasi yang lolos tanpa ditinjau daripada kritik yang terlambat satu jam. Untuk saat ini, saya pegang yang bisa saya pegang: prosesnya.\n\n**2. Konversi kita berdiri di atas kepercayaan, bukan klik.** Prinsip ke-4 bukan rem pertumbuhan — dia bentengnya. Klaim medis/finansial/hukum tanpa dasar atau klaim sustainability tanpa bukti mungkin naikkan CTR hari ini, tapi menggerus trust komunitas yang jadi sumber konversi jangka panjang. Tugas saya memastikan funnel tidak diisi janji yang tidak bisa kita penuhi. Riset dan testimoni nyama itu pendukung, bukan ornamen.\n\n**3. Satu aset, satu pesan, satu tujuan.** Prinsip ke-1 paling sering dilanggar saat kita serakah: ingin edukasi + promosi + viral sekaligus. Hasilnya pesan pecah, CTA kabur, dan pembaca bingung mau ngapain. Standar saya sederhana: kalau satu elemen tidak melayani tujuan, hapus. Storytelling punya busur — dan busur itu harus sampai ke ajakan, bukan menggantung di tengah.\n\n**4. Titik buta terbesar ada di garis antara hook kuat dan clickbait.** Tim growth memang terlatih bikin hook yang berhenti-scroll. Itu sah, selama tidak melanggar Prinsip ke-2:"
+    }
+  ],
+  "notulen": "(notulen gagal: Atria timeout setelah 300 detik)",
+  "waktu": "2026-10-05T01:29:09.257Z"
+}
