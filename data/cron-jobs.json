@@ -102,7 +102,7 @@
     "description": "Tiap 12.00 WIB. Laras menyusun 3 draft (1 timely, 1 educational, 1 engagement) dan menahan untuk persetujuan Owner.",
     "enabled": true,
     "deleteAfterRun": false,
-    "updatedAtMs": 1791105908476,
+    "updatedAtMs": 1791176436974,
     "schedule": {
       "kind": "cron",
       "expr": "0 12 * * *",
@@ -117,7 +117,9 @@
       "engine": "detak"
     },
     "state": {
-      "nextRunAtMs": 1791176400000
+      "nextRunAtMs": 1791262800000,
+      "lastStatus": "skipped",
+      "lastError": "ditangani seeder skill (riset/draft)"
     },
     "delivery": {
       "mode": "none"
@@ -131,7 +133,7 @@
     "description": "Tiap 15.00 WIB. Bima menyerang asumsi, mencari kontra-argumen, bias, dan risiko.",
     "enabled": true,
     "deleteAfterRun": false,
-    "updatedAtMs": 1791105908479,
+    "updatedAtMs": 1791187237473,
     "schedule": {
       "kind": "cron",
       "expr": "0 15 * * *",
@@ -146,7 +148,9 @@
       "engine": "detak"
     },
     "state": {
-      "nextRunAtMs": 1791187200000
+      "nextRunAtMs": 1791273600000,
+      "lastStatus": "skipped",
+      "lastError": "ditangani seeder skill (riset/draft)"
     },
     "delivery": {
       "mode": "none"

@@ -100,10 +100,28 @@ npm run build && npm start
 Tab **Percakapan** di HQ sidebar (`/kantor/office`) menampilkan riwayat Owner ↔ agent:
 - Pesan **masuk** (Owner → agent) dan **keluar** (agent → Owner) dari WhatsApp.
 - Filter per-tanggal & per-agent, kotak pencarian, auto-refresh 20 detik.
-- Sumber: log JSONL `<PERCAKAPAN_DIR>/owner-agent/<tanggal>.jsonl` (default [`percakapan/owner-agent/`](percakapan/owner-agent/)).
+- Sumber: log JSONL `<PERCAKAPAN_DIR>/owner-agent/<tanggal>.jsonl` (default `percakapan/owner-agent/`).
 - API: `GET /api/percakapan` dan `GET /api/percakapan/tanggal` (dashboard-ai, perlu sesi login).
 
-Format & detail: [`percakapan/README.md`](percakapan/README.md) · Operasional: [`docs/07-operasi.md`](docs/07-operasi.md).
+Format & detail: [`docs/08-percakapan.md`](docs/08-percakapan.md) · [`percakapan/README.md`](percakapan/README.md) · Operasional: [`docs/07-operasi.md`](docs/07-operasi.md).
+
+---
+
+## Skrip Bantu
+
+| Skrip | Kegunaan |
+|---|---|
+| `tools/sync-repo.sh` | Menyegarkan repo dari sistem live (`/opt/dashboard-ai` → repo ini). |
+| `tools/push.sh "<pesan>"` | Sync + commit + push ke GitHub (dengan pagar anti-rahasia). |
+| `tools/gen-percakapan.js` | Menghasilkan ringkasan rapat ke `percakapan/rapat/`. |
+
+```bash
+# segarkan repo saja
+bash tools/sync-repo.sh
+
+# commit + push (lewati sync dengan SKIP_SYNC=1)
+bash tools/push.sh "docs: rapikan indeks"
+```
 
 ---
 
