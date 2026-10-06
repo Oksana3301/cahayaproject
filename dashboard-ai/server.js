@@ -225,10 +225,20 @@ app.post("/api/wa/inbound", async (req, res) => {
   // HANYA layani nomor Owner (whitelist). Kirana khusus dipakai Owner untuk
   // mengobrol dengan agent; pesan dari nomor lain (customer/grup) diabaikan
   // agar tidak bentrok dengan bot front-desk hotel.
-  if (!require("./lib/whatsapp").izinkanPengirim(chatId)) {
-    console.log(`[wa/inbound] diabaikan — bukan nomor Owner (${chatId})`);
+  const waLib = require("./lib/whatsapp");
+  if (!waLib.izinkanPengirim(chatId)) {
+    console.log(
+      `[wa/inbound] diabaikan — bukan nomor Owner (jid=${chatId}, nomor=${waLib.nomorDariJid(chatId) || "-"}, whitelist=${waLib.daftarOwner().join("|") || "-"})`
+    );
     return res.json({ ok: true, diabaikan: true, alasan: "bukan nomor Owner" });
   }
+
+  // Tentukan tujuan balasan yang bisa DIKIRIM oleh WAHA. Bila pengirim datang
+  // sebagai "@lid" (Owner via LID, engine WEBJS), WAHA menolak sendText ke
+  // "…@lid" ("No LID for user") — maka balas ke nomor Owner "@c.us".
+  const balasKe = String(chatId).endsWith("@lid")
+    ? waLib.normalisasiNomor(waLib.daftarOwner()[0])
+    : chatId;
 
   // Deteksi perintah
   const mAgent = body.match(/^@([a-zA-Z]+)\s+([\s\S]+)/);
@@ -290,7 +300,7 @@ app.post("/api/wa/inbound", async (req, res) => {
         "*Agent yang bisa ditanya:*",
         daftarAgent,
       ].join("\n");
-      await kirimDanCatat(chatId, teks, { agent: "kirana", perintah: "/bantuan" });
+      await kirimDanCatat(balasKe, teks, { agent: "kirana", perintah: "/bantuan" });
       return;
     }
     if (target === "STATUS") {
@@ -310,18 +320,18 @@ app.post("/api/wa/inbound", async (req, res) => {
         "",
         "_Perintah: @kirana <tanya>, /tanya <tanya>, /rapat <agenda>, /status_",
       ].join("\n");
-      await kirimDanCatat(chatId, teks, { agent: "kirana", perintah: "/status" });
+      await kirimDanCatat(balasKe, teks, { agent: "kirana", perintah: "/status" });
       return;
     }
     if (target === "RAPAT") {
-      await kirimDanCatat(chatId, `_Rapat dimulai: "${pertanyaan}". Notulen menyusul (beberapa menit)._`, { agent: "kirana", perintah: "/rapat" });
+      await kirimDanCatat(balasKe, `_Rapat dimulai: "${pertanyaan}". Notulen menyusul (beberapa menit)._`, { agent: "kirana", perintah: "/rapat" });
       const rapat = require("./lib/rapat");
       // jalankanRapat otomatis mengirim SATU ringkasan ke chat ini.
-      const hasil = await rapat.jalankanRapat({ agenda: pertanyaan, undangan: ["nala", "laras", "tara"], waNomor: chatId });
+      const hasil = await rapat.jalankanRapat({ agenda: pertanyaan, undangan: ["nala", "laras", "tara"], waNomor: balasKe });
       const ringkasWa = wa.ringkasRapatUntukWa(hasil);
       if (!hasil.waTerkirim) {
         // Fallback bila pengiriman otomatis gagal.
-        try { await wa.kirimTeks(chatId, ringkasWa); } catch (e) { console.error("[wa/inbound] gagal kirim notulen:", e.message); }
+        try { await wa.kirimTeks(balasKe, ringkasWa); } catch (e) { console.error("[wa/inbound] gagal kirim notulen:", e.message); }
       }
       // Catat notulen ASLI ke riwayat percakapan (bukan placeholder).
       pc.catat({ arah: "keluar", nomor: chatId, agent: "kirana", perintah: "/rapat", balasan: ringkasWa, meta: { jenis: hasil.jenis, diundang: hasil.diundang, terkirim: !!hasil.waTerkirim } });
@@ -343,12 +353,12 @@ app.post("/api/wa/inbound", async (req, res) => {
     const data = await chat({ agent: target, skill: "analytics", messages, maxTokens: 1600 });
     const jawab = (data.choices?.[0]?.message?.content || "(tidak ada jawaban)").trim();
     const balasan = `*${roster.ambil(target)?.nama || target}* ${roster.ambil(target)?.emoji || ""}\n\n${jawab}`;
-    await kirimDanCatat(chatId, balasan, { agent: target, perintah: perintahLabel });
+    await kirimDanCatat(balasKe, balasan, { agent: target, perintah: perintahLabel });
   } catch (e) {
     console.error("[wa/inbound] gagal proses:", e.message);
     try {
       const pesanGagal = `Maaf, terjadi kendala: ${e.message.slice(0, 150)}`;
-      await kirimDanCatat(chatId, pesanGagal, { agent: target, perintah: perintahLabel });
+      await kirimDanCatat(balasKe, pesanGagal, { agent: target, perintah: perintahLabel });
     } catch {}
   }
 });

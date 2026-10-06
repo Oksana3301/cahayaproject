@@ -41,8 +41,13 @@ Diabaikan dashboard (ditangani workflow n8n front desk): pesan **tanpa prefix**,
 **Whitelist Owner (khusus):** dashboard-ai **hanya** melayani nomor Owner
 (`WA_OWNER_NOMOR`, fallback ke `WA_NOTIF_NOMOR`/`WA_WA_NOTIF`). Pesan dari nomor
 lain — termasuk customer hotel — diabaikan total (tidak diproses **dan** tidak
-dibalas), supaya Kirana tidak bentrok dengan bot front-desk Top Hills. WAHA kadang
-mengirim pengirim sebagai `…@lid`; isi `WA_OWNER_LID` bila perlu.
+dibalas), supaya Kirana tidak bentrok dengan bot front-desk Top Hills.
+
+> **Penting:** session WAHA memakai engine **WEBJS** dengan LID, sehingga pengirim
+> sering datang sebagai `…@lid`, bukan `…@c.us`. Isi `WA_OWNER_LID` dengan LID
+> Owner (mis. `252101779267698`) — jika tidak, pesan Owner sendiri akan ditolak.
+> Cek LID via daftar chat WAHA (`/api/<session>/chats`) atau log
+> `[wa/inbound] diabaikan — … (jid=…@lid, …)`.
 
 ## Konfigurasi (env)
 
