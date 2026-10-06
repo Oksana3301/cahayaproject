@@ -222,6 +222,14 @@ app.post("/api/wa/inbound", async (req, res) => {
   const nama = (p._data && p._data.notifyName) || p.pushName || "";
   if (fromMe || dariGrup || !chatId || !body) return res.json({ ok: true, diabaikan: true, alasan: fromMe ? "fromMe" : dariGrup ? "grup" : "kosong" });
 
+  // HANYA layani nomor Owner (whitelist). Kirana khusus dipakai Owner untuk
+  // mengobrol dengan agent; pesan dari nomor lain (customer/grup) diabaikan
+  // agar tidak bentrok dengan bot front-desk hotel.
+  if (!require("./lib/whatsapp").izinkanPengirim(chatId)) {
+    console.log(`[wa/inbound] diabaikan — bukan nomor Owner (${chatId})`);
+    return res.json({ ok: true, diabaikan: true, alasan: "bukan nomor Owner" });
+  }
+
   // Deteksi perintah
   const mAgent = body.match(/^@([a-zA-Z]+)\s+([\s\S]+)/);
   const mTanya = body.match(/^\/tanya\s+([\s\S]+)/i);

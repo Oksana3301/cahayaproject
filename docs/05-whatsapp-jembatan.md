@@ -7,7 +7,7 @@ Owner dapat menanyakan progress/berdiskusi dengan agent langsung via WhatsApp.
 ```
 WAHA (session tophillshape) ──webhook──▶ POST /api/wa/inbound?token=<WA_INBOUND_TOKEN>
                                               │
-                                              ├─ guard: token, fromMe, grup, prefix
+                                              ├─ guard: token, fromMe, grup, whitelist Owner, prefix
                                               ▼
                                         agent (via lib/llm.chat)
                                               │
@@ -38,6 +38,12 @@ WAHA (session tophillshape) ──webhook──▶ POST /api/wa/inbound?token=<W
 Diabaikan dashboard (ditangani workflow n8n front desk): pesan **tanpa prefix**, pesan
 `fromMe:true`, dan pesan **grup** (`@g.us`).
 
+**Whitelist Owner (khusus):** dashboard-ai **hanya** melayani nomor Owner
+(`WA_OWNER_NOMOR`, fallback ke `WA_NOTIF_NOMOR`/`WA_WA_NOTIF`). Pesan dari nomor
+lain — termasuk customer hotel — diabaikan total (tidak diproses **dan** tidak
+dibalas), supaya Kirana tidak bentrok dengan bot front-desk Top Hills. WAHA kadang
+mengirim pengirim sebagai `…@lid`; isi `WA_OWNER_LID` bila perlu.
+
 ## Konfigurasi (env)
 
 | Variabel | Fungsi |
@@ -47,6 +53,8 @@ Diabaikan dashboard (ditangani workflow n8n front desk): pesan **tanpa prefix**,
 | `WAHA_SESSION` | default `tophillshape` |
 | `WA_INBOUND_TOKEN` | token webhook inbound |
 | `WA_NOTIF_NOMOR` / `WA_WA_NOTIF` | nomor notifikasi Owner |
+| `WA_OWNER_NOMOR` | **whitelist** nomor yang boleh memerintah agent (pisah koma) |
+| `WA_OWNER_LID` | opsional, LID Owner bila WAHA mengirim `…@lid` |
 
 ## Normalisasi Nomor
 

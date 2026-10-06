@@ -17,14 +17,61 @@ function apiKey() {
   return process.env.WAHA_API_KEY || "";
 }
 
-// 0895610524580 / +62 895... / 62895... -> "62895610524580@c.us"
-function normalisasiNomor(nomor) {
+// Normalisasi digit nomor Indonesia ke format internasional tanpa sufiks:
+// "0895610524580" / "+62 895..." / "62895..." -> "62895610524580".
+function normalisasiDigit(nomor) {
   let n = String(nomor || "").replace(/[^0-9]/g, "");
-  if (!n) throw new Error("nomor WhatsApp kosong");
+  if (!n) return "";
   if (n.startsWith("0")) n = "62" + n.slice(1);
   else if (n.startsWith("620")) n = "62" + n.slice(3);
   else if (!n.startsWith("62")) n = "62" + n;
+  return n;
+}
+
+// 0895610524580 / +62 895... / 62895... -> "62895610524580@c.us"
+function normalisasiNomor(nomor) {
+  const n = normalisasiDigit(nomor);
+  if (!n) throw new Error("nomor WhatsApp kosong");
   return n + "@c.us";
+}
+
+// Ekstrak digit nomor dari JID apa pun (chat WAHA bisa datang sebagai
+// "628xxx@c.us", "628xxx:12@s.whatsapp.net", atau "628xxx@lid").
+// Mengembalikan digit ternormalisasi ("628xxx") atau "" bila tak terbaca.
+function nomorDariJid(jid) {
+  if (!jid) return "";
+  const inti = String(jid).split("@")[0].split(":")[0];
+  return normalisasiDigit(inti);
+}
+
+// Daftar nomor Owner (whitelist) dari env. Hanya nomor ini yang boleh
+// memerintah agent via WhatsApp — mencegah bentrok dengan bot/customer hotel.
+// Prioritas: WA_OWNER_NOMOR (dapat dipisah koma) → WA_NOTIF_NOMOR → WA_WA_NOTIF.
+function daftarOwner() {
+  const sumber = [process.env.WA_OWNER_NOMOR, process.env.WA_NOTIF_NOMOR, process.env.WA_WA_NOTIF]
+    .filter(Boolean)
+    .join(",");
+  return sumber
+    .split(/[,\s;]+/)
+    .map((s) => normalisasiDigit(s))
+    .filter(Boolean);
+}
+
+// Daftar LID Owner opsional (WAHA kadang mengirim pengirim sebagai "<lid>@lid").
+function daftarOwnerLid() {
+  return String(process.env.WA_OWNER_LID || "")
+    .split(/[,\s;]+/)
+    .map((s) => s.replace(/[^0-9]/g, ""))
+    .filter(Boolean);
+}
+
+// Apakah JID pengirim termasuk Owner yang diizinkan?
+function izinkanPengirim(jid) {
+  const nomor = nomorDariJid(jid);
+  if (nomor && daftarOwner().includes(nomor)) return true;
+  const lid = String(jid || "").split("@")[0].split(":")[0].replace(/[^0-9]/g, "");
+  if (lid && daftarOwnerLid().includes(lid)) return true;
+  return false;
 }
 
 async function panggilWa(path, { method = "POST", body } = {}) {
@@ -104,4 +151,15 @@ function ringkasRapatUntukWa(hasil, { maxPendapat = 3, maxNotulen = 2600 } = {})
   return baris.filter((x) => x !== "").join("\n");
 }
 
-module.exports = { kirimTeks, statusSesi, normalisasiNomor, ringkasRapatUntukWa, WAHA_SESSION };
+module.exports = {
+  kirimTeks,
+  statusSesi,
+  normalisasiNomor,
+  normalisasiDigit,
+  nomorDariJid,
+  daftarOwner,
+  daftarOwnerLid,
+  izinkanPengirim,
+  ringkasRapatUntukWa,
+  WAHA_SESSION,
+};
