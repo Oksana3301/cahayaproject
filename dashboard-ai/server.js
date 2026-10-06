@@ -243,6 +243,21 @@ app.post("/api/wa/inbound", async (req, res) => {
   const wa = require("./lib/whatsapp");
   const pc = require("./lib/percakapan");
   const perintahLabel = target === "BANTUAN" ? "/bantuan" : target === "STATUS" ? "/status" : target === "RAPAT" ? "/rapat" : (mAgent ? `@${target}` : "/tanya");
+  // Kirim balasan + catat ke riwayat percakapan. Pencatatan tetap dilakukan
+  // walau pengiriman WA gagal (mis. sesi WAHA turun), agar riwayat utuh.
+  const kirimDanCatat = async (ke, balasan, { agent = "kirana", perintah = perintahLabel } = {}) => {
+    let terkirim = false;
+    let galatKirim = null;
+    try {
+      await wa.kirimTeks(ke, balasan);
+      terkirim = true;
+    } catch (e) {
+      galatKirim = e.message;
+      console.error("[wa/inbound] gagal kirim balasan:", e.message);
+    }
+    pc.catat({ arah: "keluar", nomor: ke, agent, perintah, balasan, meta: terkirim ? undefined : { terkirim: false, galat: galatKirim } });
+    return terkirim;
+  };
   pc.catat({ arah: "masuk", nomor: chatId, agent: target === "BANTUAN" || target === "STATUS" ? "kirana" : target, perintah: perintahLabel, pesan: body, meta: { nama } });
   res.json({ ok: true, diproses: target }); // balas cepat ke WAHA
 
@@ -267,8 +282,7 @@ app.post("/api/wa/inbound", async (req, res) => {
         "*Agent yang bisa ditanya:*",
         daftarAgent,
       ].join("\n");
-      await wa.kirimTeks(chatId, teks);
-      pc.catat({ arah: "keluar", nomor: chatId, agent: "kirana", perintah: "/bantuan", balasan: teks });
+      await kirimDanCatat(chatId, teks, { agent: "kirana", perintah: "/bantuan" });
       return;
     }
     if (target === "STATUS") {
@@ -288,21 +302,21 @@ app.post("/api/wa/inbound", async (req, res) => {
         "",
         "_Perintah: @kirana <tanya>, /tanya <tanya>, /rapat <agenda>, /status_",
       ].join("\n");
-      await wa.kirimTeks(chatId, teks);
-      pc.catat({ arah: "keluar", nomor: chatId, agent: "kirana", perintah: "/status", balasan: teks });
+      await kirimDanCatat(chatId, teks, { agent: "kirana", perintah: "/status" });
       return;
     }
     if (target === "RAPAT") {
-      await wa.kirimTeks(chatId, `_Rapat dimulai: "${pertanyaan}". Notulen menyusul (beberapa menit)._`);
+      await kirimDanCatat(chatId, `_Rapat dimulai: "${pertanyaan}". Notulen menyusul (beberapa menit)._`, { agent: "kirana", perintah: "/rapat" });
       const rapat = require("./lib/rapat");
       // jalankanRapat otomatis mengirim SATU ringkasan ke chat ini.
       const hasil = await rapat.jalankanRapat({ agenda: pertanyaan, undangan: ["nala", "laras", "tara"], waNomor: chatId });
-      const ringkasWa = hasil.waTerkirim ? `(ringkasan rapat terkirim otomatis)` : wa.ringkasRapatUntukWa(hasil);
+      const ringkasWa = wa.ringkasRapatUntukWa(hasil);
       if (!hasil.waTerkirim) {
         // Fallback bila pengiriman otomatis gagal.
-        await wa.kirimTeks(chatId, ringkasWa);
+        try { await wa.kirimTeks(chatId, ringkasWa); } catch (e) { console.error("[wa/inbound] gagal kirim notulen:", e.message); }
       }
-      pc.catat({ arah: "keluar", nomor: chatId, agent: "kirana", perintah: "/rapat", balasan: ringkasWa, meta: { jenis: hasil.jenis, diundang: hasil.diundang } });
+      // Catat notulen ASLI ke riwayat percakapan (bukan placeholder).
+      pc.catat({ arah: "keluar", nomor: chatId, agent: "kirana", perintah: "/rapat", balasan: ringkasWa, meta: { jenis: hasil.jenis, diundang: hasil.diundang, terkirim: !!hasil.waTerkirim } });
       return;
     }
     // Tanya satu agent
@@ -321,14 +335,12 @@ app.post("/api/wa/inbound", async (req, res) => {
     const data = await chat({ agent: target, skill: "analytics", messages, maxTokens: 1600 });
     const jawab = (data.choices?.[0]?.message?.content || "(tidak ada jawaban)").trim();
     const balasan = `*${roster.ambil(target)?.nama || target}* ${roster.ambil(target)?.emoji || ""}\n\n${jawab}`;
-    await wa.kirimTeks(chatId, balasan);
-    pc.catat({ arah: "keluar", nomor: chatId, agent: target, perintah: perintahLabel, balasan });
+    await kirimDanCatat(chatId, balasan, { agent: target, perintah: perintahLabel });
   } catch (e) {
     console.error("[wa/inbound] gagal proses:", e.message);
     try {
       const pesanGagal = `Maaf, terjadi kendala: ${e.message.slice(0, 150)}`;
-      await require("./lib/whatsapp").kirimTeks(chatId, pesanGagal);
-      require("./lib/percakapan").catat({ arah: "keluar", nomor: chatId, agent: target, perintah: perintahLabel, balasan: pesanGagal, meta: { error: true } });
+      await kirimDanCatat(chatId, pesanGagal, { agent: target, perintah: perintahLabel });
     } catch {}
   }
 });

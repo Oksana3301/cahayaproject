@@ -7,7 +7,7 @@
     "description": "Tiap 07.00 WIB. Aruna mengumpulkan 25 sinyal terbaru dan 3 sudut pandang untuk briefing pagi.",
     "enabled": true,
     "deleteAfterRun": false,
-    "updatedAtMs": 1791158454493,
+    "updatedAtMs": 1791244840332,
     "schedule": {
       "kind": "cron",
       "expr": "0 7 * * *",
@@ -22,7 +22,7 @@
       "engine": "detak"
     },
     "state": {
-      "nextRunAtMs": 1791244800000,
+      "nextRunAtMs": 1791331200000,
       "lastStatus": "skipped",
       "lastError": "ditangani seeder skill (riset/draft)"
     },
@@ -38,7 +38,7 @@
     "description": "Tiap 07.30 WIB. Jati memverifikasi klaim utama, menandai klaim lemah, dan memastikan kepatuhan sebelum drafting.",
     "enabled": true,
     "deleteAfterRun": false,
-    "updatedAtMs": 1791160254704,
+    "updatedAtMs": 1791246640415,
     "schedule": {
       "kind": "cron",
       "expr": "30 7 * * *",
@@ -53,7 +53,7 @@
       "engine": "detak"
     },
     "state": {
-      "nextRunAtMs": 1791246600000,
+      "nextRunAtMs": 1791333000000,
       "lastStatus": "skipped",
       "lastError": "ditangani seeder skill (riset/draft)"
     },
@@ -69,7 +69,7 @@
     "description": "Tiap 09.00 WIB. Nala membaca pola, peluang, dan implikasi strategis dari sinyal terbaru.",
     "enabled": true,
     "deleteAfterRun": false,
-    "updatedAtMs": 1791165656217,
+    "updatedAtMs": 1791252040587,
     "schedule": {
       "kind": "cron",
       "expr": "0 9 * * *",
@@ -84,11 +84,10 @@
       "skill": "analytics"
     },
     "state": {
-      "nextRunAtMs": 1791252000000,
-      "lastRunAtMs": 1791165656217,
-      "lastStatus": "error",
-      "lastError": "rem token harian aktif: total 266713 telah mencapai plafon 250000",
-      "lastDurationMs": 12
+      "nextRunAtMs": 1791338400000,
+      "lastRunAtMs": 1791252040587,
+      "lastStatus": "ok",
+      "lastDurationMs": 137013
     },
     "delivery": {
       "mode": "none"
@@ -164,7 +163,7 @@
     "description": "Tiap 16.00 WIB. Raya mengasah hook, visual, dan konsistensi brand pada draft hari ini.",
     "enabled": true,
     "deleteAfterRun": false,
-    "updatedAtMs": 1791105908482,
+    "updatedAtMs": 1791190837625,
     "schedule": {
       "kind": "cron",
       "expr": "0 16 * * *",
@@ -179,7 +178,11 @@
       "skill": "publish"
     },
     "state": {
-      "nextRunAtMs": 1791190800000
+      "nextRunAtMs": 1791277200000,
+      "lastRunAtMs": 1791190837625,
+      "lastStatus": "error",
+      "lastError": "rem token harian aktif: total 266713 telah mencapai plafon 250000",
+      "lastDurationMs": 12
     },
     "delivery": {
       "mode": "none"
@@ -193,7 +196,7 @@
     "description": "Tiap 17.00 WIB. Tara menyiapkan angle komunitas/growth dan menandai jadwal publikasi 19.30 WIB setelah persetujuan.",
     "enabled": true,
     "deleteAfterRun": false,
-    "updatedAtMs": 1791108049710,
+    "updatedAtMs": 1791194437798,
     "schedule": {
       "kind": "cron",
       "expr": "0 17 * * *",
@@ -208,8 +211,11 @@
       "skill": "publish"
     },
     "state": {
-      "nextRunAtMs": 1791194400000,
-      "runningAtMs": 1791117966872
+      "nextRunAtMs": 1791280800000,
+      "lastRunAtMs": 1791194437798,
+      "lastStatus": "error",
+      "lastError": "rem token harian aktif: total 266713 telah mencapai plafon 250000",
+      "lastDurationMs": 11
     },
     "delivery": {
       "mode": "none"
@@ -223,7 +229,7 @@
     "description": "Tiap 18.00 WIB. Kirana merangkum status, menyetujui/return draft, dan menetapkan prioritas besok.",
     "enabled": true,
     "deleteAfterRun": false,
-    "updatedAtMs": 1791117822864,
+    "updatedAtMs": 1791198037987,
     "schedule": {
       "kind": "cron",
       "expr": "0 18 * * *",
@@ -238,11 +244,11 @@
       "skill": "analytics"
     },
     "state": {
-      "nextRunAtMs": 1791198000000,
-      "lastRunAtMs": 1791117822863,
-      "lastStatus": "ok",
-      "lastDurationMs": 68947,
-      "runningAtMs": 1791117960743
+      "nextRunAtMs": 1791284400000,
+      "lastRunAtMs": 1791198037987,
+      "lastStatus": "error",
+      "lastDurationMs": 12,
+      "lastError": "rem token harian aktif: total 266713 telah mencapai plafon 250000"
     },
     "delivery": {
       "mode": "none"
@@ -273,9 +279,13 @@
       "mode": "none"
     },
     "state": {
-      "nextRunAtMs": 1791203400000
+      "nextRunAtMs": 1791289800000,
+      "lastRunAtMs": 1791203438257,
+      "lastStatus": "error",
+      "lastError": "rem token harian aktif: total 266713 telah mencapai plafon 250000",
+      "lastDurationMs": 60
     },
-    "updatedAtMs": 1791117955052
+    "updatedAtMs": 1791203438257
   },
   {
     "id": "pb-rapat-pagi",
@@ -303,12 +313,12 @@
       "mode": "none"
     },
     "state": {
-      "nextRunAtMs": 1791248400000,
-      "lastRunAtMs": 1791162834892,
+      "nextRunAtMs": 1791334800000,
+      "lastRunAtMs": 1791248440481,
       "lastStatus": "ok",
-      "lastDurationMs": 982883
+      "lastDurationMs": 381475
     },
-    "updatedAtMs": 1791162834892
+    "updatedAtMs": 1791248440481
   },
   {
     "id": "pb-rapat-siang",
