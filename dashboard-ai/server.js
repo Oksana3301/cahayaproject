@@ -414,13 +414,16 @@ app.get("/api/persetujuan", async (req, res) => {
         for (const d of t.hasil.draft) draftIds.add(Number(d.id));
       }
     }
+    // Hanya tampilkan draft yang MASIH bisa diputuskan (menunggu/gagal).
+    // Draft yang sudah ditolak/terjadwal/terbit TIDAK ditampilkan di sini agar
+    // tombol Setujui tidak pernah menabrak status final (dulu ini penyebab
+    // "tidak bisa disetujui"). Draft tsb tetap bisa dilihat/diubah di /draft.
     const drafts = await db.ambilBanyak(
       `SELECT * FROM draft_konten
-       WHERE status = 'menunggu' OR id = ANY($1::int[])
-       ORDER BY dibuat_pada DESC`,
-      [[...draftIds]]
+       WHERE status IN ('menunggu', 'gagal')
+       ORDER BY dibuat_pada DESC`
     );
-    res.json({ tugas, drafts: drafts.filter((d) => d.status !== "terbit") });
+    res.json({ tugas, drafts });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -574,6 +577,92 @@ app.post("/api/draft", async (req, res) => {
       .catch((e) => pekerjaanLatar.set(id, { status: "gagal", dibuat: Date.now(), hasil: null, error: e.message }));
     res.status(202).json({ pekerjaan: id, status: "berjalan" });
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Ambil satu draft.
+app.get("/api/draft/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ error: "id tidak valid" });
+    const draft = await db.ambilSatu(`SELECT * FROM draft_konten WHERE id = $1`, [id]);
+    if (!draft) return res.status(404).json({ error: `draft ${id} tidak ditemukan` });
+    res.json({ draft });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// EDIT draft: judul / caption / tagar. Hanya boleh saat belum terbit.
+app.put("/api/draft/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ error: "id tidak valid" });
+    const draft = await db.ambilSatu(`SELECT * FROM draft_konten WHERE id = $1`, [id]);
+    if (!draft) return res.status(404).json({ error: `draft ${id} tidak ditemukan` });
+    if (draft.status === "terbit") {
+      return res.status(400).json({ error: "draft sudah terbit, tidak bisa diedit" });
+    }
+    const { judul, caption, tagar } = req.body || {};
+    const judulBaru = judul !== undefined ? String(judul).trim() : draft.judul;
+    const captionBaru = caption !== undefined ? String(caption).trim() : draft.caption;
+    let tagarBaru = draft.tagar || [];
+    if (tagar !== undefined) {
+      tagarBaru = Array.isArray(tagar)
+        ? tagar.map((t) => String(t).trim()).filter(Boolean)
+        : String(tagar).split(/[\s,]+/).map((t) => t.trim()).filter(Boolean);
+      tagarBaru = tagarBaru.map((t) => (t.startsWith("#") ? t : "#" + t)).slice(0, 8);
+    }
+    if (!judulBaru) return res.status(400).json({ error: "judul tidak boleh kosong" });
+    if (!captionBaru) return res.status(400).json({ error: "caption tidak boleh kosong" });
+
+    await db.query(
+      `UPDATE draft_konten SET judul = $1, caption = $2, tagar = $3 WHERE id = $4`,
+      [judulBaru, captionBaru, tagarBaru, id]
+    );
+    await db.query(
+      `INSERT INTO jejak (jenis, objek_id, keputusan, oleh, alasan, isi_saat_itu)
+       VALUES ('draft', $1, 'diedit', $2, NULL, $3)`,
+      [id, (req.body?.oleh || "owner"), JSON.stringify({ judul: judulBaru, caption: captionBaru.slice(0, 300), tagar: tagarBaru })]
+    );
+    const baru = await db.ambilSatu(`SELECT * FROM draft_konten WHERE id = $1`, [id]);
+    res.json({ ok: true, draft: baru });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// UBAH STATUS manual draft (mis. kembalikan 'ditolak' → 'menunggu', atau
+// set 'menunggu' → 'ditolak' tanpa menjadwalkan). Status 'terjadwal'/'terbit'
+// tidak diubah lewat sini (gunakan alur setujui / sinkron status Doea).
+const STATUS_DIIZINKAN = ["menunggu", "ditolak", "gagal"];
+app.post("/api/draft/:id/status", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ error: "id tidak valid" });
+    const status = String(req.body?.status || "").trim().toLowerCase();
+    if (!STATUS_DIIZINKAN.includes(status)) {
+      return res.status(400).json({ error: `status harus salah satu dari: ${STATUS_DIIZINKAN.join(", ")}` });
+    }
+    const draft = await db.ambilSatu(`SELECT * FROM draft_konten WHERE id = $1`, [id]);
+    if (!draft) return res.status(404).json({ error: `draft ${id} tidak ditemukan` });
+    if (["terjadwal", "terbit"].includes(draft.status)) {
+      return res.status(400).json({
+        error: `draft sedang berstatus '${draft.status}'. Batalkan jadwal di Doea terlebih dahulu sebelum mengubah status.`,
+      });
+    }
+    const alasan = req.body?.alasan ? String(req.body.alasan).trim() : null;
+    if (status === "ditolak" && !alasan) {
+      return res.status(400).json({ error: "alasan wajib diisi saat menolak draft" });
+    }
+    await db.query(
+      `UPDATE draft_konten SET status = $1, alasan_tolak = $2, error = NULL WHERE id = $3`,
+      [status, status === "ditolak" ? alasan : null, id]
+    );
+    await db.query(
+      `INSERT INTO jejak (jenis, objek_id, keputusan, oleh, alasan, isi_saat_itu)
+       VALUES ('draft', $1, $2, $3, $4, $5)`,
+      [id, status === "ditolak" ? "ditolak" : "status:" + status, (req.body?.oleh || "owner"), alasan,
+       JSON.stringify({ dari: draft.status, ke: status })]
+    );
+    const baru = await db.ambilSatu(`SELECT * FROM draft_konten WHERE id = $1`, [id]);
+    res.json({ ok: true, draft: baru });
+  } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
 app.get("/api/pekerjaan/:id", (req, res) => {

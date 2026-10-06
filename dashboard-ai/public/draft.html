@@ -7,36 +7,126 @@
 <script src="/app.js"></script>
 <script>
 (function () {
-  Util.fetchJson("/api/draft").then(function (data) {
-    var drafts = data.drafts || [];
-    var html = '<div class="form-perintah"><select class="input-perintah" id="saring-status">' +
-      '<option value="">Semua status</option>' +
-      ["menunggu","disetujui","terjadwal","ditolak","gagal","terbit"].map(function (s) {
-        return '<option value="' + s + '">' + s + "</option>";
-      }).join("") + "</select></div>";
-    var konten = "";
-    if (!drafts.length) konten = '<div class="kartu teks-redup" style="margin-top:12px">Belum ada draft.</div>';
-    for (var i = 0; i < drafts.length; i++) {
-      var d = drafts[i];
-      konten += '<div class="draft-lengkap" data-status="' + Util.esc(d.status) + '">' +
-        '<div class="judul-kartu">' + Util.esc(d.judul) + "</div>" +
-        '<div class="teks-redup">Status: ' + Util.statusBadge(d.status) +
-        (d.alasan_tolak ? " | Alasan tolak: " + Util.esc(d.alasan_tolak) : "") + "</div>" +
-        '<div class="caption-lengkap">' + Util.esc(d.caption) + "</div>" +
-        '<div class="teks-redup">Tagar: ' + Util.esc((d.tagar || []).join(" ")) + "</div>" +
-        (d.schedule_id ? '<div class="teks-redup">schedule_id: <span class="mono teks-biru">' + Util.esc(d.schedule_id) + "</span></div>" : "") +
-        "</div>";
-    }
-    Util.muatLayout("/draft", html + '<div id="konten-draft">' + konten + "</div>", "Draft");
-    document.getElementById("saring-status").addEventListener("change", function () {
-      var v = this.value;
-      document.querySelectorAll("#konten-draft .draft-lengkap").forEach(function (el) {
-        el.style.display = !v || el.getAttribute("data-status") === v ? "" : "none";
+  // Status yang boleh diset manual dari halaman ini (bukan terjadwal/terbit).
+  var STATUS_MANUAL = ["menunggu", "ditolak", "gagal"];
+
+  function muat() {
+    Util.fetchJson("/api/draft").then(function (data) {
+      var drafts = data.drafts || [];
+      var html = '<div class="form-perintah"><select class="input-perintah" id="saring-status">' +
+        '<option value="">Semua status</option>' +
+        ["menunggu","disetujui","terjadwal","ditolak","gagal","terbit"].map(function (s) {
+          return '<option value="' + s + '">' + s + "</option>";
+        }).join("") + "</select></div>";
+      var konten = "";
+      if (!drafts.length) konten = '<div class="kartu teks-redup" style="margin-top:12px">Belum ada draft.</div>';
+      for (var i = 0; i < drafts.length; i++) {
+        var d = drafts[i];
+        var bisaManual = STATUS_MANUAL.indexOf(d.status) >= 0;
+        var opsiStatus = STATUS_MANUAL.map(function (s) {
+          return '<option value="' + s + '"' + (s === d.status ? " selected" : "") + ">" + s + "</option>";
+        }).join("");
+        konten += '<div class="draft-lengkap" data-status="' + Util.esc(d.status) + '" id="draft-' + d.id + '">' +
+          '<div class="judul-kartu">' + Util.esc(d.judul) + "</div>" +
+          '<div class="teks-redup">Status: ' + Util.statusBadge(d.status) +
+          (d.alasan_tolak ? " | Alasan tolak: " + Util.esc(d.alasan_tolak) : "") + "</div>" +
+          '<div class="caption-lengkap">' + Util.esc(d.caption) + "</div>" +
+          '<div class="teks-redup">Tagar: ' + Util.esc((d.tagar || []).join(" ")) + "</div>" +
+          (d.schedule_id ? '<div class="teks-redup">schedule_id: <span class="mono teks-biru">' + Util.esc(d.schedule_id) + "</span></div>" : "") +
+          // ===== Form edit =====
+          '<div class="kotak-edit" id="edit-' + d.id + '" hidden style="margin-top:10px">' +
+          '<input class="input-perintah" id="edit-judul-' + d.id + '" value="' + Util.esc(d.judul) + '" placeholder="Judul">' +
+          '<textarea id="edit-caption-' + d.id + '" style="width:100%;min-height:120px;margin-top:8px">' + Util.esc(d.caption) + "</textarea>" +
+          '<input class="input-perintah" id="edit-tagar-' + d.id + '" value="' + Util.esc((d.tagar || []).join(" ")) + '" placeholder="Tagar (pisah spasi)">' +
+          '<div class="baris-tombol" style="margin-top:8px">' +
+          '<button class="tombol tombol-hijau" data-simpan-edit="' + d.id + '">Simpan Perubahan</button>' +
+          '<button class="tombol" data-batal-edit="' + d.id + '">Batal</button></div></div>' +
+          // ===== Aksi status =====
+          '<div class="baris-tombol" style="margin-top:10px">' +
+          '<button class="tombol" data-edit="' + d.id + '">Edit</button>' +
+          (bisaManual ? (
+            '<select class="input-perintah" data-pilih-status="' + d.id + '" style="max-width:150px;display:inline-block">' + opsiStatus + "</select>" +
+            '<button class="tombol tombol-hijau" data-ubah-status="' + d.id + '">Ubah Status</button>'
+          ) : '<span class="teks-redup">(status terkunci: ' + Util.esc(d.status) + ")</span>") +
+          "</div>" +
+          '<p class="pesan-sukses" id="hasil-' + d.id + '" hidden></p>' +
+          "</div>";
+      }
+      Util.muatLayout("/draft", html + '<div id="konten-draft">' + konten + "</div>", "Draft");
+      pasangTombol();
+      var sel = document.getElementById("saring-status");
+      sel.addEventListener("change", function () {
+        var v = this.value;
+        document.querySelectorAll("#konten-draft .draft-lengkap").forEach(function (el) {
+          el.style.display = !v || el.getAttribute("data-status") === v ? "" : "none";
+        });
+      });
+    }).catch(function (e) {
+      Util.muatLayout("/draft", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Draft");
+    });
+  }
+
+  function tampilPesan(id, teks, sukses) {
+    var el = document.getElementById("hasil-" + id);
+    if (!el) return;
+    el.textContent = teks;
+    el.className = sukses ? "pesan-sukses" : "pesan-error";
+    el.hidden = false;
+  }
+
+  function pasangTombol() {
+    document.querySelectorAll("[data-edit]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-edit");
+        document.getElementById("edit-" + id).hidden = false;
       });
     });
-  }).catch(function (e) {
-    Util.muatLayout("/draft", '<p class="pesan-error">' + Util.esc(e.message) + "</p>", "Draft");
-  });
+    document.querySelectorAll("[data-batal-edit]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-batal-edit");
+        document.getElementById("edit-" + id).hidden = true;
+      });
+    });
+    document.querySelectorAll("[data-simpan-edit]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-simpan-edit");
+        btn.disabled = true;
+        Util.fetchJson("/api/draft/" + id, {
+          method: "PUT", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            judul: document.getElementById("edit-judul-" + id).value.trim(),
+            caption: document.getElementById("edit-caption-" + id).value.trim(),
+            tagar: document.getElementById("edit-tagar-" + id).value.trim(),
+          }),
+        }).then(function () {
+          tampilPesan(id, "Perubahan tersimpan.", true);
+          setTimeout(muat, 1200);
+        }).catch(function (e) { btn.disabled = false; tampilPesan(id, e.message || "gagal", false); });
+      });
+    });
+    document.querySelectorAll("[data-ubah-status]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-ubah-status");
+        var status = document.querySelector('[data-pilih-status="' + id + '"]').value;
+        var alasan = null;
+        if (status === "ditolak") {
+          alasan = window.prompt("Alasan penolakan (wajib):");
+          if (alasan === null) return;
+          if (!alasan.trim()) { tampilPesan(id, "Alasan wajib diisi.", false); return; }
+        }
+        btn.disabled = true;
+        Util.fetchJson("/api/draft/" + id + "/status", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: status, alasan: alasan }),
+        }).then(function (r) {
+          tampilPesan(id, "Status diubah ke: " + r.draft.status, true);
+          setTimeout(muat, 1200);
+        }).catch(function (e) { btn.disabled = false; tampilPesan(id, e.message || "gagal", false); });
+      });
+    });
+  }
+
+  muat();
 })();
 </script>
 </body>

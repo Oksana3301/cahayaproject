@@ -17,12 +17,24 @@
       for (var i = 0; i < drafts.length; i++) {
         var d = drafts[i];
         html += '<div class="draft-lengkap" id="draft-' + d.id + '">' +
-          '<div class="judul-kartu">' + Util.esc(d.judul) + "</div>" +
-          '<div class="teks-redup">Akun tujuan: ' + Util.esc(d.akun_id) + " | Status: " + Util.statusBadge(d.status) + "</div>" +
-          '<div class="caption-lengkap">' + Util.esc(d.caption) + "</div>" +
-          '<div class="teks-redup">Tagar: ' + Util.esc((d.tagar || []).join(" ")) + "</div>" +
-          '<div class="baris-tombol">' +
+          '<div class="judul-kartu" data-judul="' + d.id + '">' + Util.esc(d.judul) + "</div>" +
+          '<div class="teks-redup">Akun tujuan: ' + Util.esc(d.akun_id) + " | Status: " + Util.statusBadge(d.status) +
+          (d.alasan_tolak ? " | Alasan tolak: " + Util.esc(d.alasan_tolak) : "") + "</div>" +
+          '<div class="caption-lengkap" data-caption="' + d.id + '">' + Util.esc(d.caption) + "</div>" +
+          '<div class="teks-redup">Tagar: <span data-tagar="' + d.id + '">' + Util.esc((d.tagar || []).join(" ")) + "</span></div>" +
+          // ===== Form edit (tersembunyi) =====
+          '<div class="kotak-edit" id="edit-' + d.id + '" hidden style="margin-top:10px">' +
+          '<input class="input-perintah" id="edit-judul-' + d.id + '" value="' + Util.esc(d.judul) + '" placeholder="Judul">' +
+          '<textarea id="edit-caption-' + d.id + '" style="width:100%;min-height:120px;margin-top:8px">' + Util.esc(d.caption) + "</textarea>" +
+          '<input class="input-perintah" id="edit-tagar-' + d.id + '" value="' + Util.esc((d.tagar || []).join(" ")) + '" placeholder="Tagar (pisah spasi)">' +
+          '<div class="baris-tombol" style="margin-top:8px">' +
+          '<button class="tombol tombol-hijau" data-simpan-edit="' + d.id + '">Simpan Perubahan</button>' +
+          '<button class="tombol" data-batal-edit="' + d.id + '">Batal</button></div>' +
+          "</div>" +
+          // ===== Tombol aksi =====
+          '<div class="baris-tombol" style="margin-top:10px">' +
           '<button class="tombol tombol-hijau" data-ya="' + d.id + '">Setujui</button>' +
+          '<button class="tombol" data-edit="' + d.id + '">Edit</button>' +
           '<button class="tombol tombol-merah" data-tidak="' + d.id + '">Tolak</button></div>' +
           '<div class="kotak-alasan" id="alasan-' + d.id + '" hidden>' +
           '<textarea id="teks-alasan-' + d.id + '" placeholder="Alasan penolakan (wajib diisi)..."></textarea>' +
@@ -37,21 +49,77 @@
     });
   }
 
+  function tampilPesan(id, teks, sukses) {
+    var el = document.getElementById("hasil-" + id);
+    if (!el) return;
+    el.textContent = teks;
+    el.className = sukses ? "pesan-sukses" : "pesan-error";
+    el.hidden = false;
+  }
+
   function pasangTombol() {
+    // ---- Setujui ----
     document.querySelectorAll("[data-ya]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var id = btn.getAttribute("data-ya");
-        var el = document.getElementById("hasil-" + id);
         btn.disabled = true;
+        tampilPesan(id, "Memproses gate & menjadwalkan...", true);
         Util.fetchJson("/api/persetujuan/" + id + "/ya", { method: "POST" })
           .then(function (r) {
-            el.textContent = "Terjadwal. schedule_id: " + Util.esc(r.scheduleId) + " pada " + Util.esc(r.scheduleAt);
-            el.hidden = false;
-            setTimeout(muat, 3000);
+            tampilPesan(id, "Terjadwal. schedule_id: " + Util.esc(r.scheduleId) + " pada " + Util.esc(r.scheduleAt), true);
+            setTimeout(muat, 2500);
           })
-          .catch(function (e) { btn.disabled = false; el.textContent = e.message; el.hidden = false; });
+          .catch(function (e) {
+            btn.disabled = false;
+            // Tampilkan pesan gate yang informatif (bukan "tidak bisa disetujui" yang membingungkan).
+            var msg = e.message || "gagal menyetujui";
+            if (e.gate && e.gate.blokir && e.gate.blokir.length) {
+              msg += " | Blokir: " + e.gate.blokir.join("; ");
+            }
+            tampilPesan(id, msg, false);
+          });
       });
     });
+
+    // ---- Buka/tutup form edit ----
+    document.querySelectorAll("[data-edit]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-edit");
+        document.getElementById("edit-" + id).hidden = false;
+      });
+    });
+    document.querySelectorAll("[data-batal-edit]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-batal-edit");
+        document.getElementById("edit-" + id).hidden = true;
+      });
+    });
+
+    // ---- Simpan edit ----
+    document.querySelectorAll("[data-simpan-edit]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-simpan-edit");
+        var judul = document.getElementById("edit-judul-" + id).value.trim();
+        var caption = document.getElementById("edit-caption-" + id).value.trim();
+        var tagar = document.getElementById("edit-tagar-" + id).value.trim();
+        btn.disabled = true;
+        Util.fetchJson("/api/draft/" + id, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ judul: judul, caption: caption, tagar: tagar }),
+        })
+          .then(function (r) {
+            tampilPesan(id, "Perubahan tersimpan.", true);
+            setTimeout(muat, 1200);
+          })
+          .catch(function (e) {
+            btn.disabled = false;
+            tampilPesan(id, e.message || "gagal menyimpan", false);
+          });
+      });
+    });
+
+    // ---- Tolak ----
     document.querySelectorAll("[data-tidak]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var id = btn.getAttribute("data-tidak");
@@ -63,16 +131,14 @@
       var ta = document.getElementById("teks-alasan-" + id);
       ta.addEventListener("input", function () { btn.disabled = !ta.value.trim(); });
       btn.addEventListener("click", function () {
-        var el = document.getElementById("hasil-" + id);
         btn.disabled = true;
         Util.fetchJson("/api/persetujuan/" + id + "/tidak", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ alasan: ta.value.trim() }),
         }).then(function (r) {
-          el.textContent = "Ditolak: " + Util.esc(r.alasan);
-          el.hidden = false;
-          setTimeout(muat, 2500);
-        }).catch(function (e) { btn.disabled = false; el.textContent = e.message; el.hidden = false; });
+          tampilPesan(id, "Ditolak: " + Util.esc(r.alasan), true);
+          setTimeout(muat, 2000);
+        }).catch(function (e) { btn.disabled = false; tampilPesan(id, e.message || "gagal menolak", false); });
       });
     });
   }
