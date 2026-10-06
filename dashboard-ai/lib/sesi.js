@@ -35,13 +35,23 @@ function ambilSesi(req) {
   return data;
 }
 
+const loopback = (ip) =>
+  ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1";
+
 function middleware(req, res, next) {
-  if (req.path === "/health") return next();
+  const forwarded = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  const remote = req.socket.remoteAddress || "";
+  const dariLokal = loopback(remote) && (!forwarded || loopback(forwarded));
+
+  if (req.path === "/health") {
+    // Health check hanya boleh dari loopback LANGSUNG (tanpa X-Forwarded-For).
+    // Request lewat nginx publik selalu membawa X-Forwarded-For dari IP klien,
+    // sehingga spoof "127.0.0.1" pun tetap ditolak.
+    if (loopback(remote) && !forwarded) return next();
+    return res.status(404).json({ error: "tidak ditemukan" });
+  }
   if (req.path.startsWith("/api/runtime/")) {
-    const forwarded = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
-    const remote = req.socket.remoteAddress || "";
-    const loopback = (ip) => ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1";
-    if (loopback(remote) && (!forwarded || loopback(forwarded))) return next();
+    if (dariLokal) return next();
   }
   const data = ambilSesi(req);
   if (data) {
