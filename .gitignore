@@ -34,3 +34,6 @@ Thumbs.db
 # media banner besar dikecualikan; arsip teks tetap disertakan
 dashboard-ai/.hermes3d/media/
 *.bak-*
+
+# === Log percakapan runtime Owner<->agent (data pribadi, JANGAN commit) ===
+percakapan/owner-agent/

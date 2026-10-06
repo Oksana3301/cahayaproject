@@ -1,9 +1,10 @@
 const db = require("./db");
 const wewenang = require("../agents/wewenang");
 
-const BASE = process.env.ATRIA_BASE_URL || "https://api.atria-asi.ai/v1";
-const MODEL = process.env.ATRIA_MODEL || "Atria-Dawn-Preview";
-const KEY = process.env.ATRIA_API_KEY;
+// Prioritas env baru (generic) > env Atria lama (backward-compatible).
+const BASE = process.env.LLM_BASE_URL || process.env.ATRIA_BASE_URL || "https://api.atria-asi.ai/v1";
+const MODEL = process.env.LLM_MODEL || process.env.ATRIA_MODEL || "Atria-Dawn-Preview";
+const KEY = process.env.LLM_API_KEY || process.env.ATRIA_API_KEY;
 const TIMEOUT_MS = 300000;
 const MAX_TOKENS_CAP = 65536;
 
@@ -59,10 +60,10 @@ async function panggilSekali(body, signal) {
   return res;
 }
 
-async function chat({ agent, skill, messages, tools, maxTokens }) {
+async function chat({ agent, skill, messages, tools, maxTokens, noReasoning }) {
   // CEO planner dan rangkum tidak perlu sangat mahal; kita batasi agar perintah owner cepat selesai
   if (!KEY) {
-    throw new Error("ATRIA_API_KEY kosong di .env");
+    throw new Error("LLM_API_KEY kosong di .env");
   }
   let mt = Math.floor(Number(maxTokens) || 4096);
   if (mt > MAX_TOKENS_CAP) mt = MAX_TOKENS_CAP;
@@ -78,10 +79,10 @@ async function chat({ agent, skill, messages, tools, maxTokens }) {
     if (sisa <= 0) throw new Error(`jatah token agent ${agent} habis`);
     mt = Math.min(mt, sisa, MAX_TOKENS_CAP);
   }
-  return _chatOnce({ agent, skill, messages, tools, maxTokens: mt });
+  return _chatOnce({ agent, skill, messages, tools, maxTokens: mt, noReasoning });
 }
 
-async function _chatOnce({ agent, skill, messages, tools, maxTokens }) {
+async function _chatOnce({ agent, skill, messages, tools, maxTokens, noReasoning }) {
   let mt = Math.floor(Number(maxTokens) || 4096);
   if (mt > MAX_TOKENS_CAP) mt = MAX_TOKENS_CAP;
   if (mt < 1) mt = 4096;
@@ -89,6 +90,14 @@ async function _chatOnce({ agent, skill, messages, tools, maxTokens }) {
   if (tools && tools.length) {
     body.tools = tools;
     body.tool_choice = "auto";
+  }
+  // Non-reasoning untuk balasan cepat (mis. WhatsApp). Gateway cbcn mendukung
+  // thinking yang bisa dimatikan via beberapa format; kirim beberapa varian sekaligus
+  // agar kompatibel lintas provider (biasanya diabaikan bila tak dikenal).
+  if (noReasoning) {
+    body.reasoning = { enabled: false };
+    body.thinking = { type: "disabled" };
+    body.reasoning_effort = "none";
   }
   let lastErr = null;
   for (let attempt = 0; attempt <= BACKOFF.length; attempt++) {
@@ -170,7 +179,7 @@ async function ekstrakJSON(teks) {
   return JSON.parse(s.slice(mulai, akhir + 1));
 }
 
-async function chatJSON({ agent, skill, messages, tools, maxTokens }) {
+async function chatJSON({ agent, skill, messages, tools, maxTokens, noReasoning }) {
   const msg = messages.map((m) => ({ ...m }));
   const sysIdx = msg.findIndex((m) => m.role === "system");
   const instruksi = buatInstruksiJSON(sysIdx >= 0 ? msg[sysIdx].content : "");
@@ -179,7 +188,7 @@ async function chatJSON({ agent, skill, messages, tools, maxTokens }) {
 
   let teks = null;
   for (let percobaan = 0; percobaan < 2; percobaan++) {
-    const data = await chat({ agent, skill, messages: msg, tools, maxTokens });
+    const data = await chat({ agent, skill, messages: msg, tools, maxTokens, noReasoning });
     teks = data.choices?.[0]?.message?.content || "";
     try {
       return ekstrakJSON(teks);

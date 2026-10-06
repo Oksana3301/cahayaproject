@@ -38,8 +38,8 @@ const PRESET = {
       "Daily standup pagi: apa yang dikerjakan semalam? Apa rencana kerja & prioritas hari ini? " +
       "Tetapkan 3 prioritas utama dan pemiliknya.",
     undangan: ["nala", "laras", "tara", "jati"],
-    maxPendapatAgent: 900,
-    maxNotulen: 2200,
+    maxPendapatAgent: 1600,
+    maxNotulen: 2600,
   },
   siang: {
     label: "Rapat Siang — Progress Update",
@@ -47,8 +47,8 @@ const PRESET = {
       "Update progres siang: sejauh mana pekerjaan hari ini berjalan? Apa yang selesai, apa yang tertunda, " +
       "dan adakah blocker yang butuh keputusan Owner?",
     undangan: ["nala", "tara", "bima"],
-    maxPendapatAgent: 900,
-    maxNotulen: 2200,
+    maxPendapatAgent: 1600,
+    maxNotulen: 2600,
   },
   sore: {
     label: "Rapat Sore — Rekap Harian & Rencana Lanjutan",
@@ -56,7 +56,7 @@ const PRESET = {
       "Rekap akhir hari: rangkum semua yang terjadi hari ini, putuskan penutup hari, " +
       "dan susun rencana malam ini + besok.",
     undangan: ["nala", "tara", "laras"],
-    maxPendapatAgent: 800,
+    maxPendapatAgent: 1600,
     maxNotulen: 2600,
   },
 };
@@ -96,9 +96,30 @@ function undanganDari(kodeList, fallback) {
   return sumber.filter((k) => roster.ambil(k));
 }
 
+// Panggil chat() dan ulangi bila respons kosong (provider kadang mengembalikan
+// content kosong walau status "sukses", yang membuat notulen rapat jadi hampa).
+async function chatNonKosong(opts, { maxUlang = 2 } = {}) {
+  const { chat } = require("./llm");
+  let teks = "";
+  for (let i = 0; i <= maxUlang; i++) {
+    const data = await chat(opts);
+    const msg = data.choices?.[0]?.message || {};
+    // Model reasoning (Atria-Dawn-Preview) kadang menghabiskan seluruh token
+    // untuk "berpikir" (reasoning_content) dan menyisakan content kosong.
+    // Fallback: pakai reasoning_content bila content hampa.
+    teks = (msg.content || msg.reasoning_content || "").trim();
+    if (teks) return teks;
+    if (i < maxUlang) {
+      // Naikkan sisa token & minta model langsung menjawab tanpa berpikir panjang.
+      if (typeof opts.maxTokens === "number") opts.maxTokens = Math.max(opts.maxTokens, 2048);
+      opts.messages = [...(opts.messages || []), { role: "user", content: "(Jawab langsung dengan teks final, jangan kosong.)" }];
+    }
+  }
+  return teks;
+}
+
 // Satu agent berpendapat.
 async function pendapatAgent(kode, agenda, konteks, maxTokens = 1200) {
-  const { chat } = require("./llm");
   const a = roster.ambil(kode);
   if (!a) return null;
   const pesan = [
@@ -114,7 +135,7 @@ async function pendapatAgent(kode, agenda, konteks, maxTokens = 1200) {
     .filter(Boolean)
     .join("\n");
 
-  const data = await chat({
+  const teks = await chatNonKosong({
     agent: kode,
     skill: a.skill_diizinkan.includes("analytics") ? "analytics" : "riset",
     messages: [
@@ -130,13 +151,11 @@ async function pendapatAgent(kode, agenda, konteks, maxTokens = 1200) {
     ],
     maxTokens,
   });
-  const teks = (data.choices?.[0]?.message?.content || "").trim();
   return { kode, nama: a.nama, jabatan: a.jabatan, pendapat: teks };
 }
 
 // Susun notulen dari pendapat (rapat pagi/siang/manual).
 async function notulenKirana(agenda, pendapatArr, { maxNotulen = 2600, mintaNextAction = false } = {}) {
-  const { chat } = require("./llm");
   const kumpulan = pendapatArr
     .map((p) => `### ${p.nama} (${p.jabatan})\n${p.pendapat}`)
     .join("\n\n");
@@ -151,14 +170,14 @@ async function notulenKirana(agenda, pendapatArr, { maxNotulen = 2600, mintaNext
     (mintaNextAction ? "6) NEXT ACTION (langkah konkret berikutnya, singkat)\n" : "") +
     "7) CATATAN TERHADAP 4 PRINSIP (mana yang paling relevan & mengapa, 1–2 baris).";
 
-  const data = await chat({
+  return await chatNonKosong({
     agent: "kirana",
     skill: "approval",
     messages: [
       {
         role: "system",
         content:
-          "Kamu Kirana, Editor-in-Chief & Orchestrator Cahaya Project. " +
+          "Kamu adalah Kirana, Editor-in-Chief & Orchestrator Cahaya Project. " +
           PRINSIP_RINGKAS +
           " Tugasmu merangkum rapat menjadi notulen yang tegas dan dapat ditindaklanjuti. Bahasa Indonesia. Ringkas namun lengkap.",
       },
@@ -166,12 +185,10 @@ async function notulenKirana(agenda, pendapatArr, { maxNotulen = 2600, mintaNext
     ],
     maxTokens: maxNotulen,
   });
-  return (data.choices?.[0]?.message?.content || "").trim();
 }
 
 // Notulen SORE: gabungkan semua notulen hari itu + next action berjam.
 async function rekapHarianKirana(tanggal, sesiArr, agendaSore) {
-  const { chat } = require("./llm");
   const rekap = sesiArr
     .map((s) => {
       const wkt = new Date(s.waktu).toLocaleTimeString("id-ID", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit" });
@@ -180,14 +197,14 @@ async function rekapHarianKirana(tanggal, sesiArr, agendaSore) {
     .join("\n\n");
 
   const jam = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
-  const data = await chat({
+  const teks = await chatNonKosong({
     agent: "kirana",
     skill: "approval",
     messages: [
       {
         role: "system",
         content:
-          "Kamu Kirana, Editor-in-Chief & Orchestrator Cahaya Project. " +
+          "Kamu adalah Kirana, Editor-in-Chief & Orchestrator Cahaya Project. " +
           PRINSIP_RINGKAS +
           " Bahasa Indonesia, ringkas, tegas, dapat langsung dieksekusi. Tanpa basa-basi.",
       },
@@ -211,7 +228,7 @@ async function rekapHarianKirana(tanggal, sesiArr, agendaSore) {
     ],
     maxTokens: 3000,
   });
-  return (data.choices?.[0]?.message?.content || "").trim();
+  return teks;
 }
 
 // Jalankan rapat lengkap.

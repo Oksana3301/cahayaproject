@@ -350,7 +350,7 @@ app.post("/api/wa/inbound", async (req, res) => {
           "Bila ditanya progress, sebutkan status terkini yang kamu ketahui; jangan mengarang.",
       },
     ];
-    const data = await chat({ agent: target, skill: "analytics", messages, maxTokens: 1600 });
+    const data = await chat({ agent: target, skill: "analytics", messages, maxTokens: 1600, noReasoning: true });
     const jawab = (data.choices?.[0]?.message?.content || "(tidak ada jawaban)").trim();
     const balasan = `*${roster.ambil(target)?.nama || target}* ${roster.ambil(target)?.emoji || ""}\n\n${jawab}`;
     await kirimDanCatat(balasKe, balasan, { agent: target, perintah: perintahLabel });
