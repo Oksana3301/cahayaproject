@@ -41,6 +41,7 @@ dashboard-ai/.hermes3d/media/
 dashboard-ai/.hermes3d/sena/cache/
 dashboard-ai/.hermes3d/sena/output/
 dashboard-ai/.hermes3d/sena/clone/
+dashboard-ai/.hermes3d/sena/publish/
 
 # === Log percakapan runtime Owner<->agent (data pribadi, JANGAN commit) ===
 percakapan/owner-agent/
