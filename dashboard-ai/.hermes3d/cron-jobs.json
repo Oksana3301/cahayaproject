@@ -132,7 +132,7 @@
     "description": "Tiap 15.00 WIB. Bima menyerang asumsi, mencari kontra-argumen, bias, dan risiko.",
     "enabled": true,
     "deleteAfterRun": false,
-    "updatedAtMs": 1791360045771,
+    "updatedAtMs": 1791446421468,
     "schedule": {
       "kind": "cron",
       "expr": "0 15 * * *",
@@ -147,7 +147,7 @@
       "engine": "detak"
     },
     "state": {
-      "nextRunAtMs": 1791446400000,
+      "nextRunAtMs": 1791532800000,
       "lastStatus": "skipped",
       "lastError": "ditangani seeder skill (riset/draft)"
     },
@@ -342,12 +342,12 @@
       "mode": "none"
     },
     "state": {
-      "nextRunAtMs": 1791439200000,
-      "lastRunAtMs": 1791352844710,
+      "nextRunAtMs": 1791525600000,
+      "lastRunAtMs": 1791439220627,
       "lastStatus": "ok",
-      "lastDurationMs": 20244
+      "lastDurationMs": 27676
     },
-    "updatedAtMs": 1791352844710
+    "updatedAtMs": 1791439220627
   },
   {
     "id": "pb-rapat-sore",
@@ -406,6 +406,149 @@
     },
     "state": {
       "nextRunAtMs": 1791698103638,
+      "lastStatus": "pending"
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-sena-clone-harian",
+    "name": "Sena — Clone Carousel Harian (05:00)",
+    "agentId": "sena",
+    "sessionKey": "agent:sena:main",
+    "description": "Tiap hari 05:00 WIB. Clone 1 carousel teratas (like tertinggi) dari xlsx bedah terbaru menjadi versi brand Cahaya Project. Hasil .json/.txt di .hermes3d/sena/clone/output/.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791446617931,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 5 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "jenis": "clone",
+      "jenisClone": "top",
+      "nilai": 1,
+      "thinking": "low"
+    },
+    "state": {
+      "lastStatus": "pending"
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-sena-publish-dryrun",
+    "name": "Sena — Publish Dry-Run (18:00)",
+    "agentId": "sena",
+    "sessionKey": "agent:sena:main",
+    "description": "Tiap hari 18:00 WIB. Dry-run publish: jadwalkan clone yang belum dijadwalkan (tanpa kirim beneran). Anti-dobel aktif. Hasil jadi bahan laporan.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791446617931,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 18 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "jenis": "publish-dryrun",
+      "dryRun": true,
+      "thinking": "low"
+    },
+    "state": {
+      "lastStatus": "pending"
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-sena-laporan-wa",
+    "name": "Sena — Laporan Harian WA (20:00)",
+    "agentId": "sena",
+    "sessionKey": "agent:sena:main",
+    "description": "Tiap hari 20:00 WIB. Kirim laporan harian Sena (bedah, clone, jadwal, tayang berikutnya) ke WhatsApp via WAHA (NOMOR_TES).",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791446617931,
+    "schedule": {
+      "kind": "cron",
+      "expr": "0 20 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "jenis": "laporan",
+      "thinking": "low"
+    },
+    "state": {
+      "lastStatus": "pending"
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-sena-email",
+    "name": "Sena — Email Laporan (20:05)",
+    "agentId": "sena",
+    "sessionKey": "agent:sena:main",
+    "description": "Tiap hari 20:05 WIB. Kirim email laporan via Resend ke EMAIL_TES.",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791446617931,
+    "schedule": {
+      "kind": "cron",
+      "expr": "5 20 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "jenis": "email",
+      "thinking": "low"
+    },
+    "state": {
+      "lastStatus": "pending"
+    },
+    "delivery": {
+      "mode": "none"
+    }
+  },
+  {
+    "id": "pb-sena-dashboard",
+    "name": "Sena — Rebuild Dashboard (20:10)",
+    "agentId": "sena",
+    "sessionKey": "agent:sena:main",
+    "description": "Tiap hari 20:10 WIB. Rebuild dashboard.html dengan data terbaru (bedah, clone, antre tayang, kirim WA/email).",
+    "enabled": true,
+    "deleteAfterRun": false,
+    "updatedAtMs": 1791446617931,
+    "schedule": {
+      "kind": "cron",
+      "expr": "10 20 * * *",
+      "tz": "Asia/Jakarta"
+    },
+    "sessionTarget": "main",
+    "wakeMode": "next-heartbeat",
+    "payload": {
+      "kind": "agentTurn",
+      "jenis": "dashboard",
+      "thinking": "low"
+    },
+    "state": {
       "lastStatus": "pending"
     },
     "delivery": {

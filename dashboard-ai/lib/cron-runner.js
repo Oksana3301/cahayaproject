@@ -204,6 +204,144 @@ async function eksekusiJob(job, { alasan = "terjadwal" } = {}) {
       return { ok: false, status: "error", error: e.message, durasiMs };
     }
   }
+  if (jenisJob === "clone") {
+    // Job CLONE: ubah carousel kompetitor (xlsx) jadi versi brand (Sena).
+    try {
+      const { cloneCarousel } = require("./sena-clone");
+      const path = require("path");
+      const dirOut = path.join(STATE_DIR, "sena", "output");
+      let fileXlsx = job.payload && job.payload.fileXlsx;
+      if (!fileXlsx) {
+        const files = fs.existsSync(dirOut)
+          ? fs.readdirSync(dirOut).filter((f) => f.endsWith(".xlsx")).sort().reverse()
+          : [];
+        if (!files.length) throw new Error("tidak ada file xlsx hasil bedah; jalankan job bedah dulu");
+        fileXlsx = path.join(dirOut, files[0]);
+      }
+      const jenis = String((job.payload && job.payload.jenisClone) || "top").trim().toLowerCase();
+      const nilai = Number(job.payload && job.payload.nilai) || 1;
+      const ulang = Boolean(job.payload && job.payload.ulang);
+      const r = await cloneCarousel({ fileXlsx, jenis, nilai, ulang });
+      const durasiMs = Date.now() - mulai;
+      const ringkas =
+        `CLONE CAROUSEL (Sena): ${r.jumlah} konten dibikin.\n` +
+        `Folder: ${r.dirOut}\n` +
+        r.hasil.map((h) => `  ${h.post.shortcode} (${h.post.likesCount} like) -> ${h.hasil.slides.length} slide`).join("\n");
+      catatTask({ job, status: "ok", ringkas, durasiMs });
+      appendLog(`OK job=${job.id} jenis=clone jumlah=${r.jumlah} file=${fileXlsx}`);
+      return { ok: true, status: "ok", result: ringkas, durasiMs };
+    } catch (e) {
+      const durasiMs = Date.now() - mulai;
+      catatTask({ job, status: "error", ringkas: "", durasiMs, error: e.message });
+      appendLog(`ERROR job=${job.id} jenis=clone durasi=${durasiMs}ms err=${e.message}`);
+      return { ok: false, status: "error", error: e.message, durasiMs };
+    }
+  }
+  if (jenisJob === "publish" || jenisJob === "publish-dryrun") {
+    // Job PUBLISH: jadwalkan clone ke SocialHub. Default (dan aman) adalah
+    // dry-run; kirim beneran hanya bila payload.dryRun === false secara eksplisit.
+    try {
+      const pub = require("./sena-publish");
+      const dryRun = jenisJob === "publish-dryrun" || !(job.payload && job.payload.dryRun === false);
+      const r = await pub.publishClone({
+        accountId: (job.payload && job.payload.accountId) || null,
+        jamTayang: (job.payload && job.payload.jamTayang) || undefined,
+        tanggalMulai: (job.payload && job.payload.tanggalMulai) || null,
+        jumlah: (job.payload && job.payload.jumlah) || null,
+        ulang: Boolean(job.payload && job.payload.ulang),
+        dryRun,
+      });
+      const durasiMs = Date.now() - mulai;
+      const mode = dryRun ? "DRY-RUN (tidak dikirim)" : "KIRIM BENARAN";
+      const ringkas =
+        `PUBLISH (Sena) ${mode}: ${r.hasil.length} konten, ${r.gagal.length} gagal.\n` +
+        r.hasil.map((h) => `  ${h.shortcode} -> ${h.scheduleAtWib}`).join("\n") +
+        (r.gagal.length ? `\nGAGAL:\n` + r.gagal.map((g) => `  ${g.shortcode}: ${g.error}`).join("\n") : "");
+      catatTask({ job, status: "ok", ringkas, durasiMs });
+      appendLog(`OK job=${job.id} jenis=${jenisJob} dryRun=${dryRun} hasil=${r.hasil.length} gagal=${r.gagal.length}`);
+      return { ok: true, status: "ok", result: ringkas, durasiMs };
+    } catch (e) {
+      const durasiMs = Date.now() - mulai;
+      catatTask({ job, status: "error", ringkas: "", durasiMs, error: e.message });
+      appendLog(`ERROR job=${job.id} jenis=${jenisJob} durasi=${durasiMs}ms err=${e.message}`);
+      return { ok: false, status: "error", error: e.message, durasiMs };
+    }
+  }
+  if (jenisJob === "laporan") {
+    // Job LAPORAN: kirim rekap harian ke WhatsApp via WAHA.
+    try {
+      const { kirimLaporanHarian } = require("./laporan-harian");
+      const dryRun = Boolean(job.payload && job.payload.dryRun);
+      const r = await kirimLaporanHarian({
+        dryRun,
+        nomor: (job.payload && job.payload.nomor) || null,
+        retry: !(job.payload && job.payload.tanpaRetry),
+      });
+      const durasiMs = Date.now() - mulai;
+      const ringkas = dryRun
+        ? `LAPORAN (dry-run) ke ${r.nomorTujuan}:\n${r.teks}`
+        : `LAPORAN terkirim ke ${r.nomorTujuan} (id ${r.terkirim && r.terkirim.id})`;
+      catatTask({ job, status: "ok", ringkas, durasiMs });
+      appendLog(`OK job=${job.id} jenis=laporan dryRun=${dryRun} tujuan=${r.nomorTujuan}`);
+      return { ok: true, status: "ok", result: ringkas, durasiMs };
+    } catch (e) {
+      const durasiMs = Date.now() - mulai;
+      catatTask({ job, status: "error", ringkas: "", durasiMs, error: e.message });
+      appendLog(`ERROR job=${job.id} jenis=laporan durasi=${durasiMs}ms err=${e.message}`);
+      return { ok: false, status: "error", error: e.message, durasiMs };
+    }
+  }
+  if (jenisJob === "email") {
+    // Job EMAIL: kirim laporan via Resend ke EMAIL_TES (default).
+    try {
+      const R = require("./resend");
+      const tujuan = (job.payload && job.payload.to) || (R.CONFIG.EMAIL_TES ? [R.CONFIG.EMAIL_TES] : []);
+      if (!tujuan.length) throw new Error("tidak ada tujuan email (isi EMAIL_TES di CONFIG)");
+      const subject = (job.payload && job.payload.subject) || "Cahaya Project — Laporan Otomatis";
+      const html = (job.payload && job.payload.html) || "<p>Laporan otomatis pipeline Sena.</p>";
+      const text = (job.payload && job.payload.text) || "Laporan otomatis pipeline Sena.";
+      const dryRun = Boolean(job.payload && job.payload.dryRun);
+      const durasiMs = Date.now() - mulai;
+      if (dryRun) {
+        const ringkas = `EMAIL (dry-run) ke ${tujuan.join(", ")}:\n${subject}\n${text}`;
+        catatTask({ job, status: "ok", ringkas, durasiMs });
+        appendLog(`OK job=${job.id} jenis=email dryRun=true tujuan=${tujuan.length}`);
+        return { ok: true, status: "ok", result: ringkas, durasiMs };
+      }
+      const hasil = await R.kirimBanyak({ tujuan, subject, html, text });
+      const ringkas = `EMAIL terkirim ke ${tujuan.join(", ")} (${hasil.map((h) => h.resp && (h.resp.id || h.resp.data && h.resp.data.id) || "-").join(", ")})`;
+      catatTask({ job, status: "ok", ringkas, durasiMs });
+      appendLog(`OK job=${job.id} jenis=email tujuan=${tujuan.length}`);
+      return { ok: true, status: "ok", result: ringkas, durasiMs };
+    } catch (e) {
+      const durasiMs = Date.now() - mulai;
+      catatTask({ job, status: "error", ringkas: "", durasiMs, error: e.message });
+      appendLog(`ERROR job=${job.id} jenis=email durasi=${durasiMs}ms err=${e.message}`);
+      return { ok: false, status: "error", error: e.message, durasiMs };
+    }
+  }
+  if (jenisJob === "dashboard") {
+    // Job DASHBOARD: rebuild dashboard.html (hapus cache supaya selalu segar).
+    try {
+      const path = require("path");
+      const buildPath = path.resolve(__dirname, "..", "build-dashboard.js");
+      delete require.cache[require.resolve(buildPath)];
+      const { build } = require(buildPath);
+      const hasilBuild = build();
+      const durasiMs = Date.now() - mulai;
+      const ringkas =
+        `DASHBOARD di-build: bedah=${hasilBuild.bedahTotal}, clone=${hasilBuild.cloneTotal}, ` +
+        `antre=${hasilBuild.antre}, gagal=${hasilBuild.gagal}, WA=${hasilBuild.waSukses}, email=${hasilBuild.emailSukses}`;
+      catatTask({ job, status: "ok", ringkas, durasiMs });
+      appendLog(`OK job=${job.id} jenis=dashboard bedah=${hasilBuild.bedahTotal} clone=${hasilBuild.cloneTotal} antre=${hasilBuild.antre}`);
+      return { ok: true, status: "ok", result: ringkas, durasiMs };
+    } catch (e) {
+      const durasiMs = Date.now() - mulai;
+      catatTask({ job, status: "error", ringkas: "", durasiMs, error: e.message });
+      appendLog(`ERROR job=${job.id} jenis=dashboard durasi=${durasiMs}ms err=${e.message}`);
+      return { ok: false, status: "error", error: e.message, durasiMs };
+    }
+  }
   if (jenisJob === "rapat") {
     try {
       const rapat = require("./rapat");

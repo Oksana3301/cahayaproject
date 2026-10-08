@@ -249,12 +249,19 @@ ${bedah.top.map((p) => `<tr><td>${esc(p.judulSlide1)}</td><td>${p.likes}</td><td
 }
 
 // ============================ MAIN ============================
-const r = build();
-console.log("=== DASHBOARD DI-BUILD ===");
-console.log(`File        : ${OUT_HTML}`);
-console.log(`Carousel dibedah : ${r.bedahTotal}`);
-console.log(`Konten dibikin   : ${r.cloneTotal}`);
-console.log(`Antre tayang     : ${r.antre}`);
-console.log(`Gagal            : ${r.gagal}`);
-console.log(`WA sukses        : ${r.waSukses}`);
-console.log(`Email sukses     : ${r.emailSukses}`);
+// Jalankan build() saat dipanggil langsung (node build-dashboard.js), bukan
+// saat di-require dari cron-runner (yang memanggil build() sendiri).
+if (require.main === module) {
+  const r = build();
+  console.log("=== DASHBOARD DI-BUILD ===");
+  console.log(`File        : ${OUT_HTML}`);
+  console.log(`Carousel dibedah : ${r.bedahTotal}`);
+  console.log(`Konten dibikin   : ${r.cloneTotal}`);
+  console.log(`Antre tayang     : ${r.antre}`);
+  console.log(`Gagal            : ${r.gagal}`);
+  console.log(`WA sukses        : ${r.waSukses}`);
+  console.log(`Email sukses     : ${r.emailSukses}`);
+}
+
+// Ekspor build() supaya bisa dipanggil dari cron-runner (tanpa re-require).
+module.exports = { build };
