@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cahaya Project — Dashboard</title>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--border:#30363d;--txt:#e6edf3;--mut:#8b949e;--hijau:#3fb950;--merah:#f85149;--biru:#58a6ff;--abu:#484f58;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:0 0 4px}
+.sub{color:var(--mut);font-size:.85rem;margin:0 0 20px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
+@media(min-width:640px){.cards{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px}
+.card .n{font-size:2rem;font-weight:700;line-height:1}
+.card .l{color:var(--mut);font-size:.8rem;margin-top:6px}
+.card.gagal .n{color:var(--merah)}
+.card.gagal.nol .n{color:var(--abu)}
+section{margin-bottom:24px}
+h2{font-size:1rem;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.85rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
+th{color:var(--mut);font-weight:600;white-space:nowrap;background:var(--panel)}
+tr:last-child td{border-bottom:none}
+a{color:var(--biru);text-decoration:none;word-break:break-all}
+a:hover{text-decoration:underline}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:600}
+.badge.pending{background:#1f2a37;color:var(--mut)}
+.badge.success{background:#12261a;color:var(--hijau)}
+.badge.error{background:#2d1517;color:var(--merah)}
+.empty{color:var(--mut);font-style:italic;padding:10px 0}
+.footer{margin-top:32px;color:var(--mut);font-size:.75rem;text-align:right}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Cahaya Project</h1>
+<p class="sub">Dashboard pemantauan pipeline Sena — bedah, clone, publish, kirim.</p>
+
+<div class="cards">
+  <div class="card"><div class="n">26</div><div class="l">Carousel dibedah</div></div>
+  <div class="card"><div class="n">1</div><div class="l">Konten dibikin</div></div>
+  <div class="card"><div class="n">3</div><div class="l">Antre tayang</div></div>
+  <div class="card gagal nol"><div class="n">0</div><div class="l">Gagal</div></div>
+</div>
+
+<section>
+<h2>Antre Tayang</h2>
+<div class="table-wrap"><table>
+<tr><th>Judul</th><th>Kapan Tayang (WIB)</th><th>Status</th></tr>
+<tr><td>Mitos Transisi Energi: Solusi Hijau atau Sekadar Pemutih Wajah Fosil?</td><td>2026-10-09 12:00</td><td><span class="badge pending">pending</span></td></tr><tr><td>CHANGEMAKER’S FIELD NOTES</td><td>2026-10-09 19:00</td><td><span class="badge pending">pending</span></td></tr><tr><td>Transisi energi dari pinggiran: solar panel di Kampung Muka</td><td>2026-10-10 12:00</td><td><span class="badge pending">pending</span></td></tr>
+</table></div>
+</section>
+
+<section>
+<h2>Carousel Kompetitor Paling Perform</h2>
+<div class="table-wrap"><table>
+<tr><th>Judul Slide 1</th><th>Like</th><th>Link</th></tr>
+<tr><td>CHAPTER – 162</td><td>4694</td><td><a href="https://www.instagram.com/p/Dd4E52_E5XF/" target="_blank" rel="noopener">https://www.instagram.com/p/Dd4E52_E5XF/</a></td></tr><tr><td>CHAPTER - 156</td><td>4557</td><td><a href="https://www.instagram.com/p/DdemB8hk5cy/" target="_blank" rel="noopener">https://www.instagram.com/p/DdemB8hk5cy/</a></td></tr><tr><td>CHAPTER - 166</td><td>2363</td><td><a href="https://www.instagram.com/p/DeHk2fRk2Ae/" target="_blank" rel="noopener">https://www.instagram.com/p/DeHk2fRk2Ae/</a></td></tr><tr><td>CHAPTER – 160</td><td>1922</td><td><a href="https://www.instagram.com/p/DdwJF4_k7C3/" target="_blank" rel="noopener">https://www.instagram.com/p/DdwJF4_k7C3/</a></td></tr><tr><td>CHAPTER - 164</td><td>1737</td><td><a href="https://www.instagram.com/p/Dd9E1W8k0Gl/" target="_blank" rel="noopener">https://www.instagram.com/p/Dd9E1W8k0Gl/</a></td></tr><tr><td>CHAPTER - 163</td><td>1599</td><td><a href="https://www.instagram.com/p/Dd752TmE8DF/" target="_blank" rel="noopener">https://www.instagram.com/p/Dd752TmE8DF/</a></td></tr><tr><td>CHAPTER - 154</td><td>952</td><td><a href="https://www.instagram.com/p/DdYidsAEyDv/" target="_blank" rel="noopener">https://www.instagram.com/p/DdYidsAEyDv/</a></td></tr><tr><td>CHAPTER - 158</td><td>935</td><td><a href="https://www.instagram.com/p/Ddnm7VQE_AM/" target="_blank" rel="noopener">https://www.instagram.com/p/Ddnm7VQE_AM/</a></td></tr><tr><td>WHO Youth Council 2024-2026 Recap</td><td>175</td><td><a href="https://www.instagram.com/p/DeJfcyfDlSH/" target="_blank" rel="noopener">https://www.instagram.com/p/DeJfcyfDlSH/</a></td></tr><tr><td>ClimateCardinals</td><td>107</td><td><a href="https://www.instagram.com/p/DdyuhPWgYRl/" target="_blank" rel="noopener">https://www.instagram.com/p/DdyuhPWgYRl/</a></td></tr>
+</table></div>
+</section>
+
+<section>
+<h2>Kirim WA &amp; Email</h2>
+<div class="cards">
+  <div class="card"><div class="n">0</div><div class="l">WA sukses</div></div>
+  <div class="card"><div class="n">1</div><div class="l">Email sukses</div></div>
+</div>
+</section>
+
+<div class="footer">terakhir di-build 2026-10-08 14:33 WIB</div>
+</div>
+</body>
+</html>

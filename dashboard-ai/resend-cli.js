@@ -14,6 +14,7 @@ const path = require("path");
 const crypto = require("crypto");
 
 const DIR_SENT = path.join(__dirname, ".hermes3d", "email", "terkirim.json");
+const EMAIL_LOG = path.join(__dirname, ".hermes3d", "email", "kirim-log.json");
 
 function parseArgs(argv) {
   const a = argv.slice(2);
@@ -40,6 +41,17 @@ function bacaTerkirim() {
 function simpanTerkirim(list) {
   fs.mkdirSync(path.dirname(DIR_SENT), { recursive: true });
   fs.writeFileSync(DIR_SENT, JSON.stringify(list, null, 2), "utf8");
+}
+
+// Catat log kirim email (sukses/gagal) untuk dashboard.
+function catatKirimEmail({ tujuan, status, error = "" }) {
+  let list = [];
+  try {
+    if (fs.existsSync(EMAIL_LOG)) list = JSON.parse(fs.readFileSync(EMAIL_LOG, "utf8"));
+  } catch {}
+  list.push({ waktu: new Date().toISOString(), tujuan: [].concat(tujuan), status, error });
+  fs.mkdirSync(path.dirname(EMAIL_LOG), { recursive: true });
+  fs.writeFileSync(EMAIL_LOG, JSON.stringify(list, null, 2), "utf8");
 }
 
 // Contoh isi email (HTML sederhana + teks polos).
@@ -128,15 +140,21 @@ function isiEmailDefault() {
   }
 
   console.log(`Mengirim ke ${tujuan.length} alamat...`);
-  const hasil = await R.kirimBanyak({ tujuan, subject, html, text });
-  console.log("TERKIRIM:");
-  for (const h of hasil) {
-    console.log(`  batch ${h.batch}: ${h.jumlah} alamat — id ${h.resp?.id || h.resp?.data?.id || "-"}`);
-  }
+  try {
+    const hasil = await R.kirimBanyak({ tujuan, subject, html, text });
+    console.log("TERKIRIM:");
+    for (const h of hasil) {
+      console.log(`  batch ${h.batch}: ${h.jumlah} alamat — id ${h.resp?.id || h.resp?.data?.id || "-"}`);
+    }
+    catatKirimEmail({ tujuan, status: "sukses" });
 
-  sudah.push(kunci);
-  simpanTerkirim(sudah);
-  console.log("\nSudah dicatat anti-dobel. Selesai.");
+    sudah.push(kunci);
+    simpanTerkirim(sudah);
+    console.log("\nSudah dicatat anti-dobel. Selesai.");
+  } catch (e) {
+    catatKirimEmail({ tujuan, status: "gagal", error: e.message });
+    throw e;
+  }
 })().catch((e) => {
   console.error("[resend] GAGAL:", e.message);
   process.exit(1);

@@ -25,6 +25,10 @@ const DIR_PUBLISH = path.join(DIR_SENA, "publish");
 const TERJADWAL_PATH = path.join(DIR_PUBLISH, "terjadwal.json");
 const CONFIG_PATH = path.join(DIR_PUBLISH, "config.json");
 
+// Log kirim WhatsApp (untuk dashboard). Struktur: [{ waktu, tujuan, status, error }].
+const DIR_WA = path.join(__dirname, "..", ".hermes3d", "wa");
+const WA_LOG_PATH = path.join(DIR_WA, "kirim-log.json");
+
 // Nomor tujuan tes (owner). Dipakai sebagai default & pengaman.
 function nomorTes() {
   return process.env.NOMOR_TES || process.env.WA_OWNER_NOMOR || process.env.WA_NOTIF_NOMOR || "";
@@ -37,6 +41,18 @@ function bacaJSON(p, fallback) {
   } catch {
     return fallback;
   }
+}
+
+function tulisJSON(p, data) {
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, JSON.stringify(data, null, 2), "utf8");
+}
+
+// Catat log kirim WA (sukses/gagal) ke file. Append ke daftar lama.
+function catatKirimWa({ tujuan, status, error = "" }) {
+  const list = bacaJSON(WA_LOG_PATH, []);
+  list.push({ waktu: new Date().toISOString(), tujuan, status, error });
+  tulisJSON(WA_LOG_PATH, list);
 }
 
 // --- Kumpulkan data laporan -----------------------------------------------
@@ -198,6 +214,7 @@ async function kirimLaporanHarian({
   try {
     const r = await cobaKirim();
     hasil.terkirim = r;
+    catatKirimWa({ tujuan, status: "sukses" });
   } catch (e) {
     if (retry) {
       await new Promise((res) => setTimeout(res, jedaRetryMs));
@@ -205,10 +222,13 @@ async function kirimLaporanHarian({
         const r2 = await cobaKirim();
         hasil.terkirim = r2;
         hasil.retried = true;
+        catatKirimWa({ tujuan, status: "sukses" });
       } catch (e2) {
+        catatKirimWa({ tujuan, status: "gagal", error: e2.message });
         throw new Error(`gagal kirim (setelah retry): ${e2.message} | error awal: ${e.message}`);
       }
     } else {
+      catatKirimWa({ tujuan, status: "gagal", error: e.message });
       throw new Error(`gagal kirim: ${e.message}`);
     }
   }
@@ -223,4 +243,6 @@ module.exports = {
   tayangBerikutnya,
   nomorTes,
   wibDariIso,
+  catatKirimWa,
+  WA_LOG_PATH,
 };

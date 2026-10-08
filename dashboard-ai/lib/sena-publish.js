@@ -26,6 +26,7 @@ const DIR_CLONE_OUT = path.join(DIR, "clone", "output");
 const DIR_PUBLISH = path.join(DIR, "publish");
 const CONFIG_PATH = path.join(DIR_PUBLISH, "config.json");
 const TERJADWAL_PATH = path.join(DIR_PUBLISH, "terjadwal.json");
+const JADWAL_PATH = path.join(DIR_PUBLISH, "jadwal.json");
 
 // ==================== KONFIGURASI DEFAULT ====================
 // JAM_TAYANG = jam tayang dalam WIB (Asia/Jakarta, UTC+7).
@@ -95,6 +96,16 @@ function bacaTerjadwal() {
 
 function simpanTerjadwal(list) {
   tulisJSON(TERJADWAL_PATH, list);
+}
+
+// Simpan snapshot jadwal antre tayang (untuk dashboard). Diisi setelah
+// publish berhasil, dari GET /schedules. Struktur: { diperbarui, docs: [...] }.
+function simpanJadwal(docs) {
+  tulisJSON(JADWAL_PATH, { diperbarui: new Date().toISOString(), docs });
+}
+
+function bacaJadwal() {
+  return bacaJSON(JADWAL_PATH, { diperbarui: null, docs: [] });
 }
 
 // --- 1. Daftar akun -------------------------------------------------------
@@ -290,6 +301,17 @@ async function publishClone({
     for (const g of gagal) console.log(`  - ${g.shortcode}: ${g.error}`);
   }
 
+  // Simpan snapshot jadwal antre (untuk dashboard). Hanya saat bukan dry-run.
+  if (!dryRun) {
+    try {
+      const jadwal = await daftarJadwal({});
+      simpanJadwal(jadwal);
+      console.log(`[pub] snapshot jadwal tersimpan: ${jadwal.length} antre`);
+    } catch (e) {
+      console.log(`[pub] (gagal simpan snapshot jadwal: ${e.message})`);
+    }
+  }
+
   return { akun: akunDipilih, hasil, gagal, scheduleAtDipakai: hasil.map((h) => h.scheduleAt), terjadwal: [...sudahSet] };
 }
 
@@ -305,8 +327,11 @@ module.exports = {
   bacaFileClone,
   bacaConfig,
   bacaTerjadwal,
+  simpanJadwal,
+  bacaJadwal,
   JAM_TAYANG,
   DIR_PUBLISH,
   DIR_CLONE_OUT,
   CONFIG_PATH,
+  JADWAL_PATH,
 };
