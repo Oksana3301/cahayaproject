@@ -330,8 +330,8 @@ app.post("/api/wa/inbound", async (req, res) => {
       const hasil = await rapat.jalankanRapat({ agenda: pertanyaan, undangan: ["nala", "laras", "tara"], waNomor: balasKe });
       const ringkasWa = wa.ringkasRapatUntukWa(hasil);
       if (!hasil.waTerkirim) {
-        // Fallback bila pengiriman otomatis gagal.
-        try { await wa.kirimTeks(balasKe, ringkasWa); } catch (e) { console.error("[wa/inbound] gagal kirim notulen:", e.message); }
+        // Fallback bila pengiriman otomatis gagal: kirim multi-pesan.
+        try { await wa.kirimRapatWa(balasKe, hasil); } catch (e) { console.error("[wa/inbound] gagal kirim notulen:", e.message); }
       }
       // Catat notulen ASLI ke riwayat percakapan (bukan placeholder).
       pc.catat({ arah: "keluar", nomor: chatId, agent: "kirana", perintah: "/rapat", balasan: ringkasWa, meta: { jenis: hasil.jenis, diundang: hasil.diundang, terkirim: !!hasil.waTerkirim } });
@@ -1068,9 +1068,13 @@ app.post("/api/rapat/wa", async (req, res) => {
       }
     }
     if (!hasil) return res.status(400).json({ ok: false, error: "belum ada hasil rapat" });
-    const teks = req.body?.teks || wa.ringkasRapatUntukWa(hasil);
-    const r = await wa.kirimTeks(nomor, teks);
-    res.json({ ok: true, ...r, panjang: teks.length });
+    if (req.body?.teks) {
+      const r = await wa.kirimTeks(nomor, req.body.teks);
+      res.json({ ok: true, ...r, panjang: req.body.teks.length });
+    } else {
+      const r = await wa.kirimRapatWa(nomor, hasil);
+      res.json({ ok: true, jumlah: r.jumlah, panjangTotal: r.panjangTotal, id: r.id });
+    }
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }

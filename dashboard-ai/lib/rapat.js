@@ -322,16 +322,16 @@ async function jalankanRapat({ jenis, agenda, konteks, undangan, kirimWa = true,
     console.error("[rapat] gagal simpan hasil:", e.message);
   }
 
-  // Kirim ringkasan rapat ke WhatsApp (SATU pesan per rapat).
+  // Kirim ringkasan rapat ke WhatsApp (dipisah beberapa pesan agar tidak terpotong).
   const nomorWa = String(waNomor || process.env.WA_NOTIF_NOMOR || process.env.WA_WA_NOTIF || "").trim();
   if (kirimWa && nomorWa) {
     try {
       const wa = require("./whatsapp");
       const tanggalHarian = bacaNotulenHarian(tanggal);
-      const teks = wa.ringkasRapatUntukWa({ ...hasil, tanggalHarian });
-      await wa.kirimTeks(nomorWa, teks);
+      const r = await wa.kirimRapatWa(nomorWa, { ...hasil, tanggalHarian });
       hasil.waTerkirim = nomorWa;
-      console.log(`[rapat] ringkasan ${hasil.jenis} dikirim ke WhatsApp ${nomorWa}`);
+      hasil.waJumlahPesan = r.jumlah;
+      console.log(`[rapat] ringkasan ${hasil.jenis} dikirim ke WhatsApp ${nomorWa} (${r.jumlah} pesan)`);
     } catch (e) {
       hasil.waError = e.message;
       console.error("[rapat] gagal kirim WhatsApp:", e.message);

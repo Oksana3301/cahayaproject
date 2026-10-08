@@ -110,7 +110,7 @@ async function statusSesi(session = WAHA_SESSION) {
 
 // Bangun ringkasan rapat (ramah WhatsApp: SATU pesan, ringkas, tidak spam).
 // hasil = { jenis, label, agenda, diundang[], pendapat[], notulen }
-function ringkasRapatUntukWa(hasil, { maxPendapat = 3, maxNotulen = 2600 } = {}) {
+function ringkasRapatUntukWa(hasil, { maxPendapat = 3, maxNotulen = 6000 } = {}) {
   const jenis = hasil?.jenis || "manual";
   const judul = {
     pagi: "☀️ RAPAT PAGI — Daily Standup",
@@ -126,7 +126,7 @@ function ringkasRapatUntukWa(hasil, { maxPendapat = 3, maxNotulen = 2600 } = {})
   // Rapat lain: sertakan sekilas pendapat + notulen.
   const pendapat = (hasil?.pendapat || [])
     .slice(0, maxPendapat)
-    .map((p) => `• ${p.nama || p.kode || "?"}: ${String(p.pendapat || "").replace(/\s+/g, " ").slice(0, 320)}`)
+    .map((p) => `• ${p.nama || p.kode || "?"}: ${String(p.pendapat || "").replace(/\s+/g, " ").slice(0, 800)}`)
     .join("\n");
 
   let notulen = String(hasil?.notulen || "").trim();
@@ -151,8 +151,107 @@ function ringkasRapatUntukWa(hasil, { maxPendapat = 3, maxNotulen = 2600 } = {})
   return baris.filter((x) => x !== "").join("\n");
 }
 
+// Potong teks panjang menjadi beberapa bagian pada batas aman (per baris,
+// hindari memotong di tengah kata). Maks per bagian default 3500 char agar
+// nyaman dibaca di HP tanpa terpotong WhatsApp.
+function pecahPanjang(teks, maks = 3500) {
+  const t = String(teks || "").trim();
+  if (!t) return [];
+  if (t.length <= maks) return [t];
+
+  const baris = t.split("\n");
+  const bagian = [];
+  let buf = "";
+  for (const b of baris) {
+    const barisPanjang = b.length > maks ? maks : b.length;
+    // Baris tunggal yang lebih panjang dari maks: potong paksa.
+    const potongan = [];
+    let sisa = b;
+    while (sisa.length > maks) {
+      potongan.push(sisa.slice(0, maks));
+      sisa = sisa.slice(maks);
+    }
+    if (sisa) potongan.push(sisa);
+
+    for (const p of potongan) {
+      if (buf && (buf.length + p.length + 1) > maks) {
+        bagian.push(buf);
+        buf = "";
+      }
+      buf = buf ? buf + "\n" + p : p;
+      if (buf.length >= maks) {
+        bagian.push(buf);
+        buf = "";
+      }
+    }
+  }
+  if (buf) bagian.push(buf);
+  return bagian;
+}
+
+// Bangun ringkasan rapat sebagai BEBERAPA pesan WhatsApp (tidak terpotong).
+// Mengembalikan array string: pesan[0] = header+pendapat, pesan[1..] = notulen.
+function ringkasRapatUntukWaMulti(hasil) {
+  const jenis = hasil?.jenis || "manual";
+  const judul = {
+    pagi: "☀️ RAPAT PAGI — Daily Standup",
+    siang: "🕐 RAPAT SIANG — Progress Update",
+    sore: "🌙 RAPAT SORE — Rekap Harian",
+    manual: "RAPAT CAHAYA PROJECT",
+  }[jenis] || "RAPAT CAHAYA PROJECT";
+
+  const agenda = hasil?.agenda || "(tanpa agenda)";
+  const diundang = (hasil?.diundang || []).join(", ") || "-";
+
+  const jamKirim = new Date().toLocaleString("id-ID", {
+    timeZone: "Asia/Jakarta",
+    day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
+  });
+
+  const pendapat = (hasil?.pendapat || [])
+    .map((p) => `• ${p.nama || p.kode || "?"}: ${String(p.pendapat || "").replace(/\s+/g, " ").trim()}`)
+    .join("\n");
+
+  const notulen = String(hasil?.notulen || "").trim() || "(belum ada)";
+
+  // Pesan 1: header + pendapat singkat.
+  const headerBaris = [
+    `*${judul}*`,
+    `_${jamKirim} WIB_`,
+    "",
+    `Agenda: ${agenda}`,
+    `Dihadiri: ${diundang}`,
+  ];
+  if (pendapat && jenis !== "sore") headerBaris.push("", "• *Pendapat singkat:*\n" + pendapat);
+  const headerGabung = headerBaris.filter((x) => x !== "").join("\n");
+  // Header + pendapat juga dipecah bila sangat panjang.
+  const pesanHeader = pecahPanjang(headerGabung, 3500);
+
+  // Pesan notulen (dipecah bila panjang).
+  const labelNotulen = jenis === "sore" ? "*REKAP HARIAN (semua notulen + next action):*\n" : "*Notulen:*\n";
+  const chunkNotulen = pecahPanjang(notulen, 3500).map(
+    (c, i, arr) => labelNotulen + c + (arr.length > 1 ? `\n\n_(lanjutan ${i + 1}/${arr.length})_` : "")
+  );
+
+  return [...pesanHeader, ...chunkNotulen];
+}
+
+// Kirim ringkasan rapat sebagai beberapa pesan berurutan (tidak terpotong).
+// Mengembalikan { ok, jumlah, id[] }.
+async function kirimRapatWa(nomor, hasil, { session = WAHA_SESSION, jedaMs = 400 } = {}) {
+  const pesan = ringkasRapatUntukWaMulti(hasil);
+  const id = [];
+  for (let i = 0; i < pesan.length; i++) {
+    const r = await kirimTeks(nomor, pesan[i], { session });
+    id.push(r.id);
+    if (i < pesan.length - 1 && jedaMs > 0) await new Promise((res) => setTimeout(res, jedaMs));
+  }
+  return { ok: true, jumlah: pesan.length, id, panjangTotal: pesan.reduce((a, p) => a + p.length, 0) };
+}
+
 module.exports = {
   kirimTeks,
+  kirimRapatWa,
   statusSesi,
   normalisasiNomor,
   normalisasiDigit,
@@ -161,5 +260,7 @@ module.exports = {
   daftarOwnerLid,
   izinkanPengirim,
   ringkasRapatUntukWa,
+  ringkasRapatUntukWaMulti,
+  pecahPanjang,
   WAHA_SESSION,
 };
