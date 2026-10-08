@@ -37,7 +37,7 @@ const PRESET = {
     agenda:
       "Daily standup pagi: apa yang dikerjakan semalam? Apa rencana kerja & prioritas hari ini? " +
       "Tetapkan 3 prioritas utama dan pemiliknya.",
-    undangan: ["nala", "laras", "tara", "jati"],
+    undangan: ["nala", "laras", "tara", "jati", "sena"],
     maxPendapatAgent: 1600,
     maxNotulen: 2600,
   },
@@ -46,7 +46,7 @@ const PRESET = {
     agenda:
       "Update progres siang: sejauh mana pekerjaan hari ini berjalan? Apa yang selesai, apa yang tertunda, " +
       "dan adakah blocker yang butuh keputusan Owner?",
-    undangan: ["nala", "tara", "bima"],
+    undangan: ["nala", "tara", "bima", "sena"],
     maxPendapatAgent: 1600,
     maxNotulen: 2600,
   },
@@ -55,7 +55,7 @@ const PRESET = {
     agenda:
       "Rekap akhir hari: rangkum semua yang terjadi hari ini, putuskan penutup hari, " +
       "dan susun rencana malam ini + besok.",
-    undangan: ["nala", "tara", "laras"],
+    undangan: ["nala", "tara", "laras", "sena"],
     maxPendapatAgent: 1600,
     maxNotulen: 2600,
   },

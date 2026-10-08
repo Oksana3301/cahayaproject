@@ -117,6 +117,7 @@ const SKILL_DEFAULT = {
   laras: "publish",
   raya: "publish",
   tara: "publish",
+  sena: "riset",
 };
 
 function resolveSkill(job) {
@@ -173,9 +174,36 @@ async function eksekusiJob(job, { alasan = "terjadwal" } = {}) {
   const mulai = Date.now();
   const agentId = String(job.agentId || "").trim();
 
-  // Job jenis RAPAT: jalankan rapat multi-agent (bukan satu panggilan LLM biasa).
-  // Ditandai payload.jenis === "rapat" (atau kind === "rapat").
+  // Job jenis SENA (bedah carousel): jalankan pipeline Apify->OCR->Excel.
+  // Ditandai payload.jenis === "sena".
   const jenisJob = String((job.payload && (job.payload.jenis || job.payload.kind)) || "").trim().toLowerCase();
+  if (jenisJob === "sena") {
+    try {
+      const { bedahCarousel } = require("../skills/sena");
+      const resultsLimit = Number(job.payload && job.payload.resultsLimit) || 15;
+      const r = await bedahCarousel({
+        akun: (job.payload && job.payload.akun) || null,
+        resultsLimit,
+        agentKode: agentId || "sena",
+        ocr: true,
+        lanjutOtomatis: true,
+      });
+      const durasiMs = Date.now() - mulai;
+      const ringkas =
+        `BEDAH CAROUSEL (Sena): ${r.jumlahPost} post carousel dianalisis.\n` +
+        `File: ${r.file}\n` +
+        `Akun: ${(r.akun || []).join(", ")}\n` +
+        `Slide gagal OCR: ${r.slideGagal}`;
+      catatTask({ job, status: "ok", ringkas, durasiMs });
+      appendLog(`OK job=${job.id} jenis=sena akun=${(r.akun || []).length} post=${r.jumlahPost} slideGagal=${r.slideGagal} file=${r.file}`);
+      return { ok: true, status: "ok", result: ringkas, durasiMs };
+    } catch (e) {
+      const durasiMs = Date.now() - mulai;
+      catatTask({ job, status: "error", ringkas: "", durasiMs, error: e.message });
+      appendLog(`ERROR job=${job.id} jenis=sena durasi=${durasiMs}ms err=${e.message}`);
+      return { ok: false, status: "error", error: e.message, durasiMs };
+    }
+  }
   if (jenisJob === "rapat") {
     try {
       const rapat = require("./rapat");
