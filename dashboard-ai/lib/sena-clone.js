@@ -30,12 +30,17 @@ const DIR_CACHE = path.join(DIR_CLONE, "cache");
 
 // ==================== IDENTITAS BRAND (ganti di sini) =======================
 const BRAND = {
-  brand: "HANDLE_LO",
-  kategori: "KATEGORI",
-  niche: "NICHE_LO",
-  audiens: "SIAPA_AUDIENS",
-  gaya: "GAYA_NGOMONG",
-  jualan: "YANG_GW_JUAL",
+  brand: "Cahaya Project",
+  handle: "@cahayaproject",
+  kategori: "Sustainability Media, Learning & Community",
+  niche:
+    "Sustainability, green transition, climate, public policy, risk, human behavior, business impact, future trends, solutions, innovation, community participation, dan creative problem solving.",
+  audiens:
+    "Young professionals dan emerging changemakers Indonesia (22-38 tahun), fokus profesional 24-35 tahun di corporate, startup, consulting, technology, sustainability/ESG, business, policy, NGO, entrepreneurship, atau creative industries. Mereka ingin memahami perubahan dunia dengan cepat, jelas, dan relevan tanpa membaca laporan terlalu teknis.",
+  gaya:
+    "Santai, cerdas, hangat, kritis, manusiawi, curious, profesional, dan optimistis tanpa naif. Serious topic, human language. Terasa seperti smart friend yang membantu connect the dots - bukan dosen, bukan corporate press release, bukan aktivis menggurui.",
+  jualan:
+    "Konten edukasi & insight, community activities, webinar, workshop, speaking, digital products, reports, learning tools, dan produk komunitas terkait sustainability, green transition, policy, risk, human behavior, innovation, dan solusi praktis untuk masa depan yang lebih baik.",
 };
 // ============================================================================
 
@@ -127,7 +132,7 @@ function susunPrompt(post) {
     .map((t, i) => `Slide ${i + 1}:\n${t}`)
     .join("\n\n");
   return (
-    `Lo copywriter carousel buat brand: ${BRAND.brand}, kategori: ${BRAND.kategori}.\n` +
+    `Lo copywriter carousel buat brand: ${BRAND.brand} (${BRAND.handle}), kategori: ${BRAND.kategori}.\n` +
     `Niche: ${BRAND.niche}. Audiens: ${BRAND.audiens}. Gaya ngomong: ${BRAND.gaya}.\n` +
     `Yang dijual: ${BRAND.jualan}.\n` +
     `\n` +
@@ -221,11 +226,12 @@ function validasiHasil(hasil, post) {
       err.push(`slide ${s.no} = ${n} kata (maks ${MAX_KATA_PER_SLIDE})`);
     }
     // tolak isi yang masih memuat header brand/kategori/nomor (diisi otomatis template)
-    const isi = String(s.isi || "");
-    if (/^HANDLE_LO\b|^KATEGORI\b/i.test(isi.trim())) {
-      err.push(`slide ${s.no} masih memuat header brand/kategori (${isi.slice(0, 30)}...)`);
+    const isi = String(s.isi || "").trim();
+    const brandAwal = [BRAND.brand, BRAND.handle].filter(Boolean).map((b) => b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    if (brandAwal.length && new RegExp(`^(${brandAwal.join("|")})`, "i").test(isi)) {
+      err.push(`slide ${s.no} masih memuat header brand/handle (${isi.slice(0, 30)}...)`);
     }
-    if (/^\d+\s*\/\s*\d+/.test(isi.trim())) {
+    if (/^\d+\s*\/\s*\d+/.test(isi)) {
       err.push(`slide ${s.no} diawali nomor slide (nomor diisi otomatis template)`);
     }
   }
