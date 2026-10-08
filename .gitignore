@@ -43,5 +43,8 @@ dashboard-ai/.hermes3d/sena/output/
 dashboard-ai/.hermes3d/sena/clone/
 dashboard-ai/.hermes3d/sena/publish/
 
+# === Runtime email (Resend) — catatan anti-dobel pengiriman ===
+dashboard-ai/.hermes3d/email/
+
 # === Log percakapan runtime Owner<->agent (data pribadi, JANGAN commit) ===
 percakapan/owner-agent/
