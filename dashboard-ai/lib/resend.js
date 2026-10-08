@@ -17,11 +17,11 @@ const crypto = require("crypto");
 // RESEND_API_KEY TIDAK ditaruh di sini (diambil dari .env).
 // ============================================================================
 const CONFIG = {
-  DOMAIN: "-",                 // domain pengirim; "-" kalau belum punya
+  DOMAIN: "dirini.id",         // domain pengirim; "-" kalau belum punya
   FROM_NAME: "Cahaya Project", // nama yang muncul di inbox
   FROM_USER: "halo",           // bagian sebelum @, contoh "halo"
   REPLY_TO: "",                // kosongin kalau sama kayak pengirim
-  EMAIL_TES: "",               // alamat buat nyoba (diisi saat tes)
+  EMAIL_TES: "dewiatika4295@gmail.com", // alamat buat nyoba (diisi saat tes)
 };
 // ============================================================================
 
