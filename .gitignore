@@ -35,5 +35,12 @@ Thumbs.db
 dashboard-ai/.hermes3d/media/
 *.bak-*
 
+# === Runtime agent Sena (data hasil: OCR, cache gambar, clone, xlsx) ===
+# Persona agent di .hermes3d/agents/sena/ TETAP disertakan.
+# Data hasil runtime (bisa berisi teks kompetitor & hasil brand) tidak di-commit.
+dashboard-ai/.hermes3d/sena/cache/
+dashboard-ai/.hermes3d/sena/output/
+dashboard-ai/.hermes3d/sena/clone/
+
 # === Log percakapan runtime Owner<->agent (data pribadi, JANGAN commit) ===
 percakapan/owner-agent/
