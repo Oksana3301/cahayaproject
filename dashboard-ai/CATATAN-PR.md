@@ -28,8 +28,13 @@ Progress implementasi pipeline cari client/partner + outreach email (Resend).
 - migrations/007_pr.sql: tabel prospek, pesan, cari_log, email_kuota, pengaturan_pr, jadwal_pr.
 - Migrasi dijalankan (1 migration baru). Semua 6 tabel ada.
 
-## Fase 3 — SEDANG DIKERJAKAN
-- Belum: skills/cari/<sumber>.js + perkaya.js + cariClient().
+## Fase 3 — SELESAI
+- skills/cari/: maps, web, linkedin, instagram, facebook, tiktok, perkaya (bentuk output seragam).
+- lib/cari.js: cariClient() orkestrator — bersihkan (email kecil/buang example/noreply, 08xx->628xx, pilih 1 email utama), dedupe lintas sumber (kunci_dedupe = domain>email>telepon>nama|kota), saringAI (batch 30, skor>=3, robust format hasil|results|skor|nilai), perkaya, simpan tahap belum_contact, satu baris cari_log per sumber.
+- lib/apify.js: detailActor + ambilKredit; input-schema fallback exampleRunInput (endpoint input-schema 404 di API v2 ini).
+- agents/roster.js + seed-agents.js: tambah agent 'humas' (Manajer Kemitraan, skill pr, atasan cmo). TOTAL 10 agent.
+- BUKTI: cariClient maps (maks 4) → 4 mentah, 2 lolos saring tersimpan (Dhong Djati Ecoprint skor 4, darihulu bulkstore skor 3, keduanya punya telepon). Dedupe: putaran ke-2 hanya +1 baru (3 di-skip).
+- Catatan: Maps actor kadang TIMED-OUT (400) → cariClient catat error & lanjut (sesuai kontrak). Kata kunci web menghasilkan artikel media, perlu penyempurnaan (bukan blocker).
 
 ## Fase 4-10 — BELUM
 ## Uji ujung ke ujung — BELUM

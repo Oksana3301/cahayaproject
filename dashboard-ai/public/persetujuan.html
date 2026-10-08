@@ -10,9 +10,33 @@
   function muat() {
     Util.fetchJson("/api/persetujuan").then(function (data) {
       var drafts = data.drafts || [];
+      var pr = data.pr || [];
       var html = "";
-      if (!drafts.length) {
-        html = '<div class="kartu teks-redup">Tidak ada draft yang menunggu persetujuan.</div>';
+      // ---- Tugas PR (pitch / balasan outreach) ----
+      for (var pi = 0; pi < pr.length; pi++) {
+        var t = pr[pi];
+        var h = t.hasil || {};
+        var merah = h.kata_terlarang && h.kata_terlarang.length
+          ? '<div class="pita-merah">⚠ Mengandung kata terlarang: ' + Util.esc(h.kata_terlarang.join(", ")) + " — jangan auto-kirim</div>"
+          : "";
+        html += '<div class="draft-lengkap" id="pr-' + t.id + '">' +
+          '<div class="judul-kartu">' + Util.esc(t.judul) + "</div>" +
+          '<div class="teks-redup">Jenis: ' + Util.esc(h.jenis || "pr") +
+          " | Prospek #" + Util.esc(h.prospek_id) + "</div>" +
+          '<div class="teks-redup">Subject: ' + Util.esc(h.subject || "-") + "</div>" +
+          merah +
+          '<div class="caption-lengkap">' + Util.esc(h.isi || t.isi || "") + "</div>" +
+          '<div class="baris-tombol" style="margin-top:10px">' +
+          '<button class="tombol tombol-hijau" data-ya-pr="' + t.id + '">Setujui & Kirim</button>' +
+          '<button class="tombol tombol-merah" data-tidak-pr="' + t.id + '">Tolak</button></div>' +
+          '<div class="kotak-alasan" id="alasan-pr-' + t.id + '" hidden>' +
+          '<textarea id="teks-alasan-pr-' + t.id + '" placeholder="Alasan penolakan (wajib)..."></textarea>' +
+          '<button class="tombol tombol-merah" data-kirim-tidak-pr="' + t.id + '" disabled>Kirim Penolakan</button></div>' +
+          '<p class="pesan-sukses" id="hasil-pr-' + t.id + '" hidden></p>' +
+          "</div>";
+      }
+      if (!drafts.length && !pr.length) {
+        html = '<div class="kartu teks-redup">Tidak ada yang menunggu persetujuan.</div>';
       }
       for (var i = 0; i < drafts.length; i++) {
         var d = drafts[i];
@@ -116,6 +140,46 @@
             btn.disabled = false;
             tampilPesan(id, e.message || "gagal menyimpan", false);
           });
+      });
+    });
+
+    // ---- Setujui PR ----
+    document.querySelectorAll("[data-ya-pr]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-ya-pr");
+        btn.disabled = true;
+        var el = document.getElementById("hasil-pr-" + id);
+        el.textContent = "Mengirim email..."; el.className = "pesan-sukses"; el.hidden = false;
+        Util.fetchJson("/api/persetujuan/" + id + "/ya", { method: "POST" })
+          .then(function (r) {
+            el.textContent = "Terkirim. resend_id: " + Util.esc(r.resend_id);
+            setTimeout(muat, 2500);
+          })
+          .catch(function (e) {
+            btn.disabled = false;
+            el.textContent = e.message || "gagal mengirim"; el.className = "pesan-error";
+          });
+      });
+    });
+
+    // ---- Tolak PR ----
+    document.querySelectorAll("[data-tidak-pr]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-tidak-pr");
+        document.getElementById("alasan-pr-" + id).hidden = false;
+      });
+    });
+    document.querySelectorAll("[data-kirim-tidak-pr]").forEach(function (btn) {
+      var id = btn.getAttribute("data-kirim-tidak-pr");
+      var ta = document.getElementById("teks-alasan-pr-" + id);
+      ta.addEventListener("input", function () { btn.disabled = !ta.value.trim(); });
+      btn.addEventListener("click", function () {
+        btn.disabled = true;
+        Util.fetchJson("/api/persetujuan/" + id + "/tidak", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ alasan: ta.value.trim() }),
+        }).then(function () { setTimeout(muat, 1500); })
+          .catch(function (e) { btn.disabled = false; });
       });
     });
 

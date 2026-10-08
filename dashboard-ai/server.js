@@ -429,15 +429,20 @@ app.get("/api/persetujuan", async (req, res) => {
       }
     }
     // Hanya tampilkan draft yang MASIH bisa diputuskan (menunggu/gagal).
-    // Draft yang sudah ditolak/terjadwal/terbit TIDAK ditampilkan di sini agar
-    // tombol Setujui tidak pernah menabrak status final (dulu ini penyebab
-    // "tidak bisa disetujui"). Draft tsb tetap bisa dilihat/diubah di /draft.
     const drafts = await db.ambilBanyak(
       `SELECT * FROM draft_konten
        WHERE status IN ('menunggu', 'gagal')
        ORDER BY dibuat_pada DESC`
     );
-    res.json({ tugas, drafts });
+    // Tugas PR (pitch / balasan outreach) untuk ditampilkan di /persetujuan.
+    const pr = [];
+    for (const t of tugas) {
+      const jenis = t.hasil && t.hasil.jenis;
+      if (jenis === "pitch" || jenis === "balasan") {
+        pr.push(t);
+      }
+    }
+    res.json({ tugas, drafts, pr });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -445,8 +450,22 @@ app.get("/api/persetujuan", async (req, res) => {
 
 app.post("/api/persetujuan/:id/ya", async (req, res) => {
   try {
-    const draftId = Number(req.params.id);
-    const hasil = await setujui(draftId, req.body && req.body.oleh ? req.body.oleh : "owner", req.body?.slotIso, {
+    const id = Number(req.params.id);
+    const oleh = req.body && req.body.oleh ? req.body.oleh : "owner";
+    // Cek apakah ini tugas PR (pitch/balasan).
+    const t = await db.ambilSatu(`SELECT * FROM tugas WHERE id = $1`, [id]);
+    if (t && t.hasil && (t.hasil.jenis === "pitch" || t.hasil.jenis === "balasan")) {
+      const pr = require("./lib/pitch");
+      if (t.hasil.jenis === "pitch") {
+        const hasil = await pr.kirimPitch(t.hasil.prospek_id);
+        await db.query(`UPDATE tugas SET status = 'selesai', selesai_pada = now() WHERE id = $1`, [id]);
+        return res.json({ ok: true, jenis: "pitch", ...hasil });
+      }
+      const hasil = await pr.kirimBalasan(t.hasil.prospek_id, t.hasil.pesan_masuk_id);
+      await db.query(`UPDATE tugas SET status = 'selesai', selesai_pada = now() WHERE id = $1`, [id]);
+      return res.json({ ok: true, jenis: "balasan", ...hasil });
+    }
+    const hasil = await setujui(id, oleh, req.body?.slotIso, {
       paksa: req.body?.paksa === true,
       pakaiLLM: req.body?.pakaiLLM !== false,
       lewatiGate: req.body?.lewatiGate === true,
@@ -460,12 +479,20 @@ app.post("/api/persetujuan/:id/ya", async (req, res) => {
 
 app.post("/api/persetujuan/:id/tidak", async (req, res) => {
   try {
-    const draftId = Number(req.params.id);
+    const id = Number(req.params.id);
     const alasan = req.body && req.body.alasan;
     if (!alasan || !alasan.trim()) {
       return res.status(400).json({ error: "alasan wajib diisi" });
     }
-    const hasil = await tolak(draftId, alasan);
+    const t = await db.ambilSatu(`SELECT * FROM tugas WHERE id = $1`, [id]);
+    if (t && t.hasil && (t.hasil.jenis === "pitch" || t.hasil.jenis === "balasan")) {
+      // Catat alasan tolak draft + jejak.
+      await db.query(`UPDATE prospek SET alasan_tolak_draft = $1 WHERE id = $2`, [alasan.trim(), t.hasil.prospek_id]);
+      await db.query(`INSERT INTO jejak (jenis, objek_id, keputusan, oleh, alasan) VALUES ('pitch', $1, 'tolak_draft', $2, $3)`, [t.hasil.prospek_id, "owner", alasan.trim()]);
+      await db.query(`UPDATE tugas SET status = 'selesai', selesai_pada = now(), hasil = hasil || $1::jsonb WHERE id = $2`, [JSON.stringify({ alasan_tolak: alasan.trim() }), id]);
+      return res.json({ ok: true, alasan: alasan.trim() });
+    }
+    const hasil = await tolak(id, alasan);
     res.json(hasil);
   } catch (e) {
     res.status(400).json({ error: e.message });
