@@ -271,7 +271,9 @@ async function publishClone({
 
     try {
       const resp = await jadwalkan(payload);
-      console.log(`  [${i + 1}/${targetKirim.length}] ${c.shortcode} -> TERKIRIM (id ${resp.id || resp._id || "?"}) @ ${utcKeWib(scheduleAt)}`);
+      // id jadwal bisa di resp.id / resp._id / resp.docs[0].id / resp.data.id
+      const idTerkirim = resp?.id || resp?._id || resp?.docs?.[0]?.id || resp?.data?.id || "";
+      console.log(`  [${i + 1}/${targetKirim.length}] ${c.shortcode} -> TERKIRIM${idTerkirim ? ` (id ${idTerkirim})` : ""} @ ${utcKeWib(scheduleAt)}`);
       hasil.push({ ...item, resp });
       // catat anti dobel
       sudahSet.add(c.shortcode);
