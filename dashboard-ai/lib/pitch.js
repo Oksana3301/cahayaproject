@@ -115,6 +115,14 @@ const resend = require("./resend");
 
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
+// Idempotency-Key unik per pengiriman (J4): maks 256 char, berlaku 24 jam.
+// Dipakai untuk mencegah kirim ganda pada retry jaringan, TAPI tetap unik
+// antar-pengiriman nyata (agar kirim pitch yang sama 2x = 2 email, bukan dedupe).
+function buatIdempotensi(prefix) {
+  const acak = Math.random().toString(36).slice(2, 10);
+  return (prefix + ":" + Date.now().toString(36) + ":" + acak).slice(0, 256);
+}
+
 // Versi teks polos dari HTML (sederhana, buang tag).
 function htmlKeTeks(html) {
   return String(html || "")
@@ -184,7 +192,7 @@ async function kirimPitch(prospekId) {
     text,
     replyTo,
     headers,
-    idempotencyKey: "pitch:" + p.id,
+    idempotencyKey: buatIdempotensi("pitch:" + p.id),
   });
 
   // simpan resend_id + baris pesan 'keluar'; JANGAN GET message_id (J3).
@@ -235,7 +243,7 @@ async function kirimBalasan(prospekId, pesanMasukId) {
     text,
     replyTo,
     headers,
-    idempotencyKey: "reply:" + p.id + ":" + pesanMasukId,
+    idempotencyKey: buatIdempotensi("reply:" + p.id + ":" + pesanMasukId),
   });
 
   // catat 'keluar' + tandai sudah_dibalas di transaksi yang sama.

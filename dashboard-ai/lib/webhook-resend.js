@@ -136,13 +136,14 @@ async function tanganiWebhook(rawBody, headers) {
   }
   const data = JSON.parse(rawBody.toString("utf8"));
   const jenis = data.type || data.event || "";
+  const payload = data.data || data;
 
   let hasil;
-  if (jenis === "email.sent") hasil = await handleSent(data);
-  else if (jenis === "email.delivered") hasil = await handleDelivered(data);
-  else if (jenis === "email.bounced") hasil = await handleBouncedComplained(data, "bounced");
-  else if (jenis === "email.complained") hasil = await handleBouncedComplained(data, "complained");
-  else if (jenis === "email.received") hasil = await handleReceived(data, rawBody);
+  if (jenis === "email.sent") hasil = await handleSent(payload);
+  else if (jenis === "email.delivered") hasil = await handleDelivered(payload);
+  else if (jenis === "email.bounced") hasil = await handleBouncedComplained(payload, "bounced");
+  else if (jenis === "email.complained") hasil = await handleBouncedComplained(payload, "complained");
+  else if (jenis === "email.received") hasil = await handleReceived(payload, rawBody);
   else hasil = { event: jenis, status: "diabaikan" };
 
   return hasil;
