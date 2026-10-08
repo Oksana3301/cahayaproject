@@ -1,219 +1,197 @@
 // lib/resend.js
-// Kirim email via Resend (https://resend.com).
+// SATU-SATUNYA berkas yang memanggil api.resend.com (Misi 2 — outreach email).
 //
-// Fitur:
-//   - Blok CONFIG di paling atas (mudah diganti).
-//   - Susun alamat pengirim otomatis: "FROM_NAME <FROM_USER@DOMAIN>",
-//     atau "FROM_NAME <onboarding@resend.dev>" bila DOMAIN = "-".
-//   - Cek kesiapan domain dulu (status verified/belum/didaftar + record DNS).
-//   - Kirim dengan Idempotency-Key (anti dobel resmi Resend, kedaluwarsa 24 jam).
-//   - Terjemah error Resend ke bahasa manusia.
-//   - Pecah "to" > 50 alamat jadi beberapa batch.
+// Aturan penting (sesuai kontrak):
+//   - kirimEmail(): `to` WAJIB SATU alamat string (array -> error).
+//   - idempotencyKey kosong -> LEMPAR error (anti dobel).
+//   - replyTo -> body.reply_to (snake_case; "replyTo" diabaikan Resend).
+//   - text wajib ikut (versi polos).
+//   - 401 -> jangan retry; 429/5xx -> backoff 2s/4s/8s.
+//   - return { id } = resend_id (BUKAN Message-ID).
+//
+// Fungsi lama (kirimBanyak untuk laporan harian Part 2) tetap dipertahankan
+// agar cron-runner tidak rusak. Outreach TIDAK memakai kirimBanyak/BCC.
 
 const crypto = require("crypto");
 
-// ============================================================================
-// SATU BLOK CONFIG DI PALING ATAS — ganti nilainya sesuai kebutuhan.
-// RESEND_API_KEY TIDAK ditaruh di sini (diambil dari .env).
-// ============================================================================
-const CONFIG = {
-  DOMAIN: "dirini.id",         // domain pengirim; "-" kalau belum punya
-  FROM_NAME: "Cahaya Project", // nama yang muncul di inbox
-  FROM_USER: "halo",           // bagian sebelum @, contoh "halo"
-  REPLY_TO: "",                // kosongin kalau sama kayak pengirim
-  EMAIL_TES: "dewiatika4295@gmail.com", // alamat buat nyoba (diisi saat tes)
-};
-// ============================================================================
+const BASE_URL = "https://api.resend.com";
+const BACKOFF = [2000, 4000, 8000];
 
 const API_KEY = () => process.env.RESEND_API_KEY || "";
-const BASE_URL = "https://api.resend.com";
+const EMAIL_DOMAIN = () => process.env.EMAIL_DOMAIN || "";
+const FROM_NAME = () => process.env.FROM_NAME || "Cahaya Project";
+const FROM_EMAIL = () => process.env.FROM_EMAIL || "";
+const INBOUND_SUBDOMAIN = () => process.env.INBOUND_SUBDOMAIN || "";
 
-// --- Susun alamat pengirim ------------------------------------------------
-// DOMAIN terisi -> "FROM_NAME <FROM_USER@DOMAIN>"
-// DOMAIN "-"    -> "FROM_NAME <onboarding@resend.dev>"
+// Kompatibilitas dengan Part 2 (resend-cli.js / cron-runner.js) yang membaca
+// R.CONFIG.EMAIL_TES. Nilai default EMAIL_TES diambil dari env bila ada.
+const CONFIG = {
+  DOMAIN: process.env.EMAIL_DOMAIN || "dirini.id",
+  FROM_NAME: process.env.FROM_NAME || "Cahaya Project",
+  FROM_USER: (process.env.FROM_EMAIL || "halo@dirini.id").split("@")[0] || "halo",
+  REPLY_TO: "",
+  EMAIL_TES: process.env.EMAIL_TES || "dewiatika4295@gmail.com",
+};
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+// Susun alamat pengirim: "FROM_NAME <FROM_EMAIL>".
 function susunFrom() {
-  const { DOMAIN, FROM_NAME, FROM_USER } = CONFIG;
-  if (DOMAIN && DOMAIN !== "-") {
-    return `${FROM_NAME} <${FROM_USER}@${DOMAIN}>`;
-  }
-  return `${FROM_NAME} <onboarding@resend.dev>`;
+  if (FROM_EMAIL()) return `${FROM_NAME()} <${FROM_EMAIL()}>`;
+  if (EMAIL_DOMAIN()) return `${FROM_NAME()} <halo@${EMAIL_DOMAIN()}>`;
+  return `${FROM_NAME()} <onboarding@resend.dev>`;
 }
 
-// --- Panggil API Resend ---------------------------------------------------
-async function panggilResend(path, { method = "GET", body } = {}) {
+// Panggil API Resend dengan backoff untuk 429/5xx. 401 langsung dilempar (tanpa retry).
+async function panggilResend(path, { method = "GET", body, headers = {} } = {}) {
   if (!API_KEY()) throw new Error("RESEND_API_KEY belum diisi di .env");
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${API_KEY()}`,
-      "Content-Type": "application/json",
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const txt = await res.text();
-  let data;
-  try { data = txt ? JSON.parse(txt) : null; } catch { data = txt; }
-  if (!res.ok) {
-    throw new Error(terjemahError(res.status, data));
+  let lastErr = null;
+  for (let attempt = 0; attempt <= BACKOFF.length; attempt++) {
+    let res;
+    try {
+      res = await fetch(`${BASE_URL}${path}`, {
+        method,
+        headers: {
+          Authorization: `Bearer ${API_KEY()}`,
+          "Content-Type": "application/json",
+          ...headers,
+        },
+        body: body ? JSON.stringify(body) : undefined,
+        signal: AbortSignal.timeout(60000),
+      });
+    } catch (e) {
+      lastErr = e;
+      if (attempt >= BACKOFF.length) break;
+      await sleep(BACKOFF[attempt]);
+      continue;
+    }
+    const txt = await res.text();
+    let data;
+    try { data = txt ? JSON.parse(txt) : null; } catch { data = txt; }
+
+    if (res.status === 401) {
+      throw new Error("Resend 401: API key tidak valid. JANGAN retry — minta Owner cek RESEND_API_KEY di .env.");
+    }
+    if (res.status === 429 || res.status >= 500) {
+      lastErr = new Error(`Resend HTTP ${res.status}: ${resum(data)}`);
+      if (attempt >= BACKOFF.length) throw lastErr;
+      await sleep(BACKOFF[attempt]);
+      continue;
+    }
+    if (!res.ok) {
+      throw new Error(`Resend HTTP ${res.status}: ${resum(data)}`);
+    }
+    return data;
   }
-  return data;
+  throw lastErr || new Error("Resend gagal tanpa sebab jelas");
 }
 
-// --- Terjemah error Resend ke bahasa manusia ------------------------------
-function terjemahError(status, data) {
-  const msg = data && typeof data === "object" ? (data.message || data.error || "") : String(data || "");
-  const statusTeks = {
-    401: "API key salah / tidak valid. Cek RESEND_API_KEY di .env.",
-    403: "Ditolak (403). Kemungkinan besar domain belum verified. " +
-         "Jalankan cek domain untuk lihat record DNS yang harus dipasang.",
-    404: "Resource tidak ditemukan (404). Cek ID domain / endpoint.",
-    422: "Payload tidak valid (422). Cek field from/to/subject.",
-    429: "Terlalu banyak permintaan (429). Tunggu sebentar lalu coba lagi.",
-  }[status] || `Resend error HTTP ${status}`;
-  return msg ? `${statusTeks} — detail: ${msg}` : statusTeks;
+function resum(data) {
+  if (data && typeof data === "object") return (data.message || data.error || JSON.stringify(data)).slice(0, 200);
+  return String(data || "").slice(0, 200);
 }
 
 // ============================================================================
-// 1. CEK DOMAIN
+// KIRIM EMAIL (outreach) — `to` wajib satu alamat string.
 // ============================================================================
-
-// GET /domains -> daftar domain (id, name, status).
-async function daftarDomain() {
-  return panggilResend("/domains");
-}
-
-// GET /domains/:id -> detail (record DNS hanya ada di sini).
-async function detailDomain(id) {
-  return panggilResend(`/domains/${id}`);
-}
-
-// Cari domain CONFIG di daftar, kembalikan status dalam bahasa manusia.
-async function cekDomain() {
-  const daftar = await daftarDomain();
-  const items = Array.isArray(daftar) ? daftar : daftar.data || [];
-  const namaDomain = CONFIG.DOMAIN === "-" ? null : CONFIG.DOMAIN;
-
-  if (!namaDomain) {
-    // DOMAIN "-" => mode onboarding (tidak perlu domain sendiri).
-    return {
-      mode: "onboarding",
-      pesan: "DOMAIN belum diset (mode onboarding@resend.dev). Tidak perlu cek domain sendiri.",
-      status: null,
-      records: [],
-    };
+async function kirimEmail({ to, subject, html, text, replyTo, headers, idempotencyKey }) {
+  if (Array.isArray(to)) {
+    throw new Error("kirimEmail: 'to' wajib SATU alamat string (bukan array). Outreach tidak boleh batch.");
   }
-
-  const cocok = items.find((d) => d.name === namaDomain);
-  if (!cocok) {
-    return {
-      mode: "custom",
-      pesan: "domain belum didaftarin di Resend",
-      status: "not-found",
-      records: [],
-    };
+  if (!to || typeof to !== "string" || !to.includes("@")) {
+    throw new Error("kirimEmail: 'to' harus alamat email string yang valid");
   }
-
-  if (cocok.status !== "verified") {
-    const detail = await detailDomain(cocok.id);
-    const records = Array.isArray(detail.records) ? detail.records : detail.data?.records || [];
-    return {
-      mode: "custom",
-      pesan: "udah didaftarin tapi belum verified",
-      status: cocok.status,
-      id: cocok.id,
-      records,
-    };
+  if (!subject || !String(subject).trim()) {
+    throw new Error("kirimEmail: 'subject' wajib diisi");
   }
-
-  return {
-    mode: "custom",
-    pesan: "aman, siap kirim",
-    status: "verified",
-    id: cocok.id,
-    records: [],
-  };
-}
-
-// Format record DNS jadi tabel teks rapi.
-function tabelRecords(records) {
-  if (!records.length) return "(tidak ada record)";
-  const lines = [];
-  lines.push("  " + ["TYPE", "NAME", "VALUE", "PRIORITY", "TTL", "STATUS"].join("\t"));
-  for (const r of records) {
-    lines.push(
-      "  " + [
-        r.type || "-",
-        r.name || "-",
-        (r.value || "-").slice(0, 60),
-        r.priority ?? "-",
-        r.ttl ?? "-",
-        r.status || "-",
-      ].join("\t")
-    );
+  if (!idempotencyKey || !String(idempotencyKey).trim()) {
+    throw new Error("kirimEmail: 'idempotencyKey' wajib diisi (unik per pesan)");
   }
-  return lines.join("\n");
-}
-
-// ============================================================================
-// 2. KIRIM EMAIL
-// ============================================================================
-
-// Buat Idempotency-Key unik per email (hash tujuan + tanggal + isi).
-function buatIdempotencyKey({ to, subject, html }) {
-  const bahan = JSON.stringify({ to: [].concat(to), subject, html, tgl: new Date().toISOString().slice(0, 10) });
-  return crypto.createHash("sha256").update(bahan).digest("hex").slice(0, 32);
-}
-
-// Susun body email (from, to, reply_to opsional, subject, html, text).
-function susunBody({ tujuan, subject, html, text }) {
   const body = {
     from: susunFrom(),
-    to: [].concat(tujuan),
+    to,
     subject,
-    html,
-    text: text || "",
+    html: html || "",
+    text: text || html || "",
   };
-  if (CONFIG.REPLY_TO) body.reply_to = CONFIG.REPLY_TO;
-  return body;
-}
-
-// Kirim satu batch email. Mengembalikan id email Resend.
-async function kirimEmail({ tujuan, subject, html, text }) {
-  const body = susunBody({ tujuan, subject, html, text });
-  const idem = buatIdempotencyKey({ to: tujuan, subject, html });
+  if (replyTo) body.reply_to = replyTo; // snake_case, bukan replyTo
+  const allHeaders = {
+    ...(headers || {}),
+    "Idempotency-Key": String(idempotencyKey).slice(0, 256),
+  };
   return panggilResend("/emails", {
     method: "POST",
-    body: {
-      ...body,
-      headers: { "Idempotency-Key": idem },
-    },
+    body,
+    headers: allHeaders,
   });
 }
 
-// Kirim ke daftar tujuan, pecah > 50 alamat jadi beberapa batch.
+// ============================================================================
+// KIRIM BANYAK (hanya untuk laporan harian Part 2, BUKAN outreach prospek).
+// Kirim SATU per SATU (bukan BCC) demi reputasi. Return {batch, jumlah, resp}
+// agar kompatibel dengan cron-runner.js / resend-cli.js.
+// ============================================================================
 async function kirimBanyak({ tujuan, subject, html, text }) {
   const list = [].concat(tujuan);
-  const batchSize = 50;
+  const batchSize = 1;
   const hasil = [];
   for (let i = 0; i < list.length; i += batchSize) {
     const potong = list.slice(i, i + batchSize);
-    const r = await kirimEmail({ tujuan: potong, subject, html, text });
-    hasil.push({ batch: i / batchSize + 1, jumlah: potong.length, resp: r });
+    const idem = crypto.createHash("sha256")
+      .update(JSON.stringify({ to: potong, subject, html, tgl: new Date().toISOString() }))
+      .digest("hex").slice(0, 32);
+    const resp = await kirimEmail({ to: potong[0], subject, html, text, idempotencyKey: "laporan:" + idem });
+    hasil.push({ batch: i / batchSize + 1, jumlah: potong.length, resp });
   }
   return hasil;
 }
 
+// ============================================================================
+// AMBIL EMAIL MASUK (Resend receiving) — GET /emails/receiving/{emailId}
+// ============================================================================
+async function ambilMasuk(emailId) {
+  if (!emailId) throw new Error("ambilMasuk: emailId wajib");
+  const data = await panggilResend(`/emails/receiving/${encodeURIComponent(emailId)}`);
+  // Bentuk Resend bisa {text, html, headers, ...} atau {data:{...}}
+  return data && data.data ? data.data : data;
+}
+
+// ============================================================================
+// CEK DOMAIN — status EMAIL_DOMAIN dari GET /domains
+// ============================================================================
+async function cekDomain() {
+  const data = await panggilResend("/domains");
+  const items = Array.isArray(data) ? data : data.data || [];
+  const nama = EMAIL_DOMAIN();
+  const cocok = items.find((d) => d.name === nama);
+  if (!cocok) return { domain: nama, status: "not-found", verified: false };
+  return { domain: nama, status: cocok.status, verified: cocok.status === "verified", id: cocok.id };
+}
+
+async function daftarDomain() {
+  return panggilResend("/domains");
+}
+
+async function detailDomain(id) {
+  return panggilResend(`/domains/${id}`);
+}
+
 module.exports = {
+  BASE_URL,
   CONFIG,
+  API_KEY,
+  EMAIL_DOMAIN,
+  FROM_NAME,
+  FROM_EMAIL,
+  INBOUND_SUBDOMAIN,
   susunFrom,
+  kirimEmail,
+  kirimBanyak,
+  ambilMasuk,
   cekDomain,
   daftarDomain,
   detailDomain,
-  tabelRecords,
-  kirimEmail,
-  kirimBanyak,
-  susunBody,
-  buatIdempotencyKey,
-  terjemahError,
-  API_KEY,
+  panggilResend,
 };

@@ -14,12 +14,38 @@ async function ambilInputSchema(actorId) {
   const id = normalisasiActorId(actorId);
   const res = await fetch(`${BASE}/acts/${id}/input-schema?token=${TOKEN}`);
   if (!res.ok) {
+    // Endpoint input-schema tidak selalu tersedia. Fallback ke exampleRunInput
+    // dari detail actor sebagai acuan field input.
+    const detail = await detailActor(id).catch(() => null);
+    const contoh = detail && (detail.exampleRunInput || detail.defaultInput);
+    if (contoh) return Object.keys(contoh);
     const t = await res.text().catch(() => "");
     throw new Error(`input-schema HTTP ${res.status} untuk ${id}: ${t.slice(0, 200)}`);
   }
   const data = await res.json();
   const field = Object.keys(data.properties || {});
   return field;
+}
+
+async function detailActor(actorId) {
+  await cekToken();
+  const id = normalisasiActorId(actorId);
+  const res = await fetch(`${BASE}/acts/${id}?token=${TOKEN}`);
+  if (!res.ok) {
+    const t = await res.text().catch(() => "");
+    throw new Error(`detail actor HTTP ${res.status} untuk ${id}: ${t.slice(0, 200)}`);
+  }
+  const data = await res.json();
+  return data.data || data;
+}
+
+async function ambilKredit() {
+  await cekToken();
+  const res = await fetch(`${BASE}/users/me/limits?token=${TOKEN}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  const d = data.data || {};
+  return d.current && typeof d.current.monthlyUsageUsd === "number" ? d.current.monthlyUsageUsd : null;
 }
 
 async function jalankanActor(actorId, input, maxItems) {
@@ -61,4 +87,4 @@ async function jalankanActor(actorId, input, maxItems) {
   return json;
 }
 
-module.exports = { jalankanActor, ambilInputSchema, normalisasiActorId };
+module.exports = { jalankanActor, ambilInputSchema, detailActor, ambilKredit, normalisasiActorId };

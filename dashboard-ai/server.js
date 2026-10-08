@@ -114,6 +114,19 @@ async function pingApify() {
   }
 }
 
+async function pingResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) { console.error("[health] resend: kunci kosong"); return false; }
+  try {
+    const { cekDomain } = require("./lib/resend");
+    const d = await cekDomain();
+    return d.verified === true;
+  } catch (e) {
+    console.error("[health] resend gagal:", e.message);
+    return false;
+  }
+}
+
 async function pingDoea() {
   const base = process.env.DOEA_BASE_URL || "https://hub.doea.net/v1";
   const a = process.env.DOEA_ACCESS_KEY;
@@ -389,14 +402,15 @@ for (const h of HALAMAN) {
 }
 
 app.get("/health", async (req, res) => {
-  const [dbOk, atria, apify, doea] = await Promise.all([
+  const [dbOk, atria, apify, doea, resend] = await Promise.all([
     pingDb(),
     pingAtria(),
     pingApify(),
     pingDoea(),
+    pingResend(),
   ]);
-  const ok = dbOk && atria && apify && doea;
-  res.status(ok ? 200 : 503).json({ ok, db: dbOk, atria, apify, doea });
+  const ok = dbOk && atria && apify && doea && resend;
+  res.status(ok ? 200 : 503).json({ ok, db: dbOk, atria, apify, doea, resend });
 });
 
 // ===== Fase 7: gerbang persetujuan =====
