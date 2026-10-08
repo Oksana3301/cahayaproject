@@ -443,6 +443,7 @@ async function putaranCron() {
       // belum punya jadwal berikutnya -> hitung & simpan, jangan langsung jalan
       job.state = { ...(job.state || {}), nextRunAtMs: hitungNextRunMs(job.schedule, now) };
       list[i] = job;
+      tulisJsonArray(CRON_PATH, list);
       continue;
     }
     if (!due) continue;

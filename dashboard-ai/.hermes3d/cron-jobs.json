@@ -436,7 +436,8 @@
       "thinking": "low"
     },
     "state": {
-      "lastStatus": "pending"
+      "lastStatus": "pending",
+      "nextRunAtMs": 1791496800000
     },
     "delivery": {
       "mode": "none"
@@ -465,7 +466,8 @@
       "thinking": "low"
     },
     "state": {
-      "lastStatus": "pending"
+      "lastStatus": "pending",
+      "nextRunAtMs": 1791457200000
     },
     "delivery": {
       "mode": "none"
@@ -493,7 +495,8 @@
       "thinking": "low"
     },
     "state": {
-      "lastStatus": "pending"
+      "lastStatus": "pending",
+      "nextRunAtMs": 1791464400000
     },
     "delivery": {
       "mode": "none"
@@ -521,7 +524,8 @@
       "thinking": "low"
     },
     "state": {
-      "lastStatus": "pending"
+      "lastStatus": "pending",
+      "nextRunAtMs": 1791464700000
     },
     "delivery": {
       "mode": "none"
@@ -549,7 +553,8 @@
       "thinking": "low"
     },
     "state": {
-      "lastStatus": "pending"
+      "lastStatus": "pending",
+      "nextRunAtMs": 1791465000000
     },
     "delivery": {
       "mode": "none"
