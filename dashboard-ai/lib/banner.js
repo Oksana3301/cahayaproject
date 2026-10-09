@@ -1,20 +1,21 @@
 // lib/banner.js
-// Generator banner 1080x1080 (format feed Instagram) dari judul/caption konten.
+// Generator banner + carousel 1080x1080 untuk konten Cahaya Project.
 // Output PNG disimpan di <STATE_DIR>/media/<nama>.png dan diakses publik via
 // endpoint /media/<nama>.png (lihat server.js) sehingga Instagram Graph API
 // (via Doea) bisa mengambilnya.
 //
-// Instagram WAJIB punya media (image/video) — posting teks polos selalu gagal
-// dengan "invalid postId: unsupported type schedule". Karena itu setiap publish
-// selalu disertai banner ini.
+// Instagram WAJIB punya media (image/video) — posting teks polos selalu gagal.
+// Karena itu setiap publish selalu disertai banner/carousel ini.
 //
-// DESAIN (redesign):
-//   - Latar gradien diagonal + blob aksen + garis halus (tekstur "energi").
-//   - Header: wordmark "CAHAYA PROJECT" + kategori (badge).
-//   - Judul besar auto-fit (ukuran menyesuaikan panjang, selalu pas & seimbang).
-//   - Garis aksen + sub-caption ringkas.
-//   - Footer: tagar resmi.
-//   Dijaga deterministik (palet dipilih dari hash judul) agar hasil konsisten.
+// ============================================================================
+// BRAND (playful editorial collage — deskripsi logo Cahaya Project)
+// ============================================================================
+// - Konsep: kolase editorial playful = tipografi ekspresif + potongan bentuk
+//   geometris + warna kontras + tekstur berlapis, terinspirasi seni kolase.
+// - Warna: oranye, biru tua, hijau, merah, kuning, ungu (cerah, energik,
+//   inklusif). Elemen bintang + huruf dinamis = eksploratif & optimistis.
+// - Kepribadian: Curious, Creative, Optimistic, Inclusive.
+// ============================================================================
 
 const fs = require("fs");
 const path = require("path");
@@ -27,15 +28,24 @@ const W = 1080;
 const H = 1080;
 const MARGIN = 96;
 
-// Palet Cahaya Project. Setiap palet: latar (bg1->bg2), aksen utama/sekunder,
-// warna judul & subteks. Dipilih deterministik dari judul.
+// ----------------------------------------------------------------------------
+// PALET BRAND (dari deskripsi logo). Setiap palet punya latar netral + 6 aksen
+// warna brand. Dipilih deterministik dari judul, tapi semua tetap "brand-able".
+// ----------------------------------------------------------------------------
+const BRAND_COLORS = [
+  { nama: "oranye", hex: "#F97316" },
+  { nama: "biru",   hex: "#1E3A8A" },
+  { nama: "hijau",  hex: "#16A34A" },
+  { nama: "merah",  hex: "#DC2626" },
+  { nama: "kuning", hex: "#FACC15" },
+  { nama: "ungu",   hex: "#7C3AED" },
+];
+
+// Latar terang (paper/krem) — hangat, cocok untuk kolase editorial.
 const PALET = [
-  { nama: "hijau",   bg1: "#04261c", bg2: "#0a4a35", aksen: "#34d399", aksen2: "#a7f3d0", judul: "#ffffff", sub: "#d1fae5" },
-  { nama: "biru",    bg1: "#071c2e", bg2: "#0d3f63", aksen: "#38bdf8", aksen2: "#bae6fd", judul: "#ffffff", sub: "#dbeafe" },
-  { nama: "amber",   bg1: "#2a1206", bg2: "#4a2a0d", aksen: "#fbbf24", aksen2: "#fde68a", judul: "#ffffff", sub: "#fef3c7" },
-  { nama: "ungu",    bg1: "#1b0f2e", bg2: "#3a1d63", aksen: "#c084fc", aksen2: "#e9d5ff", judul: "#ffffff", sub: "#f3e8ff" },
-  { nama: "teal",    bg1: "#04252b", bg2: "#0a4550", aksen: "#2dd4bf", aksen2: "#99f6e4", judul: "#ffffff", sub: "#ccfbf1" },
-  { nama: "merah",   bg1: "#2b0a12", bg2: "#4d1224", aksen: "#fb7185", aksen2: "#fecdd3", judul: "#ffffff", sub: "#ffe4e6" },
+  { nama: "krem",   bg: "#FAF6EF", tinta: "#1A1A1A", tintaLembut: "#4B4B4B" },
+  { nama: "putih",  bg: "#FFFFFF", tinta: "#111111", tintaLembut: "#555555" },
+  { nama: "birupastel", bg: "#EDF2FA", tinta: "#0F172A", tintaLembut: "#334155" },
 ];
 
 function escapeXml(s) {
@@ -76,130 +86,172 @@ function judulDari(caption) {
   return kandidat.replace(/^\[[^\]]*\]\s*/, "").slice(0, 160);
 }
 
-function hashPalet(seed) {
+function hashIndeks(seed, panjang) {
   const h = crypto.createHash("md5").update(String(seed)).digest()[0];
-  return PALET[h % PALET.length];
+  return h % panjang;
 }
 
-// Perkirakan lebar teks (kasar) untuk auto-fit: rata-rata ~0.56 * fontSize/karakter.
+// Estimasi lebar teks (kasar) untuk auto-fit.
 function estimasiLebar(teks, fontSize) {
   return String(teks).length * fontSize * 0.56;
 }
 
 // Pilih ukuran font agar satu baris muat dalam lebar maksimum.
-function ukuranPas(teks, lebarMaks, min = 34, maks = 92) {
+function ukuranPas(teks, lebarMaks, min = 40, maks = 96) {
   let u = maks;
   while (u > min && estimasiLebar(teks, u) > lebarMaks) u -= 2;
   return u;
 }
 
-// Bangun buffer PNG banner. Mengembalikan { buffer, meta }.
-async function bangunBuffer({ caption, judul, badge, kategori, edisi } = {}) {
+// ----------------------------------------------------------------------------
+// PRIMITIF COLLAGE (dipakai ulang oleh tiap slide).
+// ----------------------------------------------------------------------------
+
+// Blok geometris acak-deterministik yang "hidup" tapi tidak bertabrakan teks.
+function dekorasiCollage(seed, aksenArr) {
+  const rnd = (i) => {
+    const h = crypto.createHash("md5").update(seed + ":" + i).digest();
+    return h.readUInt32BE(0) / 0xffffffff; // 0..1
+  };
+  const bagian = [];
+  const nBentuk = 6 + Math.floor(rnd(1) * 4); // 6-9 bentuk
+  for (let i = 0; i < nBentuk; i++) {
+    const warna = aksenArr[Math.floor(rnd(i * 2 + 1) * aksenArr.length)];
+    const jenis = Math.floor(rnd(i * 3 + 2) * 4); // 0 kotak, 1 lingkaran, 2 bintang, 3 garis
+    const x = 40 + rnd(i * 5 + 3) * (W - 80);
+    const y = 40 + rnd(i * 7 + 4) * (H - 80);
+    const s = 24 + rnd(i * 11 + 5) * 120;
+    const op = (0.12 + rnd(i * 13 + 6) * 0.5).toFixed(2);
+    const rot = Math.floor(rnd(i * 17 + 7) * 360);
+
+    if (jenis === 0) {
+      bagian.push(`<rect x="${x.toFixed(0)}" y="${y.toFixed(0)}" width="${s.toFixed(0)}" height="${(s * 0.7).toFixed(0)}" rx="8" fill="${warna}" fill-opacity="${op}" transform="rotate(${rot} ${x.toFixed(0)} ${y.toFixed(0)})"/>`);
+    } else if (jenis === 1) {
+      bagian.push(`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(s * 0.5).toFixed(0)}" fill="${warna}" fill-opacity="${op}"/>`);
+    } else if (jenis === 2) {
+      bagian.push(bintangSvg(x, y, s * 0.5, warna, op, rot));
+    } else {
+      bagian.push(`<line x1="${x.toFixed(0)}" y1="${y.toFixed(0)}" x2="${(x + s).toFixed(0)}" y2="${(y - s * 0.6).toFixed(0)}" stroke="${warna}" stroke-opacity="${op}" stroke-width="6" stroke-linecap="round"/>`);
+    }
+  }
+  return bagian.join("\n  ");
+}
+
+// Bintang 5 titik sederhana (SVG path) dengan rotasi.
+function bintangSvg(cx, cy, r, warna, op, rot) {
+  const p = [];
+  for (let i = 0; i < 10; i++) {
+    const rad = (i % 2 === 0) ? r : r * 0.45;
+    const a = (Math.PI / 5) * i - Math.PI / 2;
+    p.push(`${(cx + rad * Math.cos(a)).toFixed(1)},${(cy + rad * Math.sin(a)).toFixed(1)}`);
+  }
+  return `<polygon points="${p.join(" ")}" fill="${warna}" fill-opacity="${op}" transform="rotate(${rot} ${cx.toFixed(0)} ${cy.toFixed(0)})"/>`;
+}
+
+// Pola titik (dot grid) — tekstur berlapis khas kolase.
+function polaTitik(seed, warna) {
+  const dots = [];
+  const step = 44;
+  const rnd = (i) => {
+    const h = crypto.createHash("md5").update(seed + ":" + i).digest();
+    return h.readUInt32BE(0) / 0xffffffff;
+  };
+  for (let y = MARGIN; y < H - MARGIN; y += step) {
+    for (let x = MARGIN; x < W - MARGIN; x += step) {
+      if (rnd(x + y * 999) < 0.25) {
+        dots.push(`<circle cx="${x}" cy="${y}" r="3" fill="${warna}" fill-opacity="0.18"/>`);
+      }
+    }
+  }
+  return dots.join("\n  ");
+}
+
+// ----------------------------------------------------------------------------
+// BANGUN SATU SLIDE (SVG -> PNG buffer).
+// ----------------------------------------------------------------------------
+async function bangunSlide({ mode, judul, sub, badge, edisi, logoPath, paletIdx, aksenIdx, nomor, totalSlide } = {}) {
   const sharp = require("sharp");
-  const judulFinal = String(judul || judulDari(caption)).trim();
-  const p = hashPalet(judulFinal);
+  const palet = PALET[paletIdx % PALET.length];
+  const aksen = BRAND_COLORS[aksenIdx % BRAND_COLORS.length];
+  const aksenArr = BRAND_COLORS.map((c) => c.hex);
+  const seed = String(judul || badge || "cahaya") + ":" + mode;
 
   const lebarIsi = W - MARGIN * 2;
 
-  // --- Judul: auto-fit. Bila judul panjang, pecah 2-3 baris dengan ukuran pas. ---
-  const barisJudul = bungkusTeks(judulFinal, 26).slice(0, 3);
-  // ukuran font untuk tiap baris: yang terpanjang menentukan agar seragam
-  let ukuran = 88;
-  for (let u = 88; u >= 40; u -= 2) {
-    const muat = barisJudul.every((b) => estimasiLebar(b, u) <= lebarIsi);
-    if (muat) { ukuran = u; break; }
-    ukuran = u;
+  // Judul besar auto-fit (maks 3 baris).
+  const barisJudul = bungkusTeks(judul || "", 22).slice(0, 3);
+  let ukuran = 96;
+  for (let u = 96; u >= 44; u -= 2) {
+    if (barisJudul.every((b) => estimasiLebar(b, u) <= lebarIsi)) { ukuran = u; break; }
   }
-  const tinggiBaris = ukuran * 1.18;
+  const tinggiBaris = ukuran * 1.16;
 
-  // Blok judul diposisikan mulai dari titik tetap, tumbuh ke bawah.
-  const judulTop = 430;
+  // Sub kalimat (maks 2 baris).
+  const barisSub = bungkusTeks(sub || "", 44).slice(0, 2);
 
-  // --- Sub-caption: ambil kalimat bermakna (bukan hashtag), maks 2 baris. ---
-  const kalimat = String(caption || "")
-    .split("\n")
-    .map((x) => x.trim())
-    .filter(Boolean)
-    .filter((x) => !/^#/.test(x));
-  const subSumber = (kalimat[1] || kalimat[0] || "").replace(/\s+/g, " ").slice(0, 170);
-  const barisSub = bungkusTeks(subSumber, 52).slice(0, 2);
-
-  const judulSpan = barisJudul
-    .map((b, i) => {
-      const y = judulTop + i * tinggiBaris;
-      return `<text x="${MARGIN}" y="${y}" font-family="DejaVu Sans" font-weight="bold" font-size="${ukuran}" fill="${p.judul}">${escapeXml(b)}</text>`;
-    })
-    .join("\n  ");
-
-  const subTop = judulTop + barisJudul.length * tinggiBaris + 30;
-  const subSpan = barisSub
-    .map((b, i) => `<text x="${MARGIN}" y="${subTop + i * 46}" font-family="DejaVu Sans" font-size="34" fill="${p.sub}">${escapeXml(b)}</text>`)
-    .join("\n  ");
-
-  const kategoriTeks = escapeXml((kategori || badge || "INSIGHT HARIAN").toUpperCase());
+  const badgeTeks = escapeXml((badge || "INSIGHT HARIAN").toUpperCase());
   const edisiTeks = escapeXml(edisi || edisiHariIni());
 
+  // ---- penyusunan blok SVG ----
+  const parts = [];
+  // latar
+  parts.push(`<rect width="${W}" height="${H}" fill="${palet.bg}"/>`);
+  // tekstur titik halus
+  parts.push(polaTitik(seed + "dot", aksen.hex));
+  // dekorasi collage
+  parts.push(dekorasiCollage(seed + "dec", aksenArr));
+
+  // bingkai tipis
+  parts.push(`<rect x="40" y="40" width="${W - 80}" height="${H - 80}" fill="none" stroke="${palet.tinta}" stroke-opacity="0.14" stroke-width="2"/>`);
+
+  // ---- header: logo + wordmark (logo di pojok kiri atas) ----
+  if (logoPath) {
+    parts.push(`<image href="${logoPath}" x="${MARGIN}" y="64" width="96" height="96" preserveAspectRatio="xMidYMid meet"/>`);
+    parts.push(`<text x="${MARGIN + 112}" y="120" font-family="DejaVu Sans" font-weight="bold" font-size="32" fill="${palet.tinta}">CAHAYA PROJECT</text>`);
+  } else {
+    parts.push(`<rect x="${MARGIN}" y="70" width="12" height="52" rx="6" fill="${aksen.hex}"/>`);
+    parts.push(`<text x="${MARGIN + 28}" y="108" font-family="DejaVu Sans" font-weight="bold" font-size="34" letter-spacing="1" fill="${palet.tinta}">CAHAYA PROJECT</text>`);
+  }
+
+  // ---- badge kategori ----
+  const badgeW = Math.min(lebarIsi, 36 + badgeTeks.length * 21);
+  parts.push(`<rect x="${MARGIN}" y="142" rx="22" width="${badgeW}" height="48" fill="${aksen.hex}"/>`);
+  parts.push(`<text x="${MARGIN + 22}" y="174" font-family="DejaVu Sans" font-weight="bold" font-size="22" letter-spacing="2" fill="#FFFFFF">${badgeTeks}</text>`);
+
+  // ---- edisi + nomor slide ----
+  parts.push(`<text x="${MARGIN}" y="248" font-family="DejaVu Sans" font-size="20" letter-spacing="4" fill="${palet.tintaLembut}">EDISI ${edisiTeks}</text>`);
+  if (totalSlide && totalSlide > 1) {
+    parts.push(`<text x="${W - MARGIN}" y="248" text-anchor="end" font-family="DejaVu Sans" font-weight="bold" font-size="22" fill="${aksen.hex}">${nomor} / ${totalSlide}</text>`);
+  }
+
+  // ---- judul utama (asimetris: mulai sedikit ke bawah) ----
+  const judulTop = 330;
+  const judulSpan = barisJudul
+    .map((b, i) => `<text x="${MARGIN}" y="${judulTop + i * tinggiBaris}" font-family="DejaVu Sans" font-weight="bold" font-size="${ukuran}" fill="${palet.tinta}">${escapeXml(b)}</text>`)
+    .join("\n  ");
+  parts.push(judulSpan);
+
+  // ---- garis aksen ----
+  const subTop = judulTop + barisJudul.length * tinggiBaris + 34;
+  parts.push(`<rect x="${MARGIN}" y="${subTop - 12}" width="150" height="8" rx="4" fill="${aksen.hex}"/>`);
+
+  // ---- sub caption ----
+  const subSpan = barisSub
+    .map((b, i) => `<text x="${MARGIN}" y="${subTop + i * 48}" font-family="DejaVu Sans" font-size="34" fill="${palet.tintaLembut}">${escapeXml(b)}</text>`)
+    .join("\n  ");
+  parts.push(subSpan);
+
+  // ---- footer ----
+  parts.push(`<line x1="${MARGIN}" y1="${H - 130}" x2="${W - MARGIN}" y2="${H - 130}" stroke="${palet.tinta}" stroke-opacity="0.16" stroke-width="2"/>`);
+  parts.push(`<text x="${MARGIN}" y="${H - 76}" font-family="DejaVu Sans" font-weight="bold" font-size="30" fill="${aksen.hex}">#CahayaProject</text>`);
+  parts.push(`<text x="${W - MARGIN}" y="${H - 76}" text-anchor="end" font-family="DejaVu Sans" font-size="22" fill="${palet.tintaLembut}">cahayaproject</text>`);
+
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="${p.bg1}"/>
-      <stop offset="100%" stop-color="${p.bg2}"/>
-    </linearGradient>
-    <radialGradient id="glow1" cx="0.82" cy="0.16" r="0.55">
-      <stop offset="0%" stop-color="${p.aksen}" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="${p.aksen}" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="glow2" cx="0.08" cy="0.94" r="0.6">
-      <stop offset="0%" stop-color="${p.aksen2}" stop-opacity="0.28"/>
-      <stop offset="100%" stop-color="${p.aksen2}" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="aksenBar" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="${p.aksen}"/>
-      <stop offset="100%" stop-color="${p.aksen2}"/>
-    </linearGradient>
-  </defs>
-
-  <!-- latar -->
-  <rect width="${W}" height="${H}" fill="url(#bg)"/>
-  <rect width="${W}" height="${H}" fill="url(#glow1)"/>
-  <rect width="${W}" height="${H}" fill="url(#glow2)"/>
-
-  <!-- tekstur garis diagonal halus -->
-  <g stroke="${p.aksen}" stroke-opacity="0.06" stroke-width="2">
-    <line x1="-100" y1="240" x2="1180" y2="-340"/>
-    <line x1="-100" y1="360" x2="1180" y2="-220"/>
-    <line x1="-100" y1="480" x2="1180" y2="-100"/>
-    <line x1="-100" y1="900" x2="1180" y2="320"/>
-    <line x1="-100" y1="1020" x2="1180" y2="440"/>
-  </g>
-
-  <!-- frame tipis -->
-  <rect x="40" y="40" width="${W - 80}" height="${H - 80}" fill="none" stroke="${p.aksen}" stroke-opacity="0.18" stroke-width="2"/>
-
-  <!-- header brand -->
-  <rect x="${MARGIN}" y="118" width="10" height="44" rx="5" fill="${p.aksen}"/>
-  <text x="${MARGIN + 26}" y="150" font-family="DejaVu Sans" font-weight="bold" font-size="34" fill="${p.judul}">CAHAYA PROJECT</text>
-
-  <!-- badge kategori -->
-  <rect x="${MARGIN}" y="188" rx="18" width="${Math.min(lebarIsi, 30 + kategoriTeks.length * 20)}" height="46" fill="${p.aksen}" fill-opacity="0.16" stroke="${p.aksen}" stroke-opacity="0.55" stroke-width="2"/>
-  <text x="${MARGIN + 24}" y="220" font-family="DejaVu Sans" font-weight="bold" font-size="24" letter-spacing="2" fill="${p.aksen2}">${kategoriTeks}</text>
-
-  <!-- judul utama -->
-  <text x="${MARGIN}" y="300" font-family="DejaVu Sans" font-size="22" letter-spacing="4" fill="${p.aksen}" fill-opacity="0.85">EDISI ${edisiTeks}</text>
-  ${judulSpan}
-
-  <!-- garis aksen -->
-  <rect x="${MARGIN}" y="${subTop - 8}" width="140" height="6" rx="3" fill="url(#aksenBar)"/>
-  ${subSpan}
-
-  <!-- footer -->
-  <line x1="${MARGIN}" y1="${H - 150}" x2="${W - MARGIN}" y2="${H - 150}" stroke="${p.aksen}" stroke-opacity="0.25" stroke-width="2"/>
-  <text x="${MARGIN}" y="${H - 96}" font-family="DejaVu Sans" font-weight="bold" font-size="30" fill="${p.aksen}">#CahayaProject</text>
-  <text x="${W - MARGIN}" y="${H - 96}" text-anchor="end" font-family="DejaVu Sans" font-size="24" fill="${p.sub}" fill-opacity="0.85">Transisi energi yang adil</text>
+  ${parts.join("\n  ")}
 </svg>`;
 
   const buffer = await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
-  return { buffer, meta: { judul: judulFinal, palet: p.nama, ukuran, baris: barisJudul } };
+  return { buffer, meta: { judul, palet: palet.nama, aksen: aksen.nama, ukuran, baris: barisJudul } };
 }
 
 function edisiHariIni() {
@@ -209,14 +261,76 @@ function edisiHariIni() {
   return `${String(d.getUTCDate()).padStart(2, "0")} ${bln} ${d.getUTCFullYear()}`;
 }
 
-// Generate banner, simpan ke disk, kembalikan { nama, path, buffer, meta }.
-async function buatBanner({ caption, judul, badge, kategori, edisi } = {}) {
+// ----------------------------------------------------------------------------
+// FUNGSI PUBLIK
+// ----------------------------------------------------------------------------
+
+// Buat SATU banner (kompatibel dengan publish.js). Mengembalikan { nama, path, buffer, meta }.
+async function buatBanner({ caption, judul, badge, kategori, edisi, logoPath } = {}) {
   await fs.promises.mkdir(MEDIA_DIR, { recursive: true });
-  const { buffer, meta } = await bangunBuffer({ caption, judul, badge, kategori, edisi });
+  const judulFinal = String(judul || judulDari(caption)).trim();
+  const kalimat = String(caption || "")
+    .split("\n").map((x) => x.trim()).filter(Boolean).filter((x) => !/^#/.test(x));
+  const sub = (kalimat[1] || kalimat[0] || "").replace(/\s+/g, " ").slice(0, 160);
+
+  const paletIdx = hashIndeks(judulFinal, PALET.length);
+  const aksenIdx = hashIndeks(judulFinal + ":aksen", BRAND_COLORS.length);
+
+  const { buffer, meta } = await bangunSlide({
+    mode: "cover",
+    judul: judulFinal,
+    sub,
+    badge: kategori || badge || "INSIGHT HARIAN",
+    edisi,
+    logoPath,
+    paletIdx,
+    aksenIdx,
+  });
+
   const nama = `cahaya-${Date.now()}-${crypto.randomBytes(4).toString("hex")}.png`;
   const filePath = path.join(MEDIA_DIR, nama);
   await fs.promises.writeFile(filePath, buffer);
   return { nama, path: filePath, buffer, meta };
 }
 
-module.exports = { buatBanner, bangunBuffer, MEDIA_DIR, judulDari, PALET };
+// Buat CAROUSEL multi-slide. slide = [{ judul, sub, badge? }].
+// Mengembalikan { slides: [{ nama, path, buffer, meta }] }.
+async function buatCarousel({ caption, judul, badge, kategori, edisi, logoPath, slide } = {}) {
+  await fs.promises.mkdir(MEDIA_DIR, { recursive: true });
+  const list = Array.isArray(slide) && slide.length ? slide : [];
+  const hasil = [];
+
+  // Slide cover default dari caption bila tidak ada slide eksplisit.
+  if (!list.length) {
+    const judulFinal = String(judul || judulDari(caption)).trim();
+    const kalimat = String(caption || "")
+      .split("\n").map((x) => x.trim()).filter(Boolean).filter((x) => !/^#/.test(x));
+    list.push({ judul: judulFinal, sub: (kalimat[1] || kalimat[0] || "").slice(0, 160) });
+  }
+
+  for (let i = 0; i < list.length; i++) {
+    const s = list[i];
+    const paletIdx = hashIndeks(s.judul + i, PALET.length);
+    const aksenIdx = (hashIndeks(s.judul + i + ":aksen", BRAND_COLORS.length) + i) % BRAND_COLORS.length;
+    const { buffer, meta } = await bangunSlide({
+      mode: "slide-" + (i + 1),
+      judul: s.judul || "Cahaya Project",
+      sub: s.sub || "",
+      badge: s.badge || kategori || badge || "INSIGHT HARIAN",
+      edisi,
+      logoPath,
+      paletIdx,
+      aksenIdx,
+      nomor: i + 1,
+      totalSlide: list.length,
+    });
+    const nama = `cahaya-${Date.now()}-${i}-${crypto.randomBytes(4).toString("hex")}.png`;
+    const filePath = path.join(MEDIA_DIR, nama);
+    await fs.promises.writeFile(filePath, buffer);
+    hasil.push({ nama, path: filePath, buffer, meta });
+  }
+
+  return { slides: hasil };
+}
+
+module.exports = { buatBanner, buatCarousel, bangunSlide, MEDIA_DIR, judulDari, PALET, BRAND_COLORS };

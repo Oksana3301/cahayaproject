@@ -275,22 +275,24 @@ app.post("/api/wa/inbound", async (req, res) => {
   const mTanya = body.match(/^\/tanya\s+([\s\S]+)/i);
   const mStatus = /^\/(status|progress)\b/i.test(body);
   const mRapat = body.match(/^\/rapat\s+([\s\S]+)/i);
+  const mKonten = body.match(/^\/konten\s+([\s\S]+)/i);
   const mBantuan = /^\/(bantuan|help|menu)\b/i.test(body);
   let target = null, pertanyaan = null;
   if (mBantuan) { target = "BANTUAN"; }
   else if (mRapat) { target = "RAPAT"; pertanyaan = mRapat[1].trim(); }
+  else if (mKonten) { target = "KONTEN"; pertanyaan = mKonten[1].trim(); }
   else if (mAgent) { target = mAgent[1].toLowerCase(); pertanyaan = mAgent[2].trim(); }
   else if (mTanya) { target = "kirana"; pertanyaan = mTanya[1].trim(); }
   else if (mStatus) { target = "STATUS"; }
 
   if (!target) return res.json({ ok: true, diabaikan: true, alasan: "tanpa prefix perintah" });
-  if (!["STATUS", "RAPAT", "BANTUAN"].includes(target) && !roster.ambil(target)) {
+  if (!["STATUS", "RAPAT", "BANTUAN", "KONTEN"].includes(target) && !roster.ambil(target)) {
     return res.json({ ok: true, diabaikan: true, alasan: `agent '${target}' tidak dikenal` });
   }
 
   const wa = require("./lib/whatsapp");
   const pc = require("./lib/percakapan");
-  const perintahLabel = target === "BANTUAN" ? "/bantuan" : target === "STATUS" ? "/status" : target === "RAPAT" ? "/rapat" : (mAgent ? `@${target}` : "/tanya");
+  const perintahLabel = target === "BANTUAN" ? "/bantuan" : target === "STATUS" ? "/status" : target === "RAPAT" ? "/rapat" : target === "KONTEN" ? "/konten" : (mAgent ? `@${target}` : "/tanya");
   // Kirim balasan + catat ke riwayat percakapan. Pencatatan tetap dilakukan
   // walau pengiriman WA gagal (mis. sesi WAHA turun), agar riwayat utuh.
   const kirimDanCatat = async (ke, balasan, { agent = "kirana", perintah = perintahLabel } = {}) => {
@@ -320,12 +322,14 @@ app.post("/api/wa/inbound", async (req, res) => {
         "• `/tanya <pertanyaan>` — tanya Kirana (Editor-in-Chief)",
         "• `@<agent> <pertanyaan>` — tanya agent tertentu",
         "• `/rapat <agenda>` — jalankan rapat 3 agent, balas notulen",
+        "• `/konten <topik>` — ide konten + carousel + caption + hashtag + analisa",
         "• `/bantuan` — tampilkan menu ini",
         "",
         "Contoh:",
         "`@tara apa progress jadwal Instagram minggu ini?`",
         "`@aruna topik apa yang sedang naik hari ini?`",
         "`/rapat bagaimana meningkatkan engagement postingan?`",
+        "`/konten tips mengurangi sampah plastik di rumah`",
         "",
         "*Agent yang bisa ditanya:*",
         daftarAgent,
@@ -365,6 +369,14 @@ app.post("/api/wa/inbound", async (req, res) => {
       }
       // Catat notulen ASLI ke riwayat percakapan (bukan placeholder).
       pc.catat({ arah: "keluar", nomor: chatId, agent: "kirana", perintah: "/rapat", balasan: ringkasWa, meta: { jenis: hasil.jenis, diundang: hasil.diundang, terkirim: !!hasil.waTerkirim } });
+      return;
+    }
+    if (target === "KONTEN") {
+      await kirimDanCatat(balasKe, `_Menyusun ide konten: "${pertanyaan}". Sebentar..._`, { agent: "kirana", perintah: "/konten" });
+      const assist = require("./lib/konten-assist");
+      const hasil = await assist.buatAssistKonten(pertanyaan);
+      const teks = assist.formatUntukWa(hasil);
+      await kirimDanCatat(balasKe, teks, { agent: "kirana", perintah: "/konten" });
       return;
     }
     // Tanya satu agent
