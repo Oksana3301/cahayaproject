@@ -132,32 +132,56 @@ async function buatAssistKonten(topik) {
 
 // Format hasil untuk dikirim ke WhatsApp (teks rapi, mudah dibaca di HP).
 function formatUntukWa(hasil) {
+  return formatUntukWaPesan(hasil).join("\n\n");
+}
+
+// Format hasil sebagai ARRAY pesan terpisah (lebih ramah dibaca di HP:
+// tidak numpuk satu pesan panjang). Tiap elemen dikirim sebagai pesan WA sendiri.
+function formatUntukWaPesan(hasil) {
   const k = hasil.kerangka;
   const carousel = k.carousel || {};
   const slide = Array.isArray(carousel.slide) ? carousel.slide : [];
 
-  const baris = [];
-  baris.push("*IDE KONTEN — CAHAYA PROJECT*");
-  baris.push("");
-  baris.push(`*Judul:* ${k.judul || "-"}`);
-  baris.push(`*Ide:* ${k.ide || "-"}`);
-  baris.push("");
-  baris.push("*Kerangka:*");
-  for (const p of (k.kerangka || [])) baris.push(`• ${p}`);
-  baris.push("");
-  baris.push(`*Carousel — ${carousel.jumlah || slide.length || 1} slide*`);
-  if (carousel.alasan) baris.push(`_${carousel.alasan}_`);
-  for (const s of slide) baris.push(`${s.no || ""}. [${s.jenis || "isi"}] ${s.isi || ""}`);
-  baris.push("");
-  baris.push("*Caption:*");
-  baris.push(k.caption || "-");
-  baris.push("");
-  baris.push("*Hashtag:*");
-  baris.push((k.hashtag || []).join(" "));
-  baris.push("");
-  baris.push("*Kenapa ini jadi konten (analisa tim):*");
-  baris.push(hasil.analisa || "-");
-  return baris.join("\n");
+  const pesan = [];
+
+  // Pesan 1: judul + ide + kerangka
+  const p1 = [];
+  p1.push("*IDE KONTEN — CAHAYA PROJECT*");
+  p1.push("");
+  p1.push(`*Judul:* ${k.judul || "-"}`);
+  p1.push(`*Ide:* ${k.ide || "-"}`);
+  p1.push("");
+  p1.push("*Kerangka:*");
+  for (const poin of (k.kerangka || [])) p1.push(`• ${poin}`);
+  pesan.push(p1.join("\n"));
+
+  // Pesan 2: carousel
+  const p2 = [];
+  p2.push(`*CAROUSEL — ${carousel.jumlah || slide.length || 1} slide*`);
+  if (carousel.alasan) p2.push(`_${carousel.alasan}_`);
+  p2.push("");
+  for (const s of slide) p2.push(`${s.no || ""}. [${s.jenis || "isi"}] ${s.isi || ""}`);
+  pesan.push(p2.join("\n"));
+
+  // Pesan 3: caption
+  const p3 = [];
+  p3.push("*CAPTION:*");
+  p3.push(k.caption || "-");
+  pesan.push(p3.join("\n"));
+
+  // Pesan 4: hashtag
+  const p4 = [];
+  p4.push("*HASHTAG:*");
+  p4.push((k.hashtag || []).join(" "));
+  pesan.push(p4.join("\n"));
+
+  // Pesan 5: analisa gabungan
+  const p5 = [];
+  p5.push("*KENAPA INI JADI KONTEN (analisa tim):*");
+  p5.push(hasil.analisa || "-");
+  pesan.push(p5.join("\n"));
+
+  return pesan;
 }
 
-module.exports = { buatAssistKonten, buatKerangka, buatAnalisa, formatUntukWa, cekKataTerlarang, KATA_TERLARANG };
+module.exports = { buatAssistKonten, buatKerangka, buatAnalisa, formatUntukWa, formatUntukWaPesan, cekKataTerlarang, KATA_TERLARANG };

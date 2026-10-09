@@ -16,6 +16,13 @@ const PORT = Number(process.env.PORT) || 4300;
 const PLAFON_HARIAN = Number(process.env.PLAFON_TOKEN_HARIAN) || 250000;
 let REM_TANGAN = false;
 
+// Alur posting otomatis (susunDraft -> setujui -> publish) SUDAH NONAKTIF.
+// Posting kini MANUAL oleh Owner. Setel PUBLISH_OTOMATIS=true untuk mengaktifkan lagi.
+const PUBLISH_OTOMATIS = String(process.env.PUBLISH_OTOMATIS || "false") === "true";
+function pesanPublishNonaktif() {
+  return "Alur publish otomatis sudah dinonaktifkan. Posting kini manual oleh Owner — gunakan /ide, /konten, /carousel, atau /posting di WhatsApp untuk minta ide konten.";
+}
+
 async function cekRemTangan() {
   if (REM_TANGAN) return true;
   const total = await totalTokenHariIni();
@@ -275,12 +282,12 @@ app.post("/api/wa/inbound", async (req, res) => {
   const mTanya = body.match(/^\/tanya\s+([\s\S]+)/i);
   const mStatus = /^\/(status|progress)\b/i.test(body);
   const mRapat = body.match(/^\/rapat\s+([\s\S]+)/i);
-  const mKonten = body.match(/^\/konten\s+([\s\S]+)/i);
+  const mKonten = body.match(/^\/(konten|ide|carousel|posting)\s+([\s\S]+)/i);
   const mBantuan = /^\/(bantuan|help|menu)\b/i.test(body);
-  let target = null, pertanyaan = null;
+  let target = null, pertanyaan = null, perintahKonten = "/konten";
   if (mBantuan) { target = "BANTUAN"; }
   else if (mRapat) { target = "RAPAT"; pertanyaan = mRapat[1].trim(); }
-  else if (mKonten) { target = "KONTEN"; pertanyaan = mKonten[1].trim(); }
+  else if (mKonten) { target = "KONTEN"; pertanyaan = mKonten[2].trim(); perintahKonten = "/" + mKonten[1].toLowerCase(); }
   else if (mAgent) { target = mAgent[1].toLowerCase(); pertanyaan = mAgent[2].trim(); }
   else if (mTanya) { target = "kirana"; pertanyaan = mTanya[1].trim(); }
   else if (mStatus) { target = "STATUS"; }
@@ -322,14 +329,15 @@ app.post("/api/wa/inbound", async (req, res) => {
         "• `/tanya <pertanyaan>` — tanya Kirana (Editor-in-Chief)",
         "• `@<agent> <pertanyaan>` — tanya agent tertentu",
         "• `/rapat <agenda>` — jalankan rapat 3 agent, balas notulen",
-        "• `/konten <topik>` — ide konten + carousel + caption + hashtag + analisa",
+        "• `/konten <topik>` — ide konten (carousel + caption + hashtag + analisa)",
+        "  alias: `/ide`, `/carousel`, `/posting` — semua sama",
         "• `/bantuan` — tampilkan menu ini",
         "",
         "Contoh:",
         "`@tara apa progress jadwal Instagram minggu ini?`",
         "`@aruna topik apa yang sedang naik hari ini?`",
         "`/rapat bagaimana meningkatkan engagement postingan?`",
-        "`/konten tips mengurangi sampah plastik di rumah`",
+        "`/ide tips mengurangi sampah plastik di rumah`",
         "",
         "*Agent yang bisa ditanya:*",
         daftarAgent,
@@ -372,11 +380,15 @@ app.post("/api/wa/inbound", async (req, res) => {
       return;
     }
     if (target === "KONTEN") {
-      await kirimDanCatat(balasKe, `_Menyusun ide konten: "${pertanyaan}". Sebentar..._`, { agent: "kirana", perintah: "/konten" });
+      await kirimDanCatat(balasKe, `_Menyusun ide konten: "${pertanyaan}". Sebentar..._`, { agent: "kirana", perintah: perintahKonten });
       const assist = require("./lib/konten-assist");
       const hasil = await assist.buatAssistKonten(pertanyaan);
-      const teks = assist.formatUntukWa(hasil);
-      await kirimDanCatat(balasKe, teks, { agent: "kirana", perintah: "/konten" });
+      const pesanPisah = assist.formatUntukWaPesan(hasil);
+      // Kirim beberapa pesan terpisah (judul/kerangka -> carousel -> caption -> hashtag -> analisa).
+      for (let i = 0; i < pesanPisah.length; i++) {
+        if (i > 0) await new Promise((r) => setTimeout(r, 600)); // jeda antarpesan agar tidak numpuk
+        await kirimDanCatat(balasKe, pesanPisah[i], { agent: "kirana", perintah: perintahKonten });
+      }
       return;
     }
     // Tanya satu agent
@@ -494,6 +506,8 @@ app.post("/api/persetujuan/:id/ya", async (req, res) => {
       await db.query(`UPDATE tugas SET status = 'selesai', selesai_pada = now() WHERE id = $1`, [id]);
       return res.json({ ok: true, jenis: "balasan", ...hasil });
     }
+    // Draft konten (bukan PR): alur publish otomatis sudah nonaktif.
+    if (!PUBLISH_OTOMATIS) return res.status(410).json({ ok: false, error: pesanPublishNonaktif() });
     const hasil = await setujui(id, oleh, req.body?.slotIso, {
       paksa: req.body?.paksa === true,
       pakaiLLM: req.body?.pakaiLLM !== false,
@@ -521,6 +535,8 @@ app.post("/api/persetujuan/:id/tidak", async (req, res) => {
       await db.query(`UPDATE tugas SET status = 'selesai', selesai_pada = now(), hasil = hasil || $1::jsonb WHERE id = $2`, [JSON.stringify({ alasan_tolak: alasan.trim() }), id]);
       return res.json({ ok: true, alasan: alasan.trim() });
     }
+    // Draft konten (bukan PR): alur publish otomatis sudah nonaktif.
+    if (!PUBLISH_OTOMATIS) return res.status(410).json({ ok: false, error: pesanPublishNonaktif() });
     const hasil = await tolak(id, alasan);
     res.json(hasil);
   } catch (e) {
@@ -636,6 +652,7 @@ app.get("/api/draft", async (req, res) => {
 });
 
 app.post("/api/draft", async (req, res) => {
+  if (!PUBLISH_OTOMATIS) return res.status(410).json({ ok: false, error: pesanPublishNonaktif() });
   try {
     const { ringkasanId, sudutIndex } = req.body || {};
     if (!ringkasanId) return res.status(400).json({ error: "ringkasanId wajib" });
@@ -951,6 +968,7 @@ app.post("/api/runtime/tasks/delete", (req, res) => bungkus(jembatan.tasksDelete
 // ===== Alur publish end-to-end (draft -> approve -> banner -> Doea -> IG) =====
 app.get("/api/alur/status", async (req, res) => {
   try {
+    if (!PUBLISH_OTOMATIS) return res.status(410).json({ ok: false, error: pesanPublishNonaktif() });
     const alur = require("./lib/alur-publish");
     const { daftarSchedule } = require("./lib/publish");
     const menunggu = await alur.draftMenunggu();
@@ -961,6 +979,7 @@ app.get("/api/alur/status", async (req, res) => {
 
 // Buat draft dari riset terbaru (tahap 1-2).
 app.post("/api/alur/draft", async (req, res) => {
+  if (!PUBLISH_OTOMATIS) return res.status(410).json({ ok: false, error: pesanPublishNonaktif() });
   try {
     const alur = require("./lib/alur-publish");
     const { draft, dibuat } = await alur.pastikanDraft({ buatBilaKosong: true });
@@ -970,6 +989,7 @@ app.post("/api/alur/draft", async (req, res) => {
 
 // Review editorial Kirana atas sebuah draft (tahap 3).
 app.post("/api/alur/review", async (req, res) => {
+  if (!PUBLISH_OTOMATIS) return res.status(410).json({ ok: false, error: pesanPublishNonaktif() });
   try {
     const alur = require("./lib/alur-publish");
     const id = Number(req.body?.draftId) || (await alur.draftMenunggu())?.id;
@@ -983,6 +1003,7 @@ app.post("/api/alur/review", async (req, res) => {
 
 // PRE-PUBLISH GATE: checklist 4 prinsip sebelum publish (tidak mempublikasikan apa pun).
 app.post("/api/alur/gate", async (req, res) => {
+  if (!PUBLISH_OTOMATIS) return res.status(410).json({ ok: false, error: pesanPublishNonaktif() });
   try {
     const alur = require("./lib/alur-publish");
     const id = Number(req.body?.draftId) || (await alur.draftMenunggu())?.id;
@@ -998,6 +1019,7 @@ app.post("/api/alur/gate", async (req, res) => {
 
 // Setujui draft => GATE 4 prinsip => banner + jadwalkan ke Doea (tahap 4).
 app.post("/api/alur/setujui", async (req, res) => {
+  if (!PUBLISH_OTOMATIS) return res.status(410).json({ ok: false, error: pesanPublishNonaktif() });
   try {
     const alur = require("./lib/alur-publish");
     const id = Number(req.body?.draftId) || (await alur.draftMenunggu())?.id;
@@ -1038,6 +1060,7 @@ app.post("/api/alur/setujui", async (req, res) => {
 
 // Sinkron status dari Doea (tahap 5).
 app.post("/api/alur/sinkron", async (req, res) => {
+  if (!PUBLISH_OTOMATIS) return res.status(410).json({ ok: false, error: pesanPublishNonaktif() });
   try {
     const alur = require("./lib/alur-publish");
     const hasil = await alur.sinkron();

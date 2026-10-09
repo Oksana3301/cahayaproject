@@ -1,8 +1,12 @@
 const { ambilAtomik, simpanHasil, simpanHasilPerluPersetujuan, simpanGagal } = require("./tugas");
 const { bolehPakaiSkill, cekJatah } = require("../agents/wewenang");
 const { jalankanRiset, rangkumSudut, simpanHasil: simpanRiset } = require("../skills/riset");
-const { susunDraft } = require("../skills/publish");
 const db = require("./db");
+
+// Alur posting otomatis (susunDraft -> setujui -> publish) SUDAH NONAKTIF.
+// Posting kini MANUAL oleh Owner (gambar + publikasi dilakukan Owner sendiri).
+// Sistem hanya assist: lihat lib/konten-assist.js (perintah /ide, /konten, /carousel, /posting).
+const publishOtomatis = String(process.env.PUBLISH_OTOMATIS || "false") === "true";
 
 async function kerjakan(tugas, kode) {
   const isi = (tugas.isi || "").toLowerCase();
@@ -11,6 +15,13 @@ async function kerjakan(tugas, kode) {
 
   // draft lebih spesifik daripada riset: cek dulu
   if (/draft|tulis|caption/.test(judul)) {
+    if (!publishOtomatis) {
+      throw new Error(
+        "alur susunDraft otomatis sudah nonaktif. Posting kini manual oleh Owner. " +
+        "Gunakan /ide, /konten, /carousel, atau /posting di WhatsApp untuk minta ide konten."
+      );
+    }
+    const { susunDraft } = require("../skills/publish");
     const jumlah = parseInt((gabung.match(/(\d+)\s*draft/i) || [])[1] || "1", 10);
     await bolehPakaiSkill(kode, "riset");
     await cekJatah(kode);
