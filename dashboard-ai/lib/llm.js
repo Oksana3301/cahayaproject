@@ -165,18 +165,54 @@ function buatInstruksiJSON(system) {
   );
 }
 
-async function ekstrakJSON(teks) {
+// Pindai JSON pertama yang valid dengan mencocokkan kurung/braket secara sadar
+// (menghiraukan kurung di dalam string). Lebih tahan terhadap teks pengantar,
+// markdown code block, atau teks setelah JSON yang kadang dipancarkan LLM.
+function ekstrakJSON(teks) {
   if (!teks) throw new Error("balasan kosong, JSON tidak ditemukan");
   const s = String(teks).trim();
-  const mulaiObj = s.indexOf("{");
-  const akhirObj = s.lastIndexOf("}");
-  const mulaiArray = s.indexOf("[");
-  const akhirArray = s.lastIndexOf("]");
-  const gunakanArray = mulaiArray >= 0 && (mulaiObj < 0 || mulaiArray < mulaiObj);
-  const mulai = gunakanArray ? mulaiArray : mulaiObj;
-  const akhir = gunakanArray ? akhirArray : akhirObj;
-  if (mulai < 0 || akhir <= mulai) throw new Error("JSON tidak ditemukan dalam balasan");
-  return JSON.parse(s.slice(mulai, akhir + 1));
+
+  // Cari kandidat awal: '{' atau '[' pertama yang memulai nilai JSON.
+  const kandidatAwal = [];
+  for (const ch of ["{", "["]) {
+    const i = s.indexOf(ch);
+    if (i >= 0) kandidatAwal.push({ ch, i });
+  }
+  if (kandidatAwal.length === 0) throw new Error("JSON tidak ditemukan dalam balasan");
+
+  for (const { ch: buka, i } of kandidatAwal.sort((a, b) => a.i - b.i)) {
+    const tutup = buka === "{" ? "}" : "]";
+    const hasil = _pindai(s, i, buka, tutup);
+    if (hasil) return hasil;
+  }
+  // Fallback: parse seluruh string bila valid.
+  try { return JSON.parse(s); } catch (_) {}
+  throw new Error("JSON tidak valid dalam balasan");
+}
+
+function _pindai(s, mulai, buka, tutup) {
+  let kedalaman = 0;
+  let dalamString = false;
+  let escape = false;
+  for (let i = mulai; i < s.length; i++) {
+    const c = s[i];
+    if (dalamString) {
+      if (escape) { escape = false; continue; }
+      if (c === "\\") { escape = true; continue; }
+      if (c === '"') { dalamString = false; continue; }
+      continue;
+    }
+    if (c === '"') { dalamString = true; continue; }
+    if (c === buka) { kedalaman++; continue; }
+    if (c === tutup) {
+      kedalaman--;
+      if (kedalaman === 0) {
+        const potongan = s.slice(mulai, i + 1);
+        try { return JSON.parse(potongan); } catch (e) { return null; }
+      }
+    }
+  }
+  return null;
 }
 
 async function chatJSON({ agent, skill, messages, tools, maxTokens, noReasoning }) {
