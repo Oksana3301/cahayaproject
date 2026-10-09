@@ -36,5 +36,29 @@ Progress implementasi pipeline cari client/partner + outreach email (Resend).
 - BUKTI: cariClient maps (maks 4) → 4 mentah, 2 lolos saring tersimpan (Dhong Djati Ecoprint skor 4, darihulu bulkstore skor 3, keduanya punya telepon). Dedupe: putaran ke-2 hanya +1 baru (3 di-skip).
 - Catatan: Maps actor kadang TIMED-OUT (400) → cariClient catat error & lanjut (sesuai kontrak). Kata kunci web menghasilkan artikel media, perlu penyempurnaan (bukan blocker).
 
-## Fase 4-10 — BELUM
-## Uji ujung ke ujung — BELUM
+## Fase 4 — SELESAI
+- lib/pitch.js: draftPitch(prospekId) (chatJSON subject+email, max 120 kata, sebut hal spesifik, penutup STOP), cekKataTerlarang, mintaPersetujuanPitch (simpan subject_awal+pitch ke prospek, buat tugas perlu_persetujuan jenis pitch, ulangi sekali jika kata terlarang muncul, tandai merah jika masih ada).
+- server.js: GET /api/persetujuan tambah `pr[]` (tugas jenis pitch/balasan); POST /ya & /tidak dispatch jenis pitch (kirimPitch) / balasan (kirimBalasan), tolak -> alasan_tolak_draft + jejak.
+- public/persetujuan.html: render tugas PR + tombol "Setujui & Kirim" / "Tolak" + pita merah kata terlarang.
+- BUKTI: tugas#47 "Pitch untuk Dhong Djati Ecoprint" (jenis=pitch, prospek=2) tampil di /api/persetujuan; draft pitch personal (sebut "ecoprint pewarna alami khas Palangka Raya"), penutup STOP, 0 kata terlarang. Belum ada email keluar.
+
+## Fase 5 — SELESAI
+- lib/webhook-resend.js: verifikasi Svix (raw Buffer sebelum JSON.parse), handler email.sent/delivered/bounced/complained/received.
+- server.js: route POST /webhook/resend (express.raw) SEBELUM express.json & middleware login (J1+J2).
+- Webhook terdaftar di Resend: id cc9f9d2b-b7cb-493d-a4f1-72ceb9524a75, endpoint https://agentsocmed.dirini.space/webhook/resend, event 5 jenis. RESEND_WEBHOOK_SECRET = signing_secret Resend (whsec_...).
+- BUKTI: curl POST tanpa cookie -> 400 Svix (bukan 302/401); endpoint publik 400 "Missing required headers"; kirim email test -> log "[webhook/resend] email.sent noop" + "email.delivered noop" (verifikasi LOLOS).
+
+## Fase 6 — SELESAI
+- kirimPitch end-to-end diverifikasi: cekRemReputasi + cekEmail MX -> jeda 20-90dt -> klaimJatah -> kirimEmail (List-Unsubscribe + replyTo p<id>@) -> simpan resend_id + baris 'keluar'.
+- BUKTI: email.sent updated + email.delivered ok di log; message_id_terakhir & referensi_thread terisi dari webhook (J3); prospek#2 tahap sudah_contact.
+- Fix: idempotency key unik per kirim (buatIdempotensi) — sebelumnya "pitch:2" dedupe Resend; fix payload webhook pakai data.data (bukan objek luar).
+
+## Fase 7-10 — DI-SKIP (perintah Owner 2026-10-08)
+- Detail "gerbang balasan" & "rem 1/6 jam" (Fase 7) + Fase 8-10 (sweepGhosting, detak tugas pr, scheduler) tidak ditemukan definisinya di file mana pun; Owner bilang "skip dulu, nggak paham maksudnya".
+- Yang SUDAH tertulis tapi BELUM teruji: kirimBalasan (threaded), handler email.received (STOP->tolak, simpan pesan masuk, buat tugas tangani balasan).
+- Keterbatasan: MX inbound dirini.id belum terpasang (Owner "nanti") -> email.received belum bisa diuji dengan data nyata.
+
+## UJI UJUNG KE UJUNG (Fase 0-6) — SELESAI
+- Pipeline penuh yang diimplementasi terverifikasi: cariClient (Apify) -> bersihkan/dedupe/saringAI -> draftPitch -> persetujuan (/api/persetujuan pr[]) -> kirimPitch -> webhook email.sent/delivered -> message_id_terakhir + referensi_thread terisi.
+- State akhir DB: 3 prospek (#2 sudah_contact), 1 tugas PR (pitch perlu_persetujuan), email_kuota 5 terpakai (dari uji kirim berulang ke inbox owner, satu-per-satu, reputasi aman).
+- health: semua true. service active, tanpa error di journalctl.
