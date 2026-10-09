@@ -283,23 +283,25 @@ app.post("/api/wa/inbound", async (req, res) => {
   const mStatus = /^\/(status|progress)\b/i.test(body);
   const mRapat = body.match(/^\/rapat\s+([\s\S]+)/i);
   const mKonten = body.match(/^\/(konten|ide|carousel|posting)\s+([\s\S]+)/i);
+  const mDraft = body.match(/^\/draft\s+(\d+)/i);
   const mBantuan = /^\/(bantuan|help|menu)\b/i.test(body);
   let target = null, pertanyaan = null, perintahKonten = "/konten";
   if (mBantuan) { target = "BANTUAN"; }
   else if (mRapat) { target = "RAPAT"; pertanyaan = mRapat[1].trim(); }
   else if (mKonten) { target = "KONTEN"; pertanyaan = mKonten[2].trim(); perintahKonten = "/" + mKonten[1].toLowerCase(); }
+  else if (mDraft) { target = "DRAFT"; pertanyaan = mDraft[1]; }
   else if (mAgent) { target = mAgent[1].toLowerCase(); pertanyaan = mAgent[2].trim(); }
   else if (mTanya) { target = "kirana"; pertanyaan = mTanya[1].trim(); }
   else if (mStatus) { target = "STATUS"; }
 
   if (!target) return res.json({ ok: true, diabaikan: true, alasan: "tanpa prefix perintah" });
-  if (!["STATUS", "RAPAT", "BANTUAN", "KONTEN"].includes(target) && !roster.ambil(target)) {
+  if (!["STATUS", "RAPAT", "BANTUAN", "KONTEN", "DRAFT"].includes(target) && !roster.ambil(target)) {
     return res.json({ ok: true, diabaikan: true, alasan: `agent '${target}' tidak dikenal` });
   }
 
   const wa = require("./lib/whatsapp");
   const pc = require("./lib/percakapan");
-  const perintahLabel = target === "BANTUAN" ? "/bantuan" : target === "STATUS" ? "/status" : target === "RAPAT" ? "/rapat" : target === "KONTEN" ? "/konten" : (mAgent ? `@${target}` : "/tanya");
+  const perintahLabel = target === "BANTUAN" ? "/bantuan" : target === "STATUS" ? "/status" : target === "RAPAT" ? "/rapat" : target === "KONTEN" ? "/konten" : target === "DRAFT" ? "/draft" : (mAgent ? `@${target}` : "/tanya");
   // Kirim balasan + catat ke riwayat percakapan. Pencatatan tetap dilakukan
   // walau pengiriman WA gagal (mis. sesi WAHA turun), agar riwayat utuh.
   const kirimDanCatat = async (ke, balasan, { agent = "kirana", perintah = perintahLabel } = {}) => {
@@ -331,6 +333,7 @@ app.post("/api/wa/inbound", async (req, res) => {
         "• `/rapat <agenda>` — jalankan rapat 3 agent, balas notulen",
         "• `/konten <topik>` — ide konten (carousel + caption + hashtag + analisa)",
         "  alias: `/ide`, `/carousel`, `/posting` — semua sama",
+        "• `/draft <id>` — ubah draft lama jadi format ide (kirim ke WA)",
         "• `/bantuan` — tampilkan menu ini",
         "",
         "Contoh:",
@@ -338,6 +341,7 @@ app.post("/api/wa/inbound", async (req, res) => {
         "`@aruna topik apa yang sedang naik hari ini?`",
         "`/rapat bagaimana meningkatkan engagement postingan?`",
         "`/ide tips mengurangi sampah plastik di rumah`",
+        "`/draft 25`",
         "",
         "*Agent yang bisa ditanya:*",
         daftarAgent,
@@ -388,6 +392,23 @@ app.post("/api/wa/inbound", async (req, res) => {
       for (let i = 0; i < pesanPisah.length; i++) {
         if (i > 0) await new Promise((r) => setTimeout(r, 600)); // jeda antarpesan agar tidak numpuk
         await kirimDanCatat(balasKe, pesanPisah[i], { agent: "kirana", perintah: perintahKonten });
+      }
+      return;
+    }
+    if (target === "DRAFT") {
+      const draftId = Number(pertanyaan);
+      const draft = await db.ambilSatu(`SELECT * FROM draft_konten WHERE id = $1`, [draftId]);
+      if (!draft) {
+        await kirimDanCatat(balasKe, `Draft #${draftId} tidak ditemukan. Cek lagi nomornya ya.`, { agent: "kirana", perintah: "/draft" });
+        return;
+      }
+      await kirimDanCatat(balasKe, `_Mengubah draft #${draftId} ("${draft.judul}") jadi format ide..._`, { agent: "kirana", perintah: "/draft" });
+      const assist = require("./lib/konten-assist");
+      const hasil = await assist.konversiDraftKeWa(draft);
+      const pesanPisah = assist.formatUntukWaPesan(hasil);
+      for (let i = 0; i < pesanPisah.length; i++) {
+        if (i > 0) await new Promise((r) => setTimeout(r, 600));
+        await kirimDanCatat(balasKe, pesanPisah[i], { agent: "kirana", perintah: "/draft" });
       }
       return;
     }

@@ -109,6 +109,66 @@ async function buatAnalisa(topik, kerangka) {
 }
 
 // ---------------------------------------------------------------------------
+// KONVERSI draft lama -> format ide WA
+// Draft lama (draft_konten) hanya punya judul + caption + tagar. Bagian yang
+// belum ada (ide, kerangka, carousel, analisa) dilengkapi oleh Kirana via LLM,
+// lalu hasilnya dipakai ulang oleh formatUntukWaPesan (5 pesan WA terpisah).
+// ---------------------------------------------------------------------------
+async function konversiDraftKeWa(draft) {
+  if (!draft || !draft.judul) throw new Error("draft tidak valid (butuh judul)");
+  await bolehPakaiSkill(AGENT, SKILL);
+  await cekJatah(AGENT);
+
+  const judulLama = String(draft.judul).trim();
+  const captionLama = String(draft.caption || "").trim();
+  const tagarLama = Array.isArray(draft.tagar) ? draft.tagar : [];
+
+  const system =
+    "Kamu adalah Kirana, Editor-in-Chief Cahaya Project. Ada DRAFT KONTEN LAMA yang sudah punya " +
+    "judul, caption, dan hashtag. Tugasmu MELENGKAPI bagian yang belum ada agar draft itu bisa " +
+    "dipresentasikan dalam format ide konten baru (ide + kerangka + carousel). JANGAN mengubah " +
+    "judul/caption/hashtag yang sudah ada — pertahankan apa adanya.\n\n" +
+    "KATA TERLARANG: " + KATA_TERLARANG.join(", ") + "\n\n" +
+    "PANTANGAN:\n- " + PANTANGAN.join("\n- ");
+
+  const user =
+    `Berikut draft lama:\n` +
+    `Judul: ${judulLama}\n` +
+    `Caption: ${captionLama}\n` +
+    `Hashtag: ${tagarLama.join(" ") || "-"}\n\n` +
+    `Kembalikan JSON persis struktur ini (judul/caption/hashtag HARUS sama persis dengan di atas):\n` +
+    `{\n` +
+    `  "judul": "${judulLama}",\n` +
+    `  "ide": "1 kalimat inti konsep konten (angle/pesan utama)",\n` +
+    `  "kerangka": ["poin 1", "poin 2", "poin 3"],\n` +
+    `  "carousel": {\n` +
+    `    "jumlah": <angka 1-10>,\n` +
+    `    "alasan": "kenapa jumlah slide ini paling pas",\n` +
+    `    "slide": [\n` +
+    `      {"no": 1, "jenis": "cover|isi|cta", "isi": "teks/gambaran slide ini"},\n` +
+    `      ...\n` +
+    `    ]\n` +
+    `  },\n` +
+    `  "caption": "caption persis seperti caption lama di atas",\n` +
+    `  "hashtag": ${JSON.stringify(tagarLama)}\n` +
+    `}`;
+
+  const json = await chatJSON({ agent: AGENT, skill: SKILL, messages: [{ role: "system", content: system }, { role: "user", content: user }], maxTokens: 6000 });
+
+  // Pastikan judul/caption/hashtag tetap dari draft lama (jangan sampai LLM mengubahnya).
+  json.judul = judulLama;
+  json.caption = captionLama || json.caption;
+  json.hashtag = tagarLama.length ? tagarLama : json.hashtag;
+  if (!json.hashtag.map((t) => String(t).toLowerCase()).includes("#cahayaproject")) {
+    json.hashtag = ["#CahayaProject", ...json.hashtag];
+  }
+  json.hashtag = json.hashtag.slice(0, 8);
+
+  const analisa = await buatAnalisa(judulLama, json);
+  return { topik: judulLama, kerangka: json, analisa };
+}
+
+// ---------------------------------------------------------------------------
 // FUNGSI UTAMA
 // ---------------------------------------------------------------------------
 async function buatAssistKonten(topik) {
@@ -184,4 +244,4 @@ function formatUntukWaPesan(hasil) {
   return pesan;
 }
 
-module.exports = { buatAssistKonten, buatKerangka, buatAnalisa, formatUntukWa, formatUntukWaPesan, cekKataTerlarang, KATA_TERLARANG };
+module.exports = { buatAssistKonten, konversiDraftKeWa, buatKerangka, buatAnalisa, formatUntukWa, formatUntukWaPesan, cekKataTerlarang, KATA_TERLARANG };
